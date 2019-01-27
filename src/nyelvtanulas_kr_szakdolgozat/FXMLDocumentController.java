@@ -34,6 +34,7 @@ public class FXMLDocumentController implements Initializable {
     
     static private Connection con;
     static private Statement st;
+    static private Statement st2;
     static private ResultSet rs;
     static String fileNeve;
     static String minden = "";
@@ -74,6 +75,10 @@ public class FXMLDocumentController implements Initializable {
         dbOsszevet("ismertszavak");
         dbOsszevet("ignoraltszavak");
         dbOsszevet("tanulandoszavak");
+        // Ha be lett pipálva a checkbox
+        if (cxbEgyszer.isSelected()) {
+            dbGorgetettOsszevet();
+        }
         listaTorlesek();
         tblTablazat.setItems(data);
     }
@@ -227,13 +232,53 @@ public class FXMLDocumentController implements Initializable {
         }
     }
     
-    // Végigmegy a listán és ha a szó "torlendo", akkor törli onnan
+    /*
+    Végigmegy a görgetett táblán lekérdezi a szavakat, ha a szó létezik a listában, akkor
+    megnöveli 1-gyel a gyakoriságát (így biztos, hogy legalább kétszer előfordul globálisan) és törli a táblából
+    a szót.
+    */
+    
+    public void dbGorgetettOsszevet() {
+        try {
+            String query = "SELECT szavak FROM nyelvtanulas.gorgetett";
+            st2 = con.createStatement();
+            rs = st.executeQuery(query);
+            while (rs.next()) {
+                String szo = rs.getString("szavak");
+                if (szavak_indexe.get(szo) != null) {
+                    int gyak = data.get(szavak_indexe.get(szo)).getGyak();
+                    data.get(szavak_indexe.get(szo)).setGyak(++gyak);
+                    String delete = "DELETE FROM nyelvtanulas.gorgetett WHERE szavak='" + szo + "'";
+                    st2.executeUpdate(delete);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /* Végigmegy a listán és ha a szó "torlendo", akkor törli onnan. Különben ha be volt jelölve az egyszeres
+       előfordulás megjelenésének tiltása (és így a szavak görgetése) és a szó, csak egyszer fordul elő globálisan,
+       akkor törli a listából és hozzáadja a görgetett szavakhoz az adatbázisban
+    */
     public void listaTorlesek() {
         for (int i = 0; i < data.size(); i++) {
             String szo = data.get(i).getSzo();
             if (szo.equals("torlendo")) {
                 data.remove(i);
                 i--;
+            } else if (cxbEgyszer.isSelected() && data.get(i).getGyak() == 1) {
+                data.remove(i);
+                i--;
+                String into = "INSERT INTO nyelvtanulas.gorgetett (szavak) " 
+                + "VALUES ('"+ szo +"')";
+                try {
+                    st.executeUpdate(into);
+                } catch (SQLException e) {
+                    System.out.println(e.getMessage());
+                    e.printStackTrace();
+                }
             }
         }
     }
