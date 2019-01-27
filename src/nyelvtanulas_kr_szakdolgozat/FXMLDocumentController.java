@@ -71,6 +71,10 @@ public class FXMLDocumentController implements Initializable {
         beolvasas();
         feldolgozas();
         azonosakTorlese();
+        dbOsszevet("ismertszavak");
+        dbOsszevet("ignoraltszavak");
+        dbOsszevet("tanulandoszavak");
+        listaTorlesek();
         tblTablazat.setItems(data);
     }
 
@@ -205,6 +209,35 @@ public class FXMLDocumentController implements Initializable {
         szavak_indexe.put(data.get(data.size()-1).getSzo(), data.size()-1);
     }
 
+    /* A kapott tábla szavait lekérdezi az adatbázisból és ha létezik a listában, akkor a lista szavát átnevezi torlendo-re, 
+       jelezve, hogy a táblázat megjelenítése előtt törölni kell a listából */
+    public void dbOsszevet(String tabla) {
+        try {
+            String query = "SELECT szavak FROM nyelvtanulas." + tabla;
+            rs = st.executeQuery(query);
+            while (rs.next()) {
+                String szo = rs.getString("szavak");
+                if (szavak_indexe.get(szo) != null) {
+                    data.get(szavak_indexe.get(szo)).setSzo("torlendo");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    // Végigmegy a listán és ha a szó "torlendo", akkor törli onnan
+    public void listaTorlesek() {
+        for (int i = 0; i < data.size(); i++) {
+            String szo = data.get(i).getSzo();
+            if (szo.equals("torlendo")) {
+                data.remove(i);
+                i--;
+            }
+        }
+    }
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // Szövegbeviteli mezőnél a sorok tördelése
