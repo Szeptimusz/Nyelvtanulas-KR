@@ -38,7 +38,6 @@ public class FXMLDocumentController implements Initializable {
     static private ResultSet rs;
     static String fileNeve;
     static String minden = "";
-    static HashMap<String, Integer> gyakorisag = new HashMap<>();
     static HashMap<String, Integer> szavak_indexe = new HashMap<>();
     private final ObservableList<Sor> data = FXCollections.observableArrayList();
     
@@ -70,6 +69,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     void futtat(ActionEvent event) {
         beolvasas();
+        eloFeldolgozas();
         feldolgozas();
         azonosakTorlese();
         dbOsszevet("ismertszavak");
@@ -164,6 +164,30 @@ public class FXMLDocumentController implements Initializable {
         }
     }
 
+    /*
+    A feldolgozás() metódus előtt szükséges azokat az egymás után többször előforduló karaktereket törölni, amik alapján majd a 
+    splittelés történik ("." "?" "!").
+    Végigmegy a teljes szövegen karakterenként, ha a karakter 'A'-nál kisebb kódú (.,!? stb.), akkor ha a következő karakter is
+    ugyanolyan, addig törli a következőket amíg nem talál egy más karaktert.
+    */
+    public void eloFeldolgozas() {
+        StringBuilder sb = new StringBuilder(minden);
+        
+        for (int i = 0; i < sb.length()-1; i++) {
+            char c = sb.charAt(i);
+            if (c < 'A') {
+                while (c == sb.charAt(i + 1)) {
+                    sb.deleteCharAt(i + 1);
+                    // Ha az index kimenne a szövegből akkor megállítjuk
+                    if (i + 1 == sb.length()) {
+                        break;
+                    }
+                }
+            }
+        }
+        minden = sb.toString();
+    } 
+    
     // Beolvasott sorok feldolgozása: mondatok és szavak meghatározása
     public void feldolgozas() {
         // A szöveg szétvágása "." "?" "!" szerint, plusz azok az esetek amikor szóköz van utánuk
@@ -195,18 +219,14 @@ public class FXMLDocumentController implements Initializable {
             String szo = data.get(i).getSzo();
             //Beállítja az egyes szavak index helyét a listában (listában keresést gyorsítja)
             szavak_indexe.put(szo, i);
-            Integer db = gyakorisag.get(szo);
-            if (db == null) {
-                    db = 1;
-            }
+            int db = 1;
             for (int j = i +1; j < data.size(); j++){
                 if(szo.equals(data.get(j).getSzo())){
                     data.remove(j);
                     j--;
-                    gyakorisag.put(szo, ++db);
+                    db++;
                 }
             }
-            gyakorisag.put(szo, db);
             data.get(i).setGyak(db);
         }
         /* A lista utolsó szavánál is beállítja az indexes hashmap-et (az lista azonos szavainak törlésénél csak
