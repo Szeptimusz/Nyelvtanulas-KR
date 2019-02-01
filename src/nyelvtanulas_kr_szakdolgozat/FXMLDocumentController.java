@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 import java.util.Scanner;
@@ -32,14 +32,12 @@ import javafx.stage.FileChooser;
  */
 public class FXMLDocumentController implements Initializable {
     
-    static private Connection con;
-    static private Statement st;
-    static private Statement st2;
-    static private ResultSet rs;
+    DB db = new DB();
+    final String dbUrl = "jdbc:mysql://localhost:3306/";
     static String fileNeve;
     static String minden = "";
     static HashMap<String, Integer> szavak_indexe = new HashMap<>();
-    private final ObservableList<Sor> data = FXCollections.observableArrayList();
+    public final ObservableList<Sor> data = FXCollections.observableArrayList();
     
     
      @FXML
@@ -77,7 +75,7 @@ public class FXMLDocumentController implements Initializable {
         dbOsszevet("tanulandoszavak");
         // Ha be lett pipálva a checkbox
         if (cxbEgyszer.isSelected()) {
-            dbGorgetettOsszevet();
+            dbOsszevet("gorgetettszavak");
         }
         listaTorlesek();
         tblTablazat.setItems(data);
@@ -94,50 +92,6 @@ public class FXMLDocumentController implements Initializable {
         }
     }
     
-    // A táblázatban kijelölt sor szavát a gomb megnyomása után elmenti az adatbázis ignoraltszavak táblájába
-    @FXML
-    void ignoral(ActionEvent event) {
-        String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
-        String into = "INSERT INTO nyelvtanulas.ignoraltszavak (szavak) " 
-                + "VALUES ('"+ szo +"')";
-        dbBeMent("IGNORÁLT SZÓ", into, btnIgnore);
-    }
-
-    // A táblázatban kijelölt sor szavát a gomb megnyomása után elmenti az adatbázis ismertszavak táblájába
-    @FXML
-    void ismertMent(ActionEvent event) {
-        String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
-        String into = "INSERT INTO nyelvtanulas.ismertszavak (szavak) " 
-                + "VALUES ('"+ szo +"')";
-        dbBeMent("ISMERT SZÓ", into, btnIsmert);
-    }
-
-    // A táblázatban kijelölt sor szavát a gomb megnyomása után elmenti az adatbázis tanulandoszavak táblájába
-    @FXML
-    void tanulandoMent(ActionEvent event) {
-        String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
-        String mondat = tblTablazat.getSelectionModel().getSelectedItem().getMondat();
-        String into = "INSERT INTO nyelvtanulas.tanulandoszavak (szavak, mondatok) " 
-                + "VALUES ('"+ szo + "','" + mondat +"')";
-        dbBeMent("TANULANDÓ", into, btnTanulando);
-    }
-    
-    public void dbBeMent(String szoveg, String into, Button btn) {
-        try {
-            st.executeUpdate(into);
-            // Miután hozzáadtuk az ismert szavakhoz, ne lehessen véletlenül többször hozzáadni
-            btn.setDisable(true);
-            // A listener figyeli, hogy van-e szó, ami ismert-re változott, ezért nevezzük át
-            tblTablazat.getSelectionModel().getSelectedItem().setSzo(szoveg);
-            // A hozzáadás után a lista következő elemét jelölje ki
-            int i = tblTablazat.getSelectionModel().getSelectedIndex();
-            tblTablazat.getSelectionModel().select(i+1);
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
-    }
-    
     // Adatok beolvasása fájl tallózással vagy szövegterületből
     public void beolvasas() {
         if (fileNeve != null) {
@@ -148,7 +102,7 @@ public class FXMLDocumentController implements Initializable {
                 }
                 be.close();
             } catch(IOException e) {
-                e.printStackTrace();
+                System.out.println(e.getMessage());
             }
         } else {
             minden = txaBevitel.getText();
@@ -234,54 +188,43 @@ public class FXMLDocumentController implements Initializable {
         szavak_indexe.put(data.get(data.size()-1).getSzo(), data.size()-1);
     }
 
+    
     /* A kapott tábla szavait lekérdezi az adatbázisból és ha létezik a listában, akkor a lista szavát átnevezi torlendo-re, 
-       jelezve, hogy a táblázat megjelenítése előtt törölni kell a listából */
+       jelezve, hogy a táblázat megjelenítése előtt törölni kell a listából, VAGY ha a szó görgetett szó és létezik a listában,
+       akkor 1-gyel a gyakoriságát a listában (így biztos, hogy legalább kétszer előfordul globálisan) és törli a táblából
+       a szót.
+    */
+
     public void dbOsszevet(String tabla) {
-        try {
-            String query = "SELECT szavak FROM nyelvtanulas." + tabla;
-            rs = st.executeQuery(query);
-            while (rs.next()) {
-                String szo = rs.getString("szavak");
+        String query = "SELECT szavak FROM nyelvtanulas." + tabla;
+        try (Connection kapcs = DriverManager.getConnection(dbUrl,"root","");
+            PreparedStatement ps = kapcs.prepareStatement(query)) {
+            ResultSet eredmeny = ps.executeQuery();
+            while (eredmeny.next()) {
+                String szo = eredmeny.getString("szavak");
                 if (szavak_indexe.get(szo) != null) {
-                    data.get(szavak_indexe.get(szo)).setSzo("torlendo");
+                    // ha nem a gorgetettszavak táblán megyünk végig 
+                    if (!tabla.equals("gorgetettszavak")) {
+                        data.get(szavak_indexe.get(szo)).setSzo("torlendo");
+                    } else {
+                        int gyak = data.get(szavak_indexe.get(szo)).getGyak();
+                        data.get(szavak_indexe.get(szo)).setGyak(++gyak);
+                        db.dbSzotTorol(tabla, szo);
+                    }
                 }
             }
         } catch (SQLException e) {
+            System.out.println("Nem sikerült az adatbázis-lekérdezés!");
             System.out.println(e.getMessage());
-            e.printStackTrace();
         }
     }
     
     /*
-    Végigmegy a görgetett táblán lekérdezi a szavakat, ha a szó létezik a listában, akkor
-    megnöveli 1-gyel a gyakoriságát (így biztos, hogy legalább kétszer előfordul globálisan) és törli a táblából
-    a szót.
-    */
-    
-    public void dbGorgetettOsszevet() {
-        try {
-            String query = "SELECT szavak FROM nyelvtanulas.gorgetett";
-            st2 = con.createStatement();
-            rs = st.executeQuery(query);
-            while (rs.next()) {
-                String szo = rs.getString("szavak");
-                if (szavak_indexe.get(szo) != null) {
-                    int gyak = data.get(szavak_indexe.get(szo)).getGyak();
-                    data.get(szavak_indexe.get(szo)).setGyak(++gyak);
-                    String delete = "DELETE FROM nyelvtanulas.gorgetett WHERE szavak='" + szo + "'";
-                    st2.executeUpdate(delete);
-                }
-            }
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
-    }
-    
-    /* Végigmegy a listán és ha a szó "torlendo", akkor törli onnan. Különben ha be volt jelölve az egyszeres
+     Végigmegy a listán és ha a szó "torlendo", akkor törli onnan. Különben ha be volt jelölve az egyszeres
        előfordulás megjelenésének tiltása (és így a szavak görgetése) és a szó, csak egyszer fordul elő globálisan,
        akkor törli a listából és hozzáadja a görgetett szavakhoz az adatbázisban
     */
+    
     public void listaTorlesek() {
         for (int i = 0; i < data.size(); i++) {
             String szo = data.get(i).getSzo();
@@ -291,57 +234,59 @@ public class FXMLDocumentController implements Initializable {
             } else if (cxbEgyszer.isSelected() && data.get(i).getGyak() == 1) {
                 data.remove(i);
                 i--;
-                String into = "INSERT INTO nyelvtanulas.gorgetett (szavak) " 
-                + "VALUES ('"+ szo +"')";
-                try {
-                    st.executeUpdate(into);
-                } catch (SQLException e) {
-                    System.out.println(e.getMessage());
-                    e.printStackTrace();
-                }
+                db.dbBeIr("gorgetettszavak", szo);
             }
         }
+    }
+
+    // A táblázatban kijelölt sor szavát a gomb megnyomása után elmenti az adatbázis ignoraltszavak táblájába
+    @FXML
+    void ignoral(ActionEvent event) {
+        String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
+        db.dbBeIr("ignoraltszavak",szo);
+        // Miután hozzáadtuk az ismert szavakhoz, ne lehessen véletlenül többször hozzáadni
+        btnIgnore.setDisable(true);
+        atnevezLeptet("IGNORÁLT SZÓ");
+    }
+
+    // A táblázatban kijelölt sor szavát a gomb megnyomása után elmenti az adatbázis ismertszavak táblájába
+    @FXML
+    void ismertMent(ActionEvent event) {
+        String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
+        db.dbBeIr("ismertszavak",szo);
+        // Miután hozzáadtuk az ismert szavakhoz, ne lehessen véletlenül többször hozzáadni
+        btnIsmert.setDisable(true);
+        atnevezLeptet("ISMERT SZÓ");
+    }
+
+    // A táblázatban kijelölt sor szavát a gomb megnyomása után elmenti az adatbázis tanulandoszavak táblájába
+    @FXML
+    void tanulandoMent(ActionEvent event) {
+        String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
+        String mondat = tblTablazat.getSelectionModel().getSelectedItem().getMondat();
+        db.dbBeIr("tanulandoszavak",szo,mondat);
+        // Miután hozzáadtuk az ismert szavakhoz, ne lehessen véletlenül többször hozzáadni
+        btnTanulando.setDisable(true);
+        atnevezLeptet("TANULANDÓ");
+    }
+    
+    public void atnevezLeptet(String szoveg) {
+        // A listener figyeli, hogy van-e szó, ami változott, ezért nevezzük át (gomb letiltáshoz kell)
+        tblTablazat.getSelectionModel().getSelectedItem().setSzo(szoveg);
+        // A hozzáadás után a lista következő elemét jelölje ki
+        int i = tblTablazat.getSelectionModel().getSelectedIndex();
+        tblTablazat.getSelectionModel().select(i+1);
     }
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // Szövegbeviteli mezőnél a sorok tördelése
         txaBevitel.setWrapText(true);
-        try {
-            // Adatbázis létrehozása ha még nem létezik ilyen néven
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/","root","");
-            st = con.createStatement();
-            
-            String sql = "CREATE DATABASE IF NOT EXISTS nyelvtanulas " + 
-                    "DEFAULT CHARACTER SET utf8mb4 " +
-                    "COLLATE utf8mb4_hungarian_ci";
-            st.executeUpdate(sql);
-            System.out.println("Adatbázis sikeresen létrehozva!");
-            
-            // Táblák létrehozása ha még nem léteznek ilyen néven
-            System.out.println("Táblák létrehozása .......");
-            String ismert = "CREATE TABLE IF NOT EXISTS nyelvtanulas.ismertszavak " +
-                "(szavak VARCHAR(100) PRIMARY KEY)";
-            // A mondatok mező TEXT, azért, hogy a nagyon hosszú mondatokat is tudja tárolni
-            String tanulando = "CREATE TABLE IF NOT EXISTS nyelvtanulas.tanulandoszavak " +
-                    "(szavak VARCHAR(100) NOT NULL PRIMARY KEY ," +
-                    "mondatok TEXT NOT NULL ," + 
-                    "kikerdezes_ideje DATE NULL)";
-            String ignoralt = "CREATE TABLE IF NOT EXISTS nyelvtanulas.ignoraltszavak " +
-                    "(szavak VARCHAR(100) PRIMARY KEY)";
-            String gorgetett = "CREATE TABLE IF NOT EXISTS nyelvtanulas.gorgetett " +
-                    "(szavak VARCHAR(100) PRIMARY KEY )";
-            st.executeUpdate(ismert);
-            st.executeUpdate(tanulando);
-            st.executeUpdate(ignoralt);
-            st.executeUpdate(gorgetett);
-            System.out.println("Táblák sikeresen létrehozva!");
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
         
+        // Adatbázis és táblák létrehozása
+        DB db = new DB();
+        db.adatbazisEsTablakLetrehozasa();
+
         // Táblázat oszlopainak létrehozása és beállítása
         TableColumn colSzo = new TableColumn("Szavak");
         colSzo.setMinWidth(100);
