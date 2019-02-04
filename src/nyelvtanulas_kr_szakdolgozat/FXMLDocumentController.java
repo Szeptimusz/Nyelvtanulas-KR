@@ -23,7 +23,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.stage.FileChooser;
 
 /**
@@ -68,6 +67,15 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private TableView<Sor> tblTablazat;
 
+    @FXML
+    private TableColumn<Sor, String> oSzo;
+
+    @FXML
+    private TableColumn<Sor, String> oMondat;
+
+    @FXML
+    private TableColumn<Sor, Integer> oGyak;
+    
     @FXML
     void futtat(ActionEvent event) {
         beolvasas();
@@ -245,7 +253,7 @@ public class FXMLDocumentController implements Initializable {
 
     // A táblázatban kijelölt sor szavát a gomb megnyomása után elmenti az adatbázis ignoraltszavak táblájába
     @FXML
-    void ignoral(ActionEvent event) {
+    void ignoralMent(ActionEvent event) {
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
         db.dbBeIr("ignoraltszavak",szo);
         // Miután hozzáadtuk az ismert szavakhoz, ne lehessen véletlenül többször hozzáadni
@@ -287,26 +295,11 @@ public class FXMLDocumentController implements Initializable {
         // Szövegbeviteli mezőnél a sorok tördelése
         txaBevitel.setWrapText(true);
 
-        // Táblázat oszlopainak létrehozása és beállítása
-        TableColumn colSzo = new TableColumn("Szavak");
-        colSzo.setMinWidth(100);
-        colSzo.setCellFactory(TextFieldTableCell.forTableColumn());
-        colSzo.setCellValueFactory(new PropertyValueFactory<Sor, String>("szo"));
-        
-        
-        TableColumn colMondat = new TableColumn("Mondatok");
-        colMondat.setMinWidth(550);
-        colMondat.setCellFactory(TextFieldTableCell.forTableColumn());
-        colMondat.setCellValueFactory(new PropertyValueFactory<Sor, String>("mondat"));
-        
-        // Gyakoriság oszlop létrehozása: nem kell rendezés metódus a listához, a felhasználó tudja rendezni
-        TableColumn<Sor, Number> colGyak = new TableColumn<>("Gyakoriság");
-        colGyak.setCellValueFactory(cellData -> cellData.getValue().valueProperty());
-        colGyak.setMinWidth(40);
-        
-        // Oszlopok hozzáadása a táblázathoz
-        tblTablazat.getColumns().addAll(colSzo, colMondat, colGyak);
-        
+        // A táblázatban az adott oszlopban megjelenő adat a Sor osztály melyik változójából legyen kiszedve
+        oSzo.setCellValueFactory(new PropertyValueFactory<>("szo"));
+        oMondat.setCellValueFactory(new PropertyValueFactory<>("mondat"));
+        oGyak.setCellValueFactory(new PropertyValueFactory<>("gyak"));
+
         // Ha egy szónál már használtuk az egyik gombot, akkor ne lehessen már egyik másikat sem használni
         // Kéne egy módosítási lehetőség, ha véletlenül rosszra nyomtunk!
         tblTablazat.getSelectionModel().selectedItemProperty().addListener(

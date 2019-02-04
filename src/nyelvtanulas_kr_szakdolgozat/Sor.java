@@ -1,47 +1,39 @@
 package nyelvtanulas_kr_szakdolgozat;
 
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
-
 public class Sor {
+
+    private String szo;
+    private String mondat;
+    private int gyak;
     
-    private final SimpleStringProperty szo;
-    private final SimpleStringProperty mondat;
-    private final IntegerProperty gyak = new SimpleIntegerProperty();
-    
-    public Sor(String szo2, String mondat2,int gyak) {
-        this.szo = new SimpleStringProperty(szo2);
-        this.mondat = new SimpleStringProperty(mondat2);
-        this.setGyak(gyak);
-    }
-    
-    public String getSzo() {
-        return szo.get();
+    public Sor(String szo, String mondat, int gyak) {
+        this.szo = szo;
+        this.mondat = mondat;
+        this.gyak = gyak;
     }
 
-    public void setSzo(String szo2) {
-        szo.set(szo2);
+    public String getSzo() {
+        return szo;
+    }
+
+    public void setSzo(String szo) {
+        this.szo = szo;
     }
 
     public String getMondat() {
-        return mondat.get();
+        return mondat;
     }
 
-    public void setMondat(String mondat2) {
-        mondat.set(mondat2);
+    public void setMondat(String mondat) {
+        this.mondat = mondat;
     }
-    
-    public final IntegerProperty valueProperty() {
-            return this.gyak;
-    }
-    
+
     public int getGyak() {
-        return this.valueProperty().get();
-    }
-    
-    public void setGyak(Integer gyak) {
-        this.valueProperty().set(gyak);
+        return gyak;
     }
 
+    public void setGyak(int gyak) {
+        this.gyak = gyak;
+    }
+    
 }

@@ -23,15 +23,19 @@ public class DB {
             System.out.println("Táblák létrehozása .......");
             String ismert = "CREATE TABLE IF NOT EXISTS nyelvtanulas.ismertszavak " +
                 "(szavak VARCHAR(100) PRIMARY KEY, INDEX szo (szavak))";
+            
             // A mondatok mező TEXT, azért, hogy a nagyon hosszú mondatokat is tudja tárolni
             String tanulando = "CREATE TABLE IF NOT EXISTS nyelvtanulas.tanulandoszavak " +
                     "(szavak VARCHAR(100) NOT NULL PRIMARY KEY ," +
                     "mondatok TEXT NOT NULL ," + 
                     "kikerdezes_ideje DATE NULL, INDEX szo (szavak))";
+            
             String ignoralt = "CREATE TABLE IF NOT EXISTS nyelvtanulas.ignoraltszavak " +
                     "(szavak VARCHAR(100) PRIMARY KEY, INDEX szo (szavak))";
+            
             String gorgetett = "CREATE TABLE IF NOT EXISTS nyelvtanulas.gorgetettszavak " +
                     "(szavak VARCHAR(100) PRIMARY KEY, INDEX szo (szavak))";
+            
             ps.executeUpdate(ismert);
             ps.executeUpdate(tanulando);
             ps.executeUpdate(ignoralt);
