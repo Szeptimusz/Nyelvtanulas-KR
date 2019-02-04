@@ -32,12 +32,13 @@ import javafx.stage.FileChooser;
  */
 public class FXMLDocumentController implements Initializable {
     
+    // Adatbázis és táblák létrehozása
     DB db = new DB();
     final String dbUrl = "jdbc:mysql://localhost:3306/";
     static String fileNeve;
     static String minden = "";
     static HashMap<String, Integer> szavak_indexe = new HashMap<>();
-    public final ObservableList<Sor> data = FXCollections.observableArrayList();
+    private final ObservableList<Sor> data = FXCollections.observableArrayList();
     
     
      @FXML
@@ -46,6 +47,9 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private TextArea txaBevitel;
 
+    @FXML
+    private TextArea txaMondat;
+    
     @FXML
     private CheckBox cxbEgyszer;
 
@@ -282,10 +286,6 @@ public class FXMLDocumentController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         // Szövegbeviteli mezőnél a sorok tördelése
         txaBevitel.setWrapText(true);
-        
-        // Adatbázis és táblák létrehozása
-        DB db = new DB();
-        db.adatbazisEsTablakLetrehozasa();
 
         // Táblázat oszlopainak létrehozása és beállítása
         TableColumn colSzo = new TableColumn("Szavak");
@@ -320,6 +320,14 @@ public class FXMLDocumentController implements Initializable {
                 btnIsmert.setDisable(false);
                 btnIgnore.setDisable(false);
                 btnTanulando.setDisable(false);
+            }
+            
+            // Figyeli, hogy melyik sor van kijelölve és annak a mondatát írja ki a táblázat fölötti szövegterületre
+            String mondat = uj.getMondat();
+            if (mondat != null) {
+                txaMondat.setText(mondat);
+            } else {
+                txaMondat.setText("");
             }
         });
         

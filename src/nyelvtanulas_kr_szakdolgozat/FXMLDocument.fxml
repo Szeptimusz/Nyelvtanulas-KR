@@ -5,14 +5,13 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1300.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="nyelvtanulas_kr_szakdolgozat.FXMLDocumentController">
+<HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="950.0" prefWidth="1300.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="nyelvtanulas_kr_szakdolgozat.FXMLDocumentController">
    <children>
       <VBox alignment="TOP_CENTER" prefHeight="780.0" prefWidth="505.0">
          <children>
@@ -101,8 +100,11 @@
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </VBox.margin>
             </HBox>
-            <TableView fx:id="tblTablazat" prefHeight="631.0" prefWidth="756.0">
-            </TableView>
+            <TextArea fx:id="txaMondat" prefHeight="70.0" wrapText="true" />
+            <TableView fx:id="tblTablazat" prefHeight="694.0" prefWidth="756.0">
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin></TableView>
          </children>
          <HBox.margin>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
