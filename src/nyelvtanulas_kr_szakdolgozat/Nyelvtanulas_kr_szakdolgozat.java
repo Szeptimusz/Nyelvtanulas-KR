@@ -14,7 +14,7 @@ public class Nyelvtanulas_kr_szakdolgozat extends Application {
     
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("FXMLDocument.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("Foablak.fxml"));
         
         Scene scene = new Scene(root);
         

@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 import java.util.Scanner;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -19,6 +20,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
@@ -63,6 +65,9 @@ public class FXMLDocumentController implements Initializable {
 
     @FXML
     private Button btnIgnore;
+    
+    @FXML
+    private Label lblTallozasEredmeny;
 
     @FXML
     private TableView<Sor> tblTablazat;
@@ -78,6 +83,10 @@ public class FXMLDocumentController implements Initializable {
     
     @FXML
     void futtat(ActionEvent event) {
+        // Korábbi HashMap beállítások törlése.
+        szavak_indexe.clear();
+        // Korábbi lista törlése.
+        data.clear();
         beolvasas();
         eloFeldolgozas();
         feldolgozas();
@@ -97,10 +106,13 @@ public class FXMLDocumentController implements Initializable {
     void talloz(ActionEvent event) {
         FileChooser fc = new FileChooser();
         File selectedFile = fc.showOpenDialog(null);
+        lblTallozasEredmeny.setText("");
         if (selectedFile != null) {
             fileNeve = selectedFile.getName();
+            lblTallozasEredmeny.setText("Tallózás sikeres!");
         } else {
             System.out.println("File is not valid");
+            lblTallozasEredmeny.setText("Nem sikerült a tallózás!");
         }
     }
     
@@ -113,6 +125,9 @@ public class FXMLDocumentController implements Initializable {
                     minden += be.nextLine();
                 }
                 be.close();
+                // Ha egyszer lefuttatuk tallózott fájllal, kiszedjük a fájltnevet, hogy újra dönteni lehessen a tallózás-szövegdoboz között
+                // , különben a korábban tallózott fájlnév megmarad és így nem lehet használni a szövegmezőt.
+                fileNeve = null;
             } catch(IOException e) {
                 System.out.println(e.getMessage());
             }
@@ -203,7 +218,7 @@ public class FXMLDocumentController implements Initializable {
     
     /* A kapott tábla szavait lekérdezi az adatbázisból és ha létezik a listában, akkor a lista szavát átnevezi torlendo-re, 
        jelezve, hogy a táblázat megjelenítése előtt törölni kell a listából, VAGY ha a szó görgetett szó és létezik a listában,
-       akkor 1-gyel a gyakoriságát a listában (így biztos, hogy legalább kétszer előfordul globálisan) és törli a táblából
+       akkor 1-gyel növeli a gyakoriságát a listában (így biztos, hogy legalább kétszer előfordul globálisan) és törli a táblából
        a szót.
     */
 
@@ -256,8 +271,6 @@ public class FXMLDocumentController implements Initializable {
     void ignoralMent(ActionEvent event) {
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
         db.dbBeIr("ignoraltszavak",szo);
-        // Miután hozzáadtuk az ismert szavakhoz, ne lehessen véletlenül többször hozzáadni
-        btnIgnore.setDisable(true);
         atnevezLeptet("IGNORÁLT SZÓ");
     }
 
@@ -266,8 +279,6 @@ public class FXMLDocumentController implements Initializable {
     void ismertMent(ActionEvent event) {
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
         db.dbBeIr("ismertszavak",szo);
-        // Miután hozzáadtuk az ismert szavakhoz, ne lehessen véletlenül többször hozzáadni
-        btnIsmert.setDisable(true);
         atnevezLeptet("ISMERT SZÓ");
     }
 
@@ -277,8 +288,6 @@ public class FXMLDocumentController implements Initializable {
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
         String mondat = tblTablazat.getSelectionModel().getSelectedItem().getMondat();
         db.dbBeIr("tanulandoszavak",szo,mondat);
-        // Miután hozzáadtuk az ismert szavakhoz, ne lehessen véletlenül többször hozzáadni
-        btnTanulando.setDisable(true);
         atnevezLeptet("TANULANDÓ");
     }
     
@@ -290,16 +299,28 @@ public class FXMLDocumentController implements Initializable {
         tblTablazat.getSelectionModel().select(i+1);
     }
     
+    @FXML
+    void kilep(ActionEvent event) {
+        Platform.exit();
+    }
+
+    @FXML
+    void nevjegy(ActionEvent event) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Nyelvtanulás program");
+        alert.setHeaderText(null);
+        alert.setContentText("Készítette: Kremmer Róbert");
+        alert.showAndWait();
+    }
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Szövegbeviteli mezőnél a sorok tördelése
-        txaBevitel.setWrapText(true);
-
         // A táblázatban az adott oszlopban megjelenő adat a Sor osztály melyik változójából legyen kiszedve
         oSzo.setCellValueFactory(new PropertyValueFactory<>("szo"));
         oMondat.setCellValueFactory(new PropertyValueFactory<>("mondat"));
         oGyak.setCellValueFactory(new PropertyValueFactory<>("gyak"));
-
+        
+        
         // Ha egy szónál már használtuk az egyik gombot, akkor ne lehessen már egyik másikat sem használni
         // Kéne egy módosítási lehetőség, ha véletlenül rosszra nyomtunk!
         tblTablazat.getSelectionModel().selectedItemProperty().addListener(
@@ -323,6 +344,5 @@ public class FXMLDocumentController implements Initializable {
                 txaMondat.setText("");
             }
         });
-        
     }    
 }
