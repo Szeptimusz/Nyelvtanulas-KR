@@ -34,9 +34,8 @@ import javafx.stage.FileChooser;
  */
 public class FXMLDocumentController implements Initializable {
     
-    // Adatbázis és táblák létrehozása
-    DB db = new DB();
-    final String dbUrl = "jdbc:mysql://localhost:3306/";
+    final String dbUrl = "jdbc:sqlite:C:/Szoftverfejlesztés/OKJ programozás/Szakdolgozat/"
+                            + "Githubos verzió/nyelvtanulas_kr_szakdolgozat/nyelvtanulas.db";
     static String fileNeve;
     static String minden = "";
     static HashMap<String, Integer> szavak_indexe = new HashMap<>();
@@ -122,7 +121,7 @@ public class FXMLDocumentController implements Initializable {
     public void beolvasas() {
         if (fileNeve != null) {
             File f = new File(fileNeve);
-            try (Scanner be = new Scanner(f,"Cp1252")) {
+            try (Scanner be = new Scanner(f,"Cp1250")) {
                 while (be.hasNextLine()) {
                     minden += be.nextLine();
                 }
@@ -184,7 +183,8 @@ public class FXMLDocumentController implements Initializable {
                     continue;
                 }
                 char utolsoKarakter = szok[j].charAt(szok[j].length()-1);
-                if (utolsoKarakter < 'a' || utolsoKarakter > 'z') {
+                // Megengedjük, hogy az utolsó betű nagy lehessen pl.: a mozaikszavak miatt
+                if (utolsoKarakter < 'A' || utolsoKarakter > 'z' || (utolsoKarakter > 90 && utolsoKarakter < 97)) {
                     szok[j] = szok[j].substring(0, szok[j].length()-1);
                 }
                 szok[j] = szok[j].toLowerCase();
@@ -225,8 +225,8 @@ public class FXMLDocumentController implements Initializable {
     */
 
     public void dbOsszevet(String tabla) {
-        String query = "SELECT szavak FROM nyelvtanulas." + tabla;
-        try (Connection kapcs = DriverManager.getConnection(dbUrl,"root","");
+        String query = "SELECT szavak FROM " + tabla;
+        try (Connection kapcs = DriverManager.getConnection(dbUrl);
             PreparedStatement ps = kapcs.prepareStatement(query)) {
             ResultSet eredmeny = ps.executeQuery();
             ArrayList<String> szavak = new ArrayList();
@@ -239,13 +239,13 @@ public class FXMLDocumentController implements Initializable {
                     } else {
                         int gyak = data.get(szavak_indexe.get(szo)).getGyak();
                         data.get(szavak_indexe.get(szo)).setGyak(++gyak);
-                        //db.dbSzotTorol(tabla, szo);
                         szavak.add(szo);
                     }
                 }
             }
+            // Görgetett szó előfordult a szövegben, ezért töröljük az adatbázisból
             if (!szavak.isEmpty()) {
-                db.dbTorol(szavak, tabla);
+                DB.dbTorol(szavak, tabla);
             }
         } catch (SQLException e) {
             System.out.println("Nem sikerült az adatbázis-lekérdezés!");
@@ -270,11 +270,11 @@ public class FXMLDocumentController implements Initializable {
                 data.remove(i);
                 i--;
                 szavak.add(szo);
-                //db.dbBeIr("gorgetettszavak", szo);
             }
         }
+        // Egyszer előforduló szavak görgetettszavak táblába írása
         if (!szavak.isEmpty()) {
-            db.dbIr(szavak);
+            DB.dbIr(szavak);
         }
     }
 
@@ -282,7 +282,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     void ignoralMent(ActionEvent event) {
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
-        db.dbBeIr("ignoraltszavak",szo);
+        DB.dbBeIr("ignoraltszavak",szo);
         atnevezLeptet("letilt");
     }
 
@@ -290,7 +290,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     void ismertMent(ActionEvent event) {
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
-        db.dbBeIr("ismertszavak",szo);
+        DB.dbBeIr("ismertszavak",szo);
         atnevezLeptet("letilt");
     }
 
@@ -299,7 +299,7 @@ public class FXMLDocumentController implements Initializable {
     void tanulandoMent(ActionEvent event) {
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
         String mondat = tblTablazat.getSelectionModel().getSelectedItem().getMondat();
-        db.dbBeIr("tanulandoszavak",szo,mondat);
+        DB.dbBeIr("tanulandoszavak",szo,mondat);
         atnevezLeptet("letilt");
     }
     
