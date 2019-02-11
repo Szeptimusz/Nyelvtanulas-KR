@@ -8,6 +8,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 import java.util.Scanner;
@@ -82,7 +83,7 @@ public class FXMLDocumentController implements Initializable {
     private TableColumn<Sor, Integer> oGyak;
     
     @FXML
-    void futtat(ActionEvent event) {
+    void futtat() {
         // Korábbi HashMap beállítások törlése.
         szavak_indexe.clear();
         // Korábbi lista törlése.
@@ -100,10 +101,11 @@ public class FXMLDocumentController implements Initializable {
         }
         listaTorlesek();
         tblTablazat.setItems(data);
+        lblTallozasEredmeny.setText("");
     }
 
     @FXML
-    void talloz(ActionEvent event) {
+    void talloz() {
         FileChooser fc = new FileChooser();
         File selectedFile = fc.showOpenDialog(null);
         lblTallozasEredmeny.setText("");
@@ -227,6 +229,7 @@ public class FXMLDocumentController implements Initializable {
         try (Connection kapcs = DriverManager.getConnection(dbUrl,"root","");
             PreparedStatement ps = kapcs.prepareStatement(query)) {
             ResultSet eredmeny = ps.executeQuery();
+            ArrayList<String> szavak = new ArrayList();
             while (eredmeny.next()) {
                 String szo = eredmeny.getString("szavak");
                 if (szavak_indexe.get(szo) != null) {
@@ -236,9 +239,13 @@ public class FXMLDocumentController implements Initializable {
                     } else {
                         int gyak = data.get(szavak_indexe.get(szo)).getGyak();
                         data.get(szavak_indexe.get(szo)).setGyak(++gyak);
-                        db.dbSzotTorol(tabla, szo);
+                        //db.dbSzotTorol(tabla, szo);
+                        szavak.add(szo);
                     }
                 }
+            }
+            if (!szavak.isEmpty()) {
+                db.dbTorol(szavak, tabla);
             }
         } catch (SQLException e) {
             System.out.println("Nem sikerült az adatbázis-lekérdezés!");
@@ -253,6 +260,7 @@ public class FXMLDocumentController implements Initializable {
     */
     
     public void listaTorlesek() {
+        ArrayList<String> szavak = new ArrayList();
         for (int i = 0; i < data.size(); i++) {
             String szo = data.get(i).getSzo();
             if (szo.equals("torlendo")) {
@@ -261,8 +269,12 @@ public class FXMLDocumentController implements Initializable {
             } else if (cxbEgyszer.isSelected() && data.get(i).getGyak() == 1) {
                 data.remove(i);
                 i--;
-                db.dbBeIr("gorgetettszavak", szo);
+                szavak.add(szo);
+                //db.dbBeIr("gorgetettszavak", szo);
             }
+        }
+        if (!szavak.isEmpty()) {
+            db.dbIr(szavak);
         }
     }
 
@@ -271,7 +283,7 @@ public class FXMLDocumentController implements Initializable {
     void ignoralMent(ActionEvent event) {
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
         db.dbBeIr("ignoraltszavak",szo);
-        atnevezLeptet("IGNORÁLT SZÓ");
+        atnevezLeptet("letilt");
     }
 
     // A táblázatban kijelölt sor szavát a gomb megnyomása után elmenti az adatbázis ismertszavak táblájába
@@ -279,7 +291,7 @@ public class FXMLDocumentController implements Initializable {
     void ismertMent(ActionEvent event) {
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
         db.dbBeIr("ismertszavak",szo);
-        atnevezLeptet("ISMERT SZÓ");
+        atnevezLeptet("letilt");
     }
 
     // A táblázatban kijelölt sor szavát a gomb megnyomása után elmenti az adatbázis tanulandoszavak táblájába
@@ -288,7 +300,7 @@ public class FXMLDocumentController implements Initializable {
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
         String mondat = tblTablazat.getSelectionModel().getSelectedItem().getMondat();
         db.dbBeIr("tanulandoszavak",szo,mondat);
-        atnevezLeptet("TANULANDÓ");
+        atnevezLeptet("letilt");
     }
     
     public void atnevezLeptet(String szoveg) {
@@ -300,7 +312,7 @@ public class FXMLDocumentController implements Initializable {
     }
     
     @FXML
-    void kilep(ActionEvent event) {
+    void kilep() {
         Platform.exit();
     }
 
@@ -326,7 +338,7 @@ public class FXMLDocumentController implements Initializable {
         tblTablazat.getSelectionModel().selectedItemProperty().addListener(
         (v, regi, uj) -> {
             String ujSzo = uj.getSzo();
-            if (ujSzo.equals("ISMERT SZÓ") || ujSzo.equals("IGNORÁLT SZÓ") || ujSzo.equals("TANULANDÓ")) {
+            if (ujSzo.equals("letilt")) {
                 btnIsmert.setDisable(true);
                 btnIgnore.setDisable(true);
                 btnTanulando.setDisable(true);
@@ -335,8 +347,8 @@ public class FXMLDocumentController implements Initializable {
                 btnIgnore.setDisable(false);
                 btnTanulando.setDisable(false);
             }
-            
-            // Figyeli, hogy melyik sor van kijelölve és annak a mondatát írja ki a táblázat fölötti szövegterületre
+
+            // Figyeli, hogy a sor mondata változott-e és azt írja ki a táblázat fölötti szövegterületre
             String mondat = uj.getMondat();
             if (mondat != null) {
                 txaMondat.setText(mondat);

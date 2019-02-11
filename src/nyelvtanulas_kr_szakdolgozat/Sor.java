@@ -35,5 +35,5 @@ public class Sor {
     public void setGyak(int gyak) {
         this.gyak = gyak;
     }
-    
+
 }

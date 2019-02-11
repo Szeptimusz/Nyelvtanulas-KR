@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class DB {
     
@@ -42,6 +43,44 @@ public class DB {
             ps.executeUpdate(gorgetett);
             System.out.println("Táblák sikeresen létrehozva!");
         } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    
+    // A kapott lista szavait beírja a görgetett szavak táblába (Batch: csak egyszer kell meghívni a dbIr() metódust)
+    public void dbIr(ArrayList<String> szavak) {
+        String into = "INSERT INTO nyelvtanulas.gorgetettszavak (szavak) VALUES (?)";
+        try (Connection kapcs = DriverManager.getConnection(dbUrl,"root","");
+                PreparedStatement ps = kapcs.prepareStatement(into)) {
+                
+                for (String szo: szavak) {
+                    ps.setString(1, szo);
+                    ps.addBatch();
+                    System.out.println("Szó hozzáadva!");
+                }
+                
+                ps.executeBatch();
+        } catch (SQLException e) {
+            System.out.println("Nem sikerült a görgetett-táblába írás!");
+            System.out.println(e.getMessage());
+        }
+    }
+    
+    // A kapott lista szavait kitörli a kapott táblából
+    public void dbTorol(ArrayList<String> szavak, String tabla) {
+        String delete = "DELETE FROM nyelvtanulas." + tabla + " WHERE szavak= ?;";
+        try (Connection kapcs = DriverManager.getConnection(dbUrl,"root","");
+                PreparedStatement ps = kapcs.prepareStatement(delete)) {
+                
+                for (String szo: szavak) {
+                    ps.setString(1, szo);
+                    ps.addBatch();
+                    System.out.println("Szó hozzáadva!");
+                }
+                
+                ps.executeBatch();
+        } catch (SQLException e) {
+            System.out.println("Nem sikerült a" + tabla + "-ből törlés!");
             System.out.println(e.getMessage());
         }
     }
