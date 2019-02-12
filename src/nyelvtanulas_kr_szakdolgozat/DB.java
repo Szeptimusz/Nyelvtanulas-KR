@@ -20,7 +20,7 @@ public class DB {
                 for (String szo: szavak) {
                     ps.setString(1, szo);
                     ps.addBatch();
-                    System.out.println("Szó hozzáadva!");
+                    System.out.println("Prepared statement hozzáadva!");
                 }
                 
                 ps.executeBatch();
@@ -39,7 +39,7 @@ public class DB {
                 for (String szo: szavak) {
                     ps.setString(1, szo);
                     ps.addBatch();
-                    System.out.println("Szó hozzáadva!");
+                    System.out.println("Prepared statement hozzáadva!");
                 }
                 
                 ps.executeBatch();
@@ -63,13 +63,14 @@ public class DB {
         }
     }
     
-    // A kapott táblához hozzáadja a kapott szót- és mondatot
-    public static void dbBeIr(String tabla, String szo, String mondat) {
-        String into = "INSERT INTO " + tabla + " (szavak, mondatok) VALUES (?,?)";
+    // A kapott táblához hozzáadja a kapott szót, mondatot és fordítást
+    public static void dbBeIr(String tabla, String szo, String mondat, String forditas) {
+        String into = "INSERT INTO " + tabla + " (szavak, mondatok, forditas) VALUES (?,?,?)";
         try (Connection kapcs = DriverManager.getConnection(dbUrl);
                 PreparedStatement ps = kapcs.prepareStatement(into)) {
                 ps.setString(1, szo);
                 ps.setString(2, mondat);
+                ps.setString(3, forditas);
                 int sorok = ps.executeUpdate();
                 System.out.println(sorok + " sor hozzáadva.");
         } catch (SQLException e) {

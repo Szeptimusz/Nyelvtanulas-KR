@@ -17,7 +17,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -27,12 +30,14 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 /**
  *
  * @author Kremmer Róbert
  */
-public class FXMLDocumentController implements Initializable {
+public class FoablakController implements Initializable {
     
     final String dbUrl = "jdbc:sqlite:C:/Szoftverfejlesztés/OKJ programozás/Szakdolgozat/"
                             + "Githubos verzió/nyelvtanulas_kr_szakdolgozat/nyelvtanulas.db";
@@ -135,13 +140,8 @@ public class FXMLDocumentController implements Initializable {
         } else {
             minden = txaBevitel.getText();
             if (minden.equals("")) {
-                Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setTitle("Figyelem!");
-                alert.setHeaderText(null);
-                alert.setContentText("Üres szövegmező! Kérem adjon meg szöveget, vagy használja "
-                        + "a Tallózás gombot!");
-
-                alert.showAndWait();
+                figyelmeztetes("Figyelem!", "Üres szövegmező! Kérem adjon meg szöveget, vagy használja "
+                + "a Tallózás gombot!");
             }
         }
     }
@@ -178,9 +178,14 @@ public class FXMLDocumentController implements Initializable {
             String[] szok = mondatok[i].split(" ");
             for (int j = 0; j < szok.length; j++) {
                 char elsoKarakter = szok[j].charAt(0);
-                // Csak a A-Z és a-z kezdőbetűseket engedi feldolgozni
-                if (elsoKarakter < 'A' || elsoKarakter > 'z' || (elsoKarakter > 90 && elsoKarakter < 97)) {
+                // Csak a A-Z és a-z kezdőbetűseket engedi feldolgozni és azokat amik idézőjellel kezdődnek
+                if ((elsoKarakter < 'A' || elsoKarakter > 'z' || (elsoKarakter > 90 && elsoKarakter < 97))
+                        && elsoKarakter != '“' && elsoKarakter != '"') {
                     continue;
+                }
+                // Ha a szó előtt idézőjel van, akkor levágjuk róla
+                if (elsoKarakter == '“' || elsoKarakter == '"') {
+                    szok[j] = szok[j].substring(1, szok[j].length());
                 }
                 char utolsoKarakter = szok[j].charAt(szok[j].length()-1);
                 // Megengedjük, hogy az utolsó betű nagy lehessen pl.: a mozaikszavak miatt
@@ -296,10 +301,10 @@ public class FXMLDocumentController implements Initializable {
 
     // A táblázatban kijelölt sor szavát a gomb megnyomása után elmenti az adatbázis tanulandoszavak táblájába
     @FXML
-    void tanulandoMent(ActionEvent event) {
+    void tanulandoMent(ActionEvent event) throws Exception{
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
         String mondat = tblTablazat.getSelectionModel().getSelectedItem().getMondat();
-        DB.dbBeIr("tanulandoszavak",szo,mondat);
+        ablak(szo, mondat);
         atnevezLeptet("letilt");
     }
     
@@ -309,6 +314,36 @@ public class FXMLDocumentController implements Initializable {
         // A hozzáadás után a lista következő elemét jelölje ki
         int i = tblTablazat.getSelectionModel().getSelectedIndex();
         tblTablazat.getSelectionModel().select(i+1);
+    }
+    
+    /**
+     * A Tanulandó szó -gomb megnyomásakor új ablakot nyit meg és átadja neki a kijelölt sor szavát és mondatát.
+     * @param szo:      A kijelölt sor szava.
+     * @param mondat    A kijelölt sor mondata.
+     */
+    private void ablak(String szo, String mondat) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("Forditas.fxml"));
+            Parent root = loader.load();
+            
+            ForditasController fc = loader.getController();
+            if (!szo.equals("")) {
+                fc.setSzo(szo);
+                fc.setMondat(mondat);
+            } else {
+                System.out.println("Nincsen szó megadva!");
+            }
+            
+            Scene scene = new Scene(root);
+            Stage ablak = new Stage();
+            ablak.setResizable(false);
+            ablak.initModality(Modality.APPLICATION_MODAL);
+            ablak.setScene(scene);
+            ablak.setTitle("Fordítás hozzáadása, feltöltés adatbázisba");
+            ablak.showAndWait();
+        } catch (IOException ex) {
+            System.out.println("Hiba: " + ex.getMessage());
+        }
     }
     
     @FXML
@@ -322,6 +357,19 @@ public class FXMLDocumentController implements Initializable {
         alert.setTitle("Nyelvtanulás program");
         alert.setHeaderText(null);
         alert.setContentText("Készítette: Kremmer Róbert");
+        alert.showAndWait();
+    }
+    
+    /**
+     * Probléma esetén az adott szöveggel figyelmeztető ablak ugrik fel.
+     * @param cim:      Az ablak címe.
+     * @param szoveg    A megjelenített üzenet. 
+     */
+    static void figyelmeztetes(String cim, String szoveg) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(cim);
+        alert.setHeaderText(null);
+        alert.setContentText(szoveg);
         alert.showAndWait();
     }
     

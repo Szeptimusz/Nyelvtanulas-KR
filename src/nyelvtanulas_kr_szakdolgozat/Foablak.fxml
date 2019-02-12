@@ -18,7 +18,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="900.0" prefWidth="1300.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="nyelvtanulas_kr_szakdolgozat.FXMLDocumentController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="900.0" prefWidth="1300.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="nyelvtanulas_kr_szakdolgozat.FoablakController">
    <children>
       <MenuBar>
         <menus>
@@ -74,7 +74,7 @@
                      </font>
                   </Label>
                   <Button fx:id="btnChooser" mnemonicParsing="false" onAction="#talloz" prefWidth="80.0" text="Tallózás" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="1" />
-                  <Button fx:id="btnFuttat" mnemonicParsing="false" onAction="#futtat" text="Futtatás" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="6" />
+                  <Button fx:id="btnFuttat" defaultButton="true" mnemonicParsing="false" onAction="#futtat" text="Futtatás" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="6" />
                   <Label text="A globálisan csak egyszer előforduló szavakat ne listázza: " GridPane.columnSpan="2" GridPane.rowIndex="5">
                      <font>
                         <Font size="15.0" />
