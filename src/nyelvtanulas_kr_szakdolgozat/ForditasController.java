@@ -38,7 +38,7 @@ public class ForditasController {
     }
     
     /**
-     * Ha a fordítás beviteli mező nem üres, akkor hozzáadja a szót,mondatot, és fordítást a tanulandó táblához
+     * Ha a fordítás beviteli mező nem üres, akkor hozzáadja a szót,mondatot,ANKI állapotot és fordítást a tanulandó táblához
      */
     @FXML
     void hozzaad() {
@@ -46,7 +46,7 @@ public class ForditasController {
         if (forditas.equals("")) {
             FoablakController.figyelmeztetes("Figyelem!", "Kérem írjon be fordítást a szóhoz!");
         } else {
-            DB.dbBeIr("tanulandoszavak",szo,mondat,forditas);
+            DB.dbBeIr("tanulandoszavak",szo,mondat,forditas,0);
             Window ablak = lblSzo.getScene().getWindow();
             ablak.hide();
         }

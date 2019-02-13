@@ -63,14 +63,15 @@ public class DB {
         }
     }
     
-    // A kapott táblához hozzáadja a kapott szót, mondatot és fordítást
-    public static void dbBeIr(String tabla, String szo, String mondat, String forditas) {
-        String into = "INSERT INTO " + tabla + " (szavak, mondatok, forditas) VALUES (?,?,?)";
+    // A kapott táblához hozzáadja a kapott szót, mondatot, fordítást és az ANKI oszlop értékét (0 vagy 1)
+    public static void dbBeIr(String tabla, String szo, String mondat, String forditas, int anki) {
+        String into = "INSERT INTO " + tabla + " (szavak, mondatok, forditas, ANKI) VALUES (?,?,?,?)";
         try (Connection kapcs = DriverManager.getConnection(dbUrl);
                 PreparedStatement ps = kapcs.prepareStatement(into)) {
                 ps.setString(1, szo);
                 ps.setString(2, mondat);
                 ps.setString(3, forditas);
+                ps.setInt(4, anki);
                 int sorok = ps.executeUpdate();
                 System.out.println(sorok + " sor hozzáadva.");
         } catch (SQLException e) {
@@ -89,6 +90,25 @@ public class DB {
                 System.out.println(sorok + " sor törölve.");
         } catch (SQLException e) {
             System.out.println("Nem sikerült a: " + szo + " törlése a: " + tabla + " táblából!");
+            System.out.println(e.getMessage());
+        }
+    }
+    
+    public static void dbModosit(String tabla, ArrayList<String> szavak) {
+        String update = "UPDATE " + tabla + " SET ANKI = ? WHERE szavak = ?";
+        try (Connection kapcs = DriverManager.getConnection(dbUrl);
+                PreparedStatement ps = kapcs.prepareStatement(update)) {
+            
+                for (String szo: szavak) {
+                    ps.setInt(1, 1);
+                    ps.setString(2, szo);
+                    ps.addBatch();
+                    System.out.println("Prepared statement hozzáadva!");
+                }
+                
+                ps.executeBatch();
+        } catch (SQLException e) {
+            System.out.println("Nem sikerült a " + tabla + " módosítása!");
             System.out.println(e.getMessage());
         }
     }

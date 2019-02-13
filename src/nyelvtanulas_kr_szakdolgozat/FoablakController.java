@@ -1,7 +1,9 @@
 package nyelvtanulas_kr_szakdolgozat;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -10,19 +12,21 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Scanner;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -108,6 +112,9 @@ public class FoablakController implements Initializable {
         lblTallozasEredmeny.setText("");
     }
 
+    /**
+     * A Tallózás-gomb megnyomása után felugró ablakból kiválasztható a beolvasandó fájl.
+     */
     @FXML
     void talloz() {
         FileChooser fc = new FileChooser();
@@ -122,7 +129,9 @@ public class FoablakController implements Initializable {
         }
     }
     
-    // Adatok beolvasása fájl tallózással vagy szövegterületből
+    /**
+     * Adatok beolvasása a betallózott fájlból vagy a szövegterületből.
+     */
     public void beolvasas() {
         if (fileNeve != null) {
             File f = new File(fileNeve);
@@ -146,12 +155,12 @@ public class FoablakController implements Initializable {
         }
     }
 
-    /*
-    A feldolgozás() metódus előtt szükséges azokat az egymás után többször előforduló karaktereket törölni, amik alapján majd a 
+    /**
+     * A feldolgozás() metódus előtt szükséges azokat az egymás után többször előforduló karaktereket törölni, amik alapján majd a 
     splittelés történik ("." "?" "!").
     Végigmegy a teljes szövegen karakterenként, ha a karakter 'A'-nál kisebb kódú (.,!? stb.), akkor ha a következő karakter is
     ugyanolyan, addig törli a következőket amíg nem talál egy más karaktert.
-    */
+     */
     public void eloFeldolgozas() {
         StringBuilder sb = new StringBuilder(minden);
         
@@ -170,7 +179,10 @@ public class FoablakController implements Initializable {
         minden = sb.toString();
     } 
     
-    // Beolvasott sorok feldolgozása: mondatok és szavak meghatározása
+    /**
+     * A beolvasott sorokat .?!-szerint mondatokká, azokat szóköz szerint szavakká vágva tárolja tömbben. A karakterkezelések 
+     * után Sor típusú objektumként hozzáadja a megfigyelhető listához.
+     */
     public void feldolgozas() {
         // A szöveg szétvágása "." "?" "!" szerint, plusz azok az esetek amikor szóköz van utánuk
         String mondatok [] = minden.split("\\. |\\.|\\? |\\?|\\! |\\!");
@@ -201,7 +213,9 @@ public class FoablakController implements Initializable {
         minden = "";
     }
 
-    // Az azonos szavak törlése a listából és szógyakoriság számolása
+    /**
+     * Azonos szavak törlése a listából, szógyakoriság számolása, egyes szavak indexének tárolása.
+     */
     public void azonosakTorlese() {
         for (int i = 0; i < data.size()-1; i++){
             String szo = data.get(i).getSzo();
@@ -222,13 +236,13 @@ public class FoablakController implements Initializable {
         szavak_indexe.put(data.get(data.size()-1).getSzo(), data.size()-1);
     }
 
-    
-    /* A kapott tábla szavait lekérdezi az adatbázisból és ha létezik a listában, akkor a lista szavát átnevezi torlendo-re, 
-       jelezve, hogy a táblázat megjelenítése előtt törölni kell a listából, VAGY ha a szó görgetett szó és létezik a listában,
-       akkor 1-gyel növeli a gyakoriságát a listában (így biztos, hogy legalább kétszer előfordul globálisan) és törli a táblából
-       a szót.
-    */
-
+    /**
+     * A kapott tábla szavait lekérdezi az adatbázisból és ha létezik a listában, akkor a lista szavát átnevezi torlendo-re, 
+       jelezve, hogy a táblázat megjelenítése előtt törölni kell a listából. Ha a görgetettszavak táblán megy végig és a szó 
+       létezik a listában, akkor 1-gyel növeli a gyakoriságát a listában (így biztos, hogy legalább kétszer előfordul globálisan) és 
+       törli a táblából a szót.
+     * @param tabla: Paraméterként kapott tábla neve
+     */
     public void dbOsszevet(String tabla) {
         String query = "SELECT szavak FROM " + tabla;
         try (Connection kapcs = DriverManager.getConnection(dbUrl);
@@ -258,12 +272,11 @@ public class FoablakController implements Initializable {
         }
     }
     
-    /*
-     Végigmegy a listán és ha a szó "torlendo", akkor törli onnan. Különben ha be volt jelölve az egyszeres
-       előfordulás megjelenésének tiltása (és így a szavak görgetése) és a szó, csak egyszer fordul elő globálisan,
-       akkor törli a listából és hozzáadja a görgetett szavakhoz az adatbázisban
-    */
-    
+    /**
+     * Végigmegy a listán és ha a szó "torlendo", akkor törli onnan. Különben ha be volt jelölve az egyszer előforduló
+       szavak megjelenítésének tiltása (és így a szavak görgetése) és a szó, csak egyszer fordul elő globálisan,
+       akkor törli a listából és hozzáadja a görgetett szavakhoz az adatbázisban.
+     */
     public void listaTorlesek() {
         ArrayList<String> szavak = new ArrayList();
         for (int i = 0; i < data.size(); i++) {
@@ -283,25 +296,32 @@ public class FoablakController implements Initializable {
         }
     }
 
-    // A táblázatban kijelölt sor szavát a gomb megnyomása után elmenti az adatbázis ignoraltszavak táblájába
+    /**
+     * A táblázatban kijelölt sor szavát a gomb megnyomása után elmenti az adatbázis ignoraltszavak táblájába.
+     */
     @FXML
-    void ignoralMent(ActionEvent event) {
+    void ignoralMent() {
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
         DB.dbBeIr("ignoraltszavak",szo);
         atnevezLeptet("letilt");
     }
 
-    // A táblázatban kijelölt sor szavát a gomb megnyomása után elmenti az adatbázis ismertszavak táblájába
+    /**
+     * A táblázatban kijelölt sor szavát a gomb megnyomása után elmenti az adatbázis ismertszavak táblájába.
+     */
     @FXML
-    void ismertMent(ActionEvent event) {
+    void ismertMent() {
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
         DB.dbBeIr("ismertszavak",szo);
         atnevezLeptet("letilt");
     }
 
-    // A táblázatban kijelölt sor szavát a gomb megnyomása után elmenti az adatbázis tanulandoszavak táblájába
+    /**
+     * A gomb megnyomása után megnyit egy új ablakot és átadja neki a szo és mondat String tartalmát.
+     * @throws Exception 
+     */
     @FXML
-    void tanulandoMent(ActionEvent event) throws Exception{
+    void tanulandoMent() throws Exception{
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
         String mondat = tblTablazat.getSelectionModel().getSelectedItem().getMondat();
         ablak(szo, mondat);
@@ -319,7 +339,7 @@ public class FoablakController implements Initializable {
     /**
      * A Tanulandó szó -gomb megnyomásakor új ablakot nyit meg és átadja neki a kijelölt sor szavát és mondatát.
      * @param szo:      A kijelölt sor szava.
-     * @param mondat    A kijelölt sor mondata.
+     * @param mondat:    A kijelölt sor mondata.
      */
     private void ablak(String szo, String mondat) {
         try {
@@ -346,13 +366,98 @@ public class FoablakController implements Initializable {
         }
     }
     
+    /**
+     * Az ANKI kártya készítése menüpontra kattintva végigmegy a tanulandószavak táblán és ahol az ANKI mező 0,
+     * azokból a sorból olyan txt-fájlt generál, amit az ANKI szótanuló program be tud importálni és
+     * szókártyát tud készíteni belőle.
+     */
+    @FXML
+    void anki() {
+        Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle("ANKI kártya készítés");
+        alert.setHeaderText(null);
+        alert.setContentText("Valóban szeretne minden új tanulandó szóból ANKI szókártyát készíteni?");
+
+        ArrayList<String> szavak = new ArrayList<>();
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK){
+            String query = "SELECT szavak, mondatok, forditas FROM tanulandoszavak WHERE ANKI == 0";
+            try (Connection kapcs = DriverManager.getConnection(dbUrl);
+                PreparedStatement ps = kapcs.prepareStatement(query)) {
+                ResultSet eredmeny = ps.executeQuery();
+                while (eredmeny.next()) {
+                    String szo = eredmeny.getString("szavak");
+                    String mondat = eredmeny.getString("mondatok");
+                    String forditas = eredmeny.getString("forditas");
+                    if (ankiKartyatKeszit(szo, mondat, forditas)) {
+                        szavak.add(szo);
+                    } else {
+                        System.out.println("Hiba történt a kártya készítése során!");
+                    }
+                }
+            } catch (SQLException e) {
+                System.out.println("Nem sikerült az adatbázis-lekérdezés!");
+                System.out.println(e.getMessage());
+            }
+            // Ha sikeres volt az ANKI kártya készítés, akkor a táblában átírja az ANKI mezőt 0-ról 1-re.
+            if (!szavak.isEmpty()) {
+                DB.dbModosit("tanulandoszavak",szavak);
+                System.out.println("ANKI kártya készítés sikeres!");
+            } else {
+                figyelmeztetes("Figyelem!", "Nincsen tanulandó szó amiből szókártya készíthető!");
+            }
+        } else {
+            alert.hide();
+        }
+    }
+    
+    /**
+     * A kapott szóból, mondatból és fordításból olyan .txt fájlt készít, amit az ANKI szótanuló program be tud importálni 
+     * és szókártyákat tud belőle készíteni.
+     * @param szo:      A tanulandó szó.
+     * @param mondat:   A szóhoz tartozó példamondat.
+     * @param forditas: Az általunk korábban megadott fordítása a szónak.
+     * @return :        Ha sikerült a fájlba írás igazad ad vissza, ha nem akkor false-t.
+     */
+    public boolean ankiKartyatKeszit(String szo, String mondat, String forditas) {
+        try (FileWriter f = new FileWriter("ankiimport.txt",true); PrintWriter p = new PrintWriter(f)) {
+            
+            // A mondatban a szó előfordulásainak megkeresése, pontokkal helyessítése és így lyukas szöveg gyártása.
+            String lyukasMondat = "";
+            String [] szavak = mondat.toLowerCase().split(" ");
+            for (int i = 0; i < szavak.length; i++) {
+                if (szavak[i].equals(szo)) {
+                    int szoHossza = szavak[i].length();
+                    String lyuk = "";
+                    for (int j = 0; j < szoHossza; j++) {
+                        lyuk = lyuk + ".";
+                    }
+                    szavak[i] = lyuk;
+                }
+                lyukasMondat += szavak[i] + " ";
+            }
+            
+            p.println(szo + "<br><br>" + mondat + "\t" + forditas + "<br><br>" + lyukasMondat);
+            return true;
+        } catch(IOException e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * A menüből a Kilépés-t választva bezárja a programot.
+     */
     @FXML
     void kilep() {
         Platform.exit();
     }
 
+    /**
+     * A menüből a Névjegy-et választva információt ad a programról és készítőjéről.
+     */
     @FXML
-    void nevjegy(ActionEvent event) {
+    void nevjegy() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Nyelvtanulás program");
         alert.setHeaderText(null);
@@ -362,8 +467,8 @@ public class FoablakController implements Initializable {
     
     /**
      * Probléma esetén az adott szöveggel figyelmeztető ablak ugrik fel.
-     * @param cim:      Az ablak címe.
-     * @param szoveg    A megjelenített üzenet. 
+     * @param cim:       Az ablak címe
+     * @param szoveg:    A megjelenített üzenet
      */
     static void figyelmeztetes(String cim, String szoveg) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
