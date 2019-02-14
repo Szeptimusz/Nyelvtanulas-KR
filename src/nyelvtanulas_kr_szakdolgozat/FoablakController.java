@@ -16,6 +16,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Scanner;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -42,9 +43,8 @@ import javafx.stage.Stage;
  * @author Kremmer Róbert
  */
 public class FoablakController implements Initializable {
-    
-    final String dbUrl = "jdbc:sqlite:C:/Szoftverfejlesztés/OKJ programozás/Szakdolgozat/"
-                            + "Githubos verzió/nyelvtanulas_kr_szakdolgozat/nyelvtanulas.db";
+
+    String dbUrl = "jdbc:sqlite:";
     static String fileNeve;
     static String minden = "";
     static HashMap<String, Integer> szavak_indexe = new HashMap<>();
@@ -90,8 +90,12 @@ public class FoablakController implements Initializable {
     @FXML
     private TableColumn<Sor, Integer> oGyak;
     
+    private ChangeListener<Sor> listener;
+    
     @FXML
     void futtat() {
+        // Korábbi listener eltávolítása
+        tblTablazat.getSelectionModel().selectedItemProperty().removeListener(listener);
         // Korábbi HashMap beállítások törlése.
         szavak_indexe.clear();
         // Korábbi lista törlése.
@@ -109,6 +113,8 @@ public class FoablakController implements Initializable {
         }
         listaTorlesek();
         tblTablazat.setItems(data);
+        // Listener beállítása az adatok táblázatba betöltése után
+        tblTablazat.getSelectionModel().selectedItemProperty().addListener(listener);
         lblTallozasEredmeny.setText("");
     }
 
@@ -119,7 +125,6 @@ public class FoablakController implements Initializable {
     void talloz() {
         FileChooser fc = new FileChooser();
         File selectedFile = fc.showOpenDialog(null);
-        lblTallozasEredmeny.setText("");
         if (selectedFile != null) {
             fileNeve = selectedFile.getName();
             lblTallozasEredmeny.setText("Tallózás sikeres!");
@@ -244,11 +249,12 @@ public class FoablakController implements Initializable {
      * @param tabla: Paraméterként kapott tábla neve
      */
     public void dbOsszevet(String tabla) {
+        ArrayList<String> szavak = new ArrayList();
         String query = "SELECT szavak FROM " + tabla;
         try (Connection kapcs = DriverManager.getConnection(dbUrl);
             PreparedStatement ps = kapcs.prepareStatement(query)) {
             ResultSet eredmeny = ps.executeQuery();
-            ArrayList<String> szavak = new ArrayList();
+            
             while (eredmeny.next()) {
                 String szo = eredmeny.getString("szavak");
                 if (szavak_indexe.get(szo) != null) {
@@ -262,13 +268,15 @@ public class FoablakController implements Initializable {
                     }
                 }
             }
-            // Görgetett szó előfordult a szövegben, ezért töröljük az adatbázisból
-            if (!szavak.isEmpty()) {
-                DB.dbTorol(szavak, tabla);
-            }
+            
         } catch (SQLException e) {
             System.out.println("Nem sikerült az adatbázis-lekérdezés!");
             System.out.println(e.getMessage());
+        }
+        
+        // Görgetett szó előfordult a szövegben, ezért töröljük az adatbázisból
+        if (!szavak.isEmpty()) {
+            DB.dbTorol(szavak, tabla);
         }
     }
     
@@ -480,16 +488,18 @@ public class FoablakController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        // Adatbázis helye relatív módon megadva
+        String filePath = new File("").getAbsolutePath();
+        dbUrl += filePath.concat("\\nyelvtanulas.db");
+        DB.setDbUrl(dbUrl);
+        
         // A táblázatban az adott oszlopban megjelenő adat a Sor osztály melyik változójából legyen kiszedve
         oSzo.setCellValueFactory(new PropertyValueFactory<>("szo"));
         oMondat.setCellValueFactory(new PropertyValueFactory<>("mondat"));
         oGyak.setCellValueFactory(new PropertyValueFactory<>("gyak"));
-        
-        
-        // Ha egy szónál már használtuk az egyik gombot, akkor ne lehessen már egyik másikat sem használni
-        // Kéne egy módosítási lehetőség, ha véletlenül rosszra nyomtunk!
-        tblTablazat.getSelectionModel().selectedItemProperty().addListener(
-        (v, regi, uj) -> {
+
+        // Listener előkészítése a futtat() metódushoz
+        listener = (v, regi, uj) -> {
             String ujSzo = uj.getSzo();
             if (ujSzo.equals("letilt")) {
                 btnIsmert.setDisable(true);
@@ -508,6 +518,6 @@ public class FoablakController implements Initializable {
             } else {
                 txaMondat.setText("");
             }
-        });
+        };
     }    
 }

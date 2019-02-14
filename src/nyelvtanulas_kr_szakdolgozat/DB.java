@@ -8,9 +8,17 @@ import java.util.ArrayList;
 
 public class DB {
     
+    /* Adatbázis elérése abszolút módon
     final static String dbUrl = "jdbc:sqlite:C:/Szoftverfejlesztés/OKJ programozás/Szakdolgozat/"
                             + "Githubos verzió/nyelvtanulas_kr_szakdolgozat/nyelvtanulas.db";
-
+    */
+    
+    // A FoablakController induláskor meghívja a setDbUrl() metódust és a DB osztályban is beállítja az adatbázis helyét
+    static String dbUrl = "";
+    public static void setDbUrl(String dbUrl) {
+        DB.dbUrl = dbUrl;
+    }
+    
     // A kapott lista szavait beírja a görgetett szavak táblába (Batch: csak egyszer kell meghívni a dbIr() metódust)
     public static void dbIr(ArrayList<String> szavak) {
         String into = "INSERT INTO gorgetettszavak (szavak) VALUES (?)";
@@ -45,6 +53,25 @@ public class DB {
                 ps.executeBatch();
         } catch (SQLException e) {
             System.out.println("Nem sikerült a" + tabla + "-ból törlés!");
+            System.out.println(e.getMessage());
+        }
+    }
+    
+    public static void dbModosit(String tabla, ArrayList<String> szavak) {
+        String update = "UPDATE " + tabla + " SET ANKI = ? WHERE szavak = ?";
+        try (Connection kapcs = DriverManager.getConnection(dbUrl);
+                PreparedStatement ps = kapcs.prepareStatement(update)) {
+            
+                for (String szo: szavak) {
+                    ps.setInt(1, 1);
+                    ps.setString(2, szo);
+                    ps.addBatch();
+                    System.out.println("Prepared statement hozzáadva!");
+                }
+                
+                ps.executeBatch();
+        } catch (SQLException e) {
+            System.out.println("Nem sikerült a " + tabla + " módosítása!");
             System.out.println(e.getMessage());
         }
     }
@@ -90,25 +117,6 @@ public class DB {
                 System.out.println(sorok + " sor törölve.");
         } catch (SQLException e) {
             System.out.println("Nem sikerült a: " + szo + " törlése a: " + tabla + " táblából!");
-            System.out.println(e.getMessage());
-        }
-    }
-    
-    public static void dbModosit(String tabla, ArrayList<String> szavak) {
-        String update = "UPDATE " + tabla + " SET ANKI = ? WHERE szavak = ?";
-        try (Connection kapcs = DriverManager.getConnection(dbUrl);
-                PreparedStatement ps = kapcs.prepareStatement(update)) {
-            
-                for (String szo: szavak) {
-                    ps.setInt(1, 1);
-                    ps.setString(2, szo);
-                    ps.addBatch();
-                    System.out.println("Prepared statement hozzáadva!");
-                }
-                
-                ps.executeBatch();
-        } catch (SQLException e) {
-            System.out.println("Nem sikerült a " + tabla + " módosítása!");
             System.out.println(e.getMessage());
         }
     }
