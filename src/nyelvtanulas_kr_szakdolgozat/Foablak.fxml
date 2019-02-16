@@ -18,7 +18,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="900.0" prefWidth="1300.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="nyelvtanulas_kr_szakdolgozat.FoablakController">
+<VBox maxHeight="-Infinity" maxWidth="5000.0" minHeight="-Infinity" prefHeight="900.0" prefWidth="1300.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="nyelvtanulas_kr_szakdolgozat.FoablakController">
    <children>
       <MenuBar>
         <menus>
@@ -37,64 +37,55 @@
           </Menu>
         </menus>
       </MenuBar>
-      <HBox prefHeight="940.0" prefWidth="1300.0">
+      <HBox maxWidth="5000.0" minWidth="400.0" prefHeight="940.0" prefWidth="1300.0">
          <children>
-            <GridPane prefHeight="672.0" prefWidth="530.0">
+            <GridPane minWidth="240.0" prefHeight="672.0" prefWidth="530.0" vgap="10.0">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                 <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
               </columnConstraints>
               <rowConstraints>
-                <RowConstraints minHeight="10.0" prefHeight="20.0" valignment="CENTER" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
-                  <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" valignment="CENTER" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
                   <RowConstraints minHeight="10.0" prefHeight="500.0" vgrow="SOMETIMES" />
-                  <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
-                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" valignment="CENTER" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Label text="Adatbeviteli lehetőségek:" GridPane.columnSpan="2" GridPane.halignment="CENTER">
+                  <Label text="Adatbeviteli lehetőségek:" wrapText="true" GridPane.columnSpan="3" GridPane.halignment="CENTER">
                      <font>
                         <Font size="22.0" />
                      </font>
                   </Label>
-                  <Label text="Külső szöveges fájl betallózása" GridPane.rowIndex="1">
+                  <Label text="- Külső szöveges fájl betallózása" wrapText="true" GridPane.columnSpan="3" GridPane.rowIndex="1">
                      <font>
                         <Font size="16.0" />
                      </font>
                   </Label>
-                  <Label text="VAGY" GridPane.rowIndex="2">
+                  <Label text="- Szöveg közvetlen bemásolása a szövegdobozba" wrapText="true" GridPane.columnSpan="3" GridPane.rowIndex="3">
                      <font>
                         <Font size="16.0" />
                      </font>
                   </Label>
-                  <Label text="Szöveg közvetlen bemásolása a szövegdobozba" GridPane.columnSpan="2" GridPane.rowIndex="3">
-                     <font>
-                        <Font size="16.0" />
-                     </font>
-                  </Label>
-                  <Button fx:id="btnChooser" mnemonicParsing="false" onAction="#talloz" prefWidth="80.0" text="Tallózás" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="1" />
-                  <Button fx:id="btnFuttat" defaultButton="true" mnemonicParsing="false" onAction="#futtat" text="Futtatás" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="6" />
-                  <Label text="A globálisan csak egyszer előforduló szavakat ne listázza: " GridPane.columnSpan="2" GridPane.rowIndex="5">
+                  <Button fx:id="btnChooser" mnemonicParsing="false" onAction="#talloz" prefWidth="80.0" text="Tallózás" GridPane.halignment="LEFT" GridPane.rowIndex="2" />
+                  <Button fx:id="btnFuttat" defaultButton="true" mnemonicParsing="false" onAction="#futtat" text="Adatok feldolgozása" GridPane.columnSpan="3" GridPane.halignment="LEFT" GridPane.rowIndex="6" />
+                  <Label text="A globálisan csak egyszer előforduló szavakat ne listázza: " wrapText="true" GridPane.columnSpan="2" GridPane.rowIndex="5">
                      <font>
                         <Font size="15.0" />
                      </font>
+                     <GridPane.margin>
+                        <Insets />
+                     </GridPane.margin>
                   </Label>
-                  <Label text="Adatok feldolgozása: " GridPane.halignment="RIGHT" GridPane.rowIndex="6">
-                     <font>
-                        <Font size="15.0" />
-                     </font>
-                     <padding>
-                        <Insets right="10.0" />
-                     </padding>
-                  </Label>
-                  <TextArea fx:id="txaBevitel" prefHeight="233.0" prefWidth="527.0" wrapText="true" GridPane.columnSpan="2" GridPane.rowIndex="4" />
-                  <Label fx:id="lblTallozasEredmeny" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                  <TextArea fx:id="txaBevitel" prefHeight="233.0" prefWidth="527.0" wrapText="true" GridPane.columnSpan="3" GridPane.rowIndex="4" />
+                  <Label fx:id="lblTallozasEredmeny" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.halignment="LEFT" GridPane.rowIndex="2">
                      <padding>
                         <Insets left="30.0" />
                      </padding></Label>
-                  <CheckBox fx:id="cxbEgyszer" mnemonicParsing="false" prefHeight="17.0" prefWidth="0.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="5">
+                  <CheckBox fx:id="cxbEgyszer" mnemonicParsing="false" prefHeight="4.0" prefWidth="0.0" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="5">
                      <GridPane.margin>
                         <Insets left="40.0" />
                      </GridPane.margin>
@@ -104,10 +95,13 @@
                   <Insets bottom="10.0" left="10.0" right="15.0" top="10.0" />
                </padding>
             </GridPane>
-            <Separator orientation="VERTICAL" prefHeight="200.0" />
-            <VBox alignment="TOP_CENTER" prefHeight="875.0" prefWidth="770.0">
+            <Separator minWidth="10.0" orientation="VERTICAL" prefHeight="200.0">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin></Separator>
+            <VBox alignment="TOP_CENTER" minHeight="100.0" minWidth="350.0" prefHeight="875.0" prefWidth="770.0" spacing="10.0">
                <children>
-                  <Label text="Feldolgozás eredménye:">
+                  <Label text="Feldolgozás eredménye:" wrapText="true">
                      <font>
                         <Font size="22.0" />
                      </font>
@@ -115,24 +109,27 @@
                         <Insets top="15.0" />
                      </VBox.margin>
                   </Label>
-                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="20.0">
+                  <HBox alignment="CENTER" maxWidth="5000.0" minWidth="200.0" prefHeight="100.0" prefWidth="200.0" spacing="20.0">
                      <children>
                         <Button fx:id="btnIsmert" mnemonicParsing="false" onAction="#ismertMent" text="Ismert szó" />
                         <Button fx:id="btnTanulando" mnemonicParsing="false" onAction="#tanulandoMent" text="Tanulandó szó" />
                         <Button fx:id="btnIgnore" mnemonicParsing="false" onAction="#ignoralMent" text="Figyelmen kívül hagyás" />
                      </children>
                   </HBox>
-                  <TextArea fx:id="txaMondat" editable="false" prefHeight="70.0" prefWidth="200.0" wrapText="true">
+                  <TextArea fx:id="txaMondat" editable="false" maxHeight="5000.0" maxWidth="5000.0" minHeight="40.0" minWidth="200.0" prefHeight="70.0" prefWidth="200.0" wrapText="true">
                      <VBox.margin>
                         <Insets bottom="30.0" />
                      </VBox.margin>
                   </TextArea>
-                  <TableView fx:id="tblTablazat" prefHeight="600.0" prefWidth="200.0">
+                  <TableView fx:id="tblTablazat" maxHeight="5000.0" maxWidth="5000.0" minHeight="50.0" minWidth="350.0" prefHeight="600.0" prefWidth="745.0">
                     <columns>
-                      <TableColumn fx:id="oSzo" prefWidth="130.0" text="Szavak" />
-                      <TableColumn fx:id="oMondat" prefWidth="510.0" text="Mondatok" />
-                        <TableColumn fx:id="oGyak" prefWidth="110.0" text="Gyakoriság" />
+                      <TableColumn fx:id="oSzo" minWidth="40.0" prefWidth="150.0" text="Szavak" />
+                      <TableColumn fx:id="oMondat" maxWidth="510.0" minWidth="200.0" prefWidth="510.0" text="Mondatok" />
+                        <TableColumn fx:id="oGyak" minWidth="20.0" prefWidth="85.0" text="Gyakoriság" />
                     </columns>
+                     <VBox.margin>
+                        <Insets bottom="5.0" />
+                     </VBox.margin>
                   </TableView>
                </children>
                <padding>

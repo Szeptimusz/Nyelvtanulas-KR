@@ -130,7 +130,7 @@ public class FoablakController implements Initializable {
             lblTallozasEredmeny.setText("Tallózás sikeres!");
         } else {
             System.out.println("File is not valid");
-            lblTallozasEredmeny.setText("Nem sikerült a tallózás!");
+            lblTallozasEredmeny.setText("Sikertelen tallózás!");
         }
     }
     
@@ -192,8 +192,14 @@ public class FoablakController implements Initializable {
         // A szöveg szétvágása "." "?" "!" szerint, plusz azok az esetek amikor szóköz van utánuk
         String mondatok [] = minden.split("\\. |\\.|\\? |\\?|\\! |\\!");
         for (int i = 0; i < mondatok.length; i++) {
-            String[] szok = mondatok[i].split(" ");
+            // Mondat szétvágása szavakká szóköz vagy vessző szerint
+            String[] szok = mondatok[i].split(" |\\, |\\,");
             for (int j = 0; j < szok.length; j++) {
+                // Mozaikszavaknál, rövidítéseknél sok pont lehet közel egymáshoz, ilyenkor mindegyiket külön mondatnak
+                // veszi és 0, 1 karakteres töredékek keletkeznek mint szó. Ilyen esetekben a szót figyelmen kívül hagyjuk
+                if (szok[j].length() < 2) {
+                    continue;
+                }
                 char elsoKarakter = szok[j].charAt(0);
                 // Csak a A-Z és a-z kezdőbetűseket engedi feldolgozni és azokat amik idézőjellel kezdődnek
                 if ((elsoKarakter < 'A' || elsoKarakter > 'z' || (elsoKarakter > 90 && elsoKarakter < 97))
