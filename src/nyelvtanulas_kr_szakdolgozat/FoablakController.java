@@ -94,6 +94,11 @@ public class FoablakController implements Initializable {
     
     @FXML
     void futtat() {
+        // Ha nem tallózott, és szöveget sem írt be, akkor nem futnak le a metódusok, csak figyelmeztető ablakot nyit meg
+        if (txaBevitel.getText().equals("") && fileNeve == null) {
+            figyelmeztetes("Figyelem!", "Üres szövegmező! Kérem adjon meg szöveget, vagy használja "
+                + "a Tallózás gombot!");
+        } else {
         // Korábbi listener eltávolítása
         tblTablazat.getSelectionModel().selectedItemProperty().removeListener(listener);
         // Korábbi HashMap beállítások törlése.
@@ -116,6 +121,7 @@ public class FoablakController implements Initializable {
         // Listener beállítása az adatok táblázatba betöltése után
         tblTablazat.getSelectionModel().selectedItemProperty().addListener(listener);
         lblTallozasEredmeny.setText("");
+        }
     }
 
     /**
@@ -127,6 +133,7 @@ public class FoablakController implements Initializable {
         File selectedFile = fc.showOpenDialog(null);
         if (selectedFile != null) {
             fileNeve = selectedFile.getName();
+            txaBevitel.setText("");
             lblTallozasEredmeny.setText("Tallózás sikeres!");
         } else {
             System.out.println("File is not valid");
@@ -152,26 +159,24 @@ public class FoablakController implements Initializable {
                 System.out.println(e.getMessage());
             }
         } else {
-            minden = txaBevitel.getText();
-            if (minden.equals("")) {
-                figyelmeztetes("Figyelem!", "Üres szövegmező! Kérem adjon meg szöveget, vagy használja "
-                + "a Tallózás gombot!");
-            }
+            // A szövegdobozos szövegből kiszedjük a tabulátorokat és az új sorokat
+            minden = txaBevitel.getText().replaceAll("\t|\n", "");
         }
     }
 
     /**
      * A feldolgozás() metódus előtt szükséges azokat az egymás után többször előforduló karaktereket törölni, amik alapján majd a 
     splittelés történik ("." "?" "!").
-    Végigmegy a teljes szövegen karakterenként, ha a karakter 'A'-nál kisebb kódú (.,!? stb.), akkor ha a következő karakter is
-    ugyanolyan, addig törli a következőket amíg nem talál egy más karaktert.
+    Végigmegy a teljes szövegen karakterenként, ha a karakter ".?!" , akkor ha a következő karakter is
+    ugyanolyan, addig törli a következőket amíg nem talál egy más karaktert. Azzal, hogy csak ezt a 3 karaktert nézi
+    * a példamondatok jobban hasonlítanak az eredeti szövegben lévő mondatra.
      */
     public void eloFeldolgozas() {
         StringBuilder sb = new StringBuilder(minden);
         
         for (int i = 0; i < sb.length()-1; i++) {
             char c = sb.charAt(i);
-            if (c < 'A') {
+            if (c == '.' || c == '?' || c == '!' || c == ' ') {
                 while (c == sb.charAt(i + 1)) {
                     sb.deleteCharAt(i + 1);
                     // Ha az index kimenne a szövegből akkor megállítjuk
@@ -185,7 +190,7 @@ public class FoablakController implements Initializable {
     } 
     
     /**
-     * A beolvasott sorokat .?!-szerint mondatokká, azokat szóköz szerint szavakká vágva tárolja tömbben. A karakterkezelések 
+     * A beolvasott sorokat .?!-szerint mondatokká, azokat szóköz és vessző szerint szavakká vágva tárolja tömbben. A karakterkezelések 
      * után Sor típusú objektumként hozzáadja a megfigyelhető listához.
      */
     public void feldolgozas() {
@@ -196,25 +201,35 @@ public class FoablakController implements Initializable {
             String[] szok = mondatok[i].split(" |\\, |\\,");
             for (int j = 0; j < szok.length; j++) {
                 // Mozaikszavaknál, rövidítéseknél sok pont lehet közel egymáshoz, ilyenkor mindegyiket külön mondatnak
-                // veszi és 0, 1 karakteres töredékek keletkeznek mint szó. Ilyen esetekben a szót figyelmen kívül hagyjuk
+                // veszi és 0, 1 karakter hosszú töredékek keletkeznek mint szó. Ilyen esetekben a szót figyelmen kívül hagyjuk
                 if (szok[j].length() < 2) {
                     continue;
                 }
-                char elsoKarakter = szok[j].charAt(0);
-                // Csak a A-Z és a-z kezdőbetűseket engedi feldolgozni és azokat amik idézőjellel kezdődnek
-                if ((elsoKarakter < 'A' || elsoKarakter > 'z' || (elsoKarakter > 90 && elsoKarakter < 97))
-                        && elsoKarakter != '“' && elsoKarakter != '"') {
-                    continue;
+                
+                // Szó elejének megtisztítása az első szöveges karakterig
+                int eleje = 0;
+                int vege = szok[j].length()-1;
+                while (szok[j].charAt(eleje) < 'A' || szok[j].charAt(eleje) > 'z' || (szok[j].charAt(eleje) > 90 && szok[j].charAt(eleje) < 97)
+                        || (szok[j].charAt(eleje) > 47 && szok[j].charAt(eleje) < 58)) {
+                    if (eleje == szok[j].length()-1) {
+                        break;
+                    }
+                    eleje++;
                 }
-                // Ha a szó előtt idézőjel van, akkor levágjuk róla
-                if (elsoKarakter == '“' || elsoKarakter == '"') {
-                    szok[j] = szok[j].substring(1, szok[j].length());
+                // Ha teljesen elfogyott a szó a tisztítás során akkor nem dolgozza fel
+                if (eleje == szok[j].length()-1) {
+                        continue;
+                } else {
+                // Különben ha nem fogyott el a szó, akkor a szó végéről indulva is megtisztítja
+                    while (szok[j].charAt(vege) < 'A' || szok[j].charAt(vege) > 'z' || (szok[j].charAt(vege) > 90 && szok[j].charAt(vege) < 97)
+                            || (szok[j].charAt(vege) > 47 && szok[j].charAt(vege) < 58)) {
+                        if (vege == 0) {
+                            break;
+                        }
+                        vege--;
+                    }
                 }
-                char utolsoKarakter = szok[j].charAt(szok[j].length()-1);
-                // Megengedjük, hogy az utolsó betű nagy lehessen pl.: a mozaikszavak miatt
-                if (utolsoKarakter < 'A' || utolsoKarakter > 'z' || (utolsoKarakter > 90 && utolsoKarakter < 97)) {
-                    szok[j] = szok[j].substring(0, szok[j].length()-1);
-                }
+                szok[j] = szok[j].substring(eleje, vege + 1);
                 szok[j] = szok[j].toLowerCase();
                 
                 data.add(new Sor(szok[j], mondatok[i], 1));
@@ -374,6 +389,8 @@ public class FoablakController implements Initializable {
             ablak.initModality(Modality.APPLICATION_MODAL);
             ablak.setScene(scene);
             ablak.setTitle("Fordítás hozzáadása, feltöltés adatbázisba");
+            // Nem lehet bezárni
+            ablak.setOnCloseRequest(e -> e.consume());
             ablak.showAndWait();
         } catch (IOException ex) {
             System.out.println("Hiba: " + ex.getMessage());
