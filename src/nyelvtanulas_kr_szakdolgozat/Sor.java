@@ -5,11 +5,13 @@ public class Sor {
     private String szo;
     private String mondat;
     private int gyak;
+    private boolean tilt;
     
-    public Sor(String szo, String mondat, int gyak) {
+    public Sor(String szo, String mondat, int gyak, boolean tilt) {
         this.szo = szo;
         this.mondat = mondat;
         this.gyak = gyak;
+        this.tilt = tilt;
     }
 
     public String getSzo() {
@@ -36,4 +38,11 @@ public class Sor {
         this.gyak = gyak;
     }
 
+    public boolean isTilt() {
+        return tilt;
+    }
+
+    public void setTilt(boolean tilt) {
+        this.tilt = tilt;
+    }
 }

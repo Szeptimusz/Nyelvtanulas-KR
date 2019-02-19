@@ -38,7 +38,7 @@ public class ForditasController {
     }
     
     /**
-     * Ha a fordítás beviteli mező nem üres, akkor hozzáadja a szót,mondatot,ANKI állapotot és fordítást a tanulandó táblához
+     * Ha a fordítás beviteli mező nem üres, akkor hozzáadja a szót,mondatot,fordítást és ANKI állapotot a tanulandó táblához
      */
     @FXML
     void hozzaad() {

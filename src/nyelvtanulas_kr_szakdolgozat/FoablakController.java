@@ -45,8 +45,8 @@ import javafx.stage.Stage;
 public class FoablakController implements Initializable {
 
     String dbUrl = "jdbc:sqlite:";
-    static String fileNeve;
     static String minden = "";
+    static String fajlUtvonal;
     static HashMap<String, Integer> szavak_indexe = new HashMap<>();
     private final ObservableList<Sor> data = FXCollections.observableArrayList();
     
@@ -95,7 +95,7 @@ public class FoablakController implements Initializable {
     @FXML
     void futtat() {
         // Ha nem tallózott, és szöveget sem írt be, akkor nem futnak le a metódusok, csak figyelmeztető ablakot nyit meg
-        if (txaBevitel.getText().equals("") && fileNeve == null) {
+        if (txaBevitel.getText().equals("") && fajlUtvonal == null) {
             figyelmeztetes("Figyelem!", "Üres szövegmező! Kérem adjon meg szöveget, vagy használja "
                 + "a Tallózás gombot!");
         } else {
@@ -132,7 +132,7 @@ public class FoablakController implements Initializable {
         FileChooser fc = new FileChooser();
         File selectedFile = fc.showOpenDialog(null);
         if (selectedFile != null) {
-            fileNeve = selectedFile.getName();
+            fajlUtvonal = selectedFile.getAbsolutePath();
             txaBevitel.setText("");
             lblTallozasEredmeny.setText("Tallózás sikeres!");
         } else {
@@ -145,8 +145,8 @@ public class FoablakController implements Initializable {
      * Adatok beolvasása a betallózott fájlból vagy a szövegterületből.
      */
     public void beolvasas() {
-        if (fileNeve != null) {
-            File f = new File(fileNeve);
+        if (fajlUtvonal != null) {
+            File f = new File(fajlUtvonal);
             try (Scanner be = new Scanner(f,"Cp1250")) {
                 while (be.hasNextLine()) {
                     minden += be.nextLine();
@@ -154,7 +154,7 @@ public class FoablakController implements Initializable {
                 be.close();
                 // Ha egyszer lefuttatuk tallózott fájllal, kiszedjük a fájltnevet, hogy újra dönteni lehessen a tallózás-szövegdoboz között
                 // , különben a korábban tallózott fájlnév megmarad és így nem lehet használni a szövegmezőt.
-                fileNeve = null;
+                fajlUtvonal = null;
             } catch(IOException e) {
                 System.out.println(e.getMessage());
             }
@@ -209,8 +209,11 @@ public class FoablakController implements Initializable {
                 // Szó elejének megtisztítása az első szöveges karakterig
                 int eleje = 0;
                 int vege = szok[j].length()-1;
-                while (szok[j].charAt(eleje) < 'A' || szok[j].charAt(eleje) > 'z' || (szok[j].charAt(eleje) > 90 && szok[j].charAt(eleje) < 97)
-                        || (szok[j].charAt(eleje) > 47 && szok[j].charAt(eleje) < 58)) {
+                while (szok[j].charAt(eleje) < 'A' 
+                        || (szok[j].charAt(eleje) > 'z' && szok[j].charAt(eleje) < 193) 
+                        || (szok[j].charAt(eleje) > 'Z' && szok[j].charAt(eleje) < 'a') 
+                        || (szok[j].charAt(eleje) >= '0' && szok[j].charAt(eleje) <= '9') 
+                        || szok[j].charAt(eleje) > 382) {
                     if (eleje == szok[j].length()-1) {
                         break;
                     }
@@ -221,18 +224,26 @@ public class FoablakController implements Initializable {
                         continue;
                 } else {
                 // Különben ha nem fogyott el a szó, akkor a szó végéről indulva is megtisztítja
-                    while (szok[j].charAt(vege) < 'A' || szok[j].charAt(vege) > 'z' || (szok[j].charAt(vege) > 90 && szok[j].charAt(vege) < 97)
-                            || (szok[j].charAt(vege) > 47 && szok[j].charAt(vege) < 58)) {
+                    while (szok[j].charAt(vege) < 'A' 
+                            || (szok[j].charAt(vege) > 'z' && szok[j].charAt(vege) < 193) 
+                            || (szok[j].charAt(vege) > 'Z' && szok[j].charAt(vege) < 'a') 
+                            || (szok[j].charAt(vege) >= '0' && szok[j].charAt(vege) <= '9') 
+                            || szok[j].charAt(vege) > 382) {
                         if (vege == 0) {
                             break;
                         }
                         vege--;
                     }
                 }
+                // Ha még a levágás után is több mint 30 karakter a szó, akkor valószínűleg a belsejében van sok nem megfelelő
+                // karakter, ezért nem dolgozzuk fel.
                 szok[j] = szok[j].substring(eleje, vege + 1);
+                if (szok[j].length() > 30) {
+                    continue;
+                }
                 szok[j] = szok[j].toLowerCase();
                 
-                data.add(new Sor(szok[j], mondatok[i], 1));
+                data.add(new Sor(szok[j], mondatok[i], 1, false));
             }
         }
         // A minden String kiürítése a feldolgozás után, hogy ne foglalja tovább a memóriát
@@ -332,7 +343,7 @@ public class FoablakController implements Initializable {
     void ignoralMent() {
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
         DB.dbBeIr("ignoraltszavak",szo);
-        atnevezLeptet("letilt");
+        letiltLeptet(true);
     }
 
     /**
@@ -342,7 +353,7 @@ public class FoablakController implements Initializable {
     void ismertMent() {
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
         DB.dbBeIr("ismertszavak",szo);
-        atnevezLeptet("letilt");
+        letiltLeptet(true);
     }
 
     /**
@@ -354,12 +365,12 @@ public class FoablakController implements Initializable {
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
         String mondat = tblTablazat.getSelectionModel().getSelectedItem().getMondat();
         ablak(szo, mondat);
-        atnevezLeptet("letilt");
+        letiltLeptet(true);
     }
     
-    public void atnevezLeptet(String szoveg) {
-        // A listener figyeli, hogy van-e szó, ami változott, ezért nevezzük át (gomb letiltáshoz kell)
-        tblTablazat.getSelectionModel().getSelectedItem().setSzo(szoveg);
+    public void letiltLeptet(boolean tilt) {
+        // A listener figyeli az objektum tilt változóját, ezért igazra állítjuk a gombok letiltásához
+        tblTablazat.getSelectionModel().getSelectedItem().setTilt(tilt);
         // A hozzáadás után a lista következő elemét jelölje ki
         int i = tblTablazat.getSelectionModel().getSelectedIndex();
         tblTablazat.getSelectionModel().select(i+1);
@@ -433,6 +444,7 @@ public class FoablakController implements Initializable {
             // Ha sikeres volt az ANKI kártya készítés, akkor a táblában átírja az ANKI mezőt 0-ról 1-re.
             if (!szavak.isEmpty()) {
                 DB.dbModosit("tanulandoszavak",szavak);
+                figyelmeztetes("Kártya készítés eredmény", "A kártyák sikeresen elkészítve az ankiimport fájlba!");
                 System.out.println("ANKI kártya készítés sikeres!");
             } else {
                 figyelmeztetes("Figyelem!", "Nincsen tanulandó szó amiből szókártya készíthető!");
@@ -523,8 +535,8 @@ public class FoablakController implements Initializable {
 
         // Listener előkészítése a futtat() metódushoz
         listener = (v, regi, uj) -> {
-            String ujSzo = uj.getSzo();
-            if (ujSzo.equals("letilt")) {
+            boolean tiltva = uj.isTilt();
+            if (tiltva) {
                 btnIsmert.setDisable(true);
                 btnIgnore.setDisable(true);
                 btnTanulando.setDisable(true);

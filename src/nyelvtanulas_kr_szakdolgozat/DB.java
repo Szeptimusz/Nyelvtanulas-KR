@@ -28,7 +28,7 @@ public class DB {
                 for (String szo: szavak) {
                     ps.setString(1, szo);
                     ps.addBatch();
-                    System.out.println("Prepared statement hozzáadva!");
+                    System.out.println("Batch hozzáadva!");
                 }
                 
                 ps.executeBatch();
@@ -47,7 +47,7 @@ public class DB {
                 for (String szo: szavak) {
                     ps.setString(1, szo);
                     ps.addBatch();
-                    System.out.println("Prepared statement hozzáadva!");
+                    System.out.println("Batch hozzáadva!");
                 }
                 
                 ps.executeBatch();
@@ -66,7 +66,7 @@ public class DB {
                     ps.setInt(1, 1);
                     ps.setString(2, szo);
                     ps.addBatch();
-                    System.out.println("Prepared statement hozzáadva!");
+                    System.out.println("Batch hozzáadva!");
                 }
                 
                 ps.executeBatch();
