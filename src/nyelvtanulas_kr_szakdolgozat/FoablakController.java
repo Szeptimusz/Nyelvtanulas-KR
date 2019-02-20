@@ -76,6 +76,9 @@ public class FoablakController implements Initializable {
     private Button btnIgnore;
     
     @FXML
+    private Button btnVisszavon;
+    
+    @FXML
     private Label lblTallozasEredmeny;
 
     @FXML
@@ -96,7 +99,7 @@ public class FoablakController implements Initializable {
     void futtat() {
         // Ha nem tallózott, és szöveget sem írt be, akkor nem futnak le a metódusok, csak figyelmeztető ablakot nyit meg
         if (txaBevitel.getText().equals("") && fajlUtvonal == null) {
-            figyelmeztetes("Figyelem!", "Üres szövegmező! Kérem adjon meg szöveget, vagy használja "
+            figyelmeztet("Figyelem!", "Üres szövegmező! Kérem adjon meg szöveget, vagy használja "
                 + "a Tallózás gombot!");
         } else {
         // Korábbi listener eltávolítása
@@ -343,7 +346,7 @@ public class FoablakController implements Initializable {
     void ignoralMent() {
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
         DB.dbBeIr("ignoraltszavak",szo);
-        letiltLeptet(true);
+        letiltLeptet(true,"ignoraltszavak");
     }
 
     /**
@@ -353,7 +356,7 @@ public class FoablakController implements Initializable {
     void ismertMent() {
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
         DB.dbBeIr("ismertszavak",szo);
-        letiltLeptet(true);
+        letiltLeptet(true,"ismertszavak");
     }
 
     /**
@@ -365,15 +368,38 @@ public class FoablakController implements Initializable {
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
         String mondat = tblTablazat.getSelectionModel().getSelectedItem().getMondat();
         ablak(szo, mondat);
-        letiltLeptet(true);
+        if (ForditasController.isTanulandoElmentve()) {
+            letiltLeptet(true, "tanulandoszavak");
+        }
     }
     
-    public void letiltLeptet(boolean tilt) {
+    public void letiltLeptet(boolean tilt, String tabla) {
         // A listener figyeli az objektum tilt változóját, ezért igazra állítjuk a gombok letiltásához
         tblTablazat.getSelectionModel().getSelectedItem().setTilt(tilt);
+        // Minden sornál a táblázatban tárolja, hogy melyik táblába lett elmentve
+        tblTablazat.getSelectionModel().getSelectedItem().setTabla(tabla);
         // A hozzáadás után a lista következő elemét jelölje ki
         int i = tblTablazat.getSelectionModel().getSelectedIndex();
         tblTablazat.getSelectionModel().select(i+1);
+    }
+    
+    /**
+     * A Visszavonás -gombra kattintva (ha volt adatbázisba mentés a 3 gombbal), akkor a 3 gomb tiltását feloldja, törli a korábban
+     * adatbázisba írt szót és visszaállítja a tablazat változót null-ra, hogy egy sort többször is lehessen módosítani.
+     */
+    @FXML
+    void visszavon() {
+        String tabla = tblTablazat.getSelectionModel().getSelectedItem().getTabla();
+        if (tabla != null) {
+            tblTablazat.getSelectionModel().getSelectedItem().setTilt(false);
+            btnIsmert.setDisable(false);
+            btnIgnore.setDisable(false);
+            btnTanulando.setDisable(false);
+            DB.dbSzotTorol(tabla, tblTablazat.getSelectionModel().getSelectedItem().getSzo());
+            tblTablazat.getSelectionModel().getSelectedItem().setTabla(null);
+        } else {
+            figyelmeztet("Figyelem!", "A kijelölt sornál nem történt változás amit vissza kéne vonni!");
+        }
     }
     
     /**
@@ -400,11 +426,9 @@ public class FoablakController implements Initializable {
             ablak.initModality(Modality.APPLICATION_MODAL);
             ablak.setScene(scene);
             ablak.setTitle("Fordítás hozzáadása, feltöltés adatbázisba");
-            // Nem lehet bezárni
-            ablak.setOnCloseRequest(e -> e.consume());
             ablak.showAndWait();
-        } catch (IOException ex) {
-            System.out.println("Hiba: " + ex.getMessage());
+        } catch (IOException e) {
+            System.out.println("Hiba: " + e.getMessage());
         }
     }
     
@@ -444,10 +468,10 @@ public class FoablakController implements Initializable {
             // Ha sikeres volt az ANKI kártya készítés, akkor a táblában átírja az ANKI mezőt 0-ról 1-re.
             if (!szavak.isEmpty()) {
                 DB.dbModosit("tanulandoszavak",szavak);
-                figyelmeztetes("Kártya készítés eredmény", "A kártyák sikeresen elkészítve az ankiimport fájlba!");
+                tajekoztat("Kártya készítés eredmény", "A kártyák sikeresen elkészítve az ankiimport fájlba!");
                 System.out.println("ANKI kártya készítés sikeres!");
             } else {
-                figyelmeztetes("Figyelem!", "Nincsen tanulandó szó amiből szókártya készíthető!");
+                figyelmeztet("Figyelem!", "Nincsen tanulandó szó amiből szókártya készíthető!");
             }
         } else {
             alert.hide();
@@ -501,10 +525,19 @@ public class FoablakController implements Initializable {
      */
     @FXML
     void nevjegy() {
+        tajekoztat("Nyelvtanulás program", "Készítette: Kremmer Róbert");
+    }
+    
+    /**
+     * Megnyit egy ablakot az adott szöveggel, amikor tájékoztató jellegű visszajelzést kell küldeni a felhasználónak.
+     * @param cim:      Az ablak címe.
+     * @param szoveg    A megjelenített szöveg.
+     */
+    static void tajekoztat(String cim, String szoveg) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Nyelvtanulás program");
+        alert.setTitle(cim);
         alert.setHeaderText(null);
-        alert.setContentText("Készítette: Kremmer Róbert");
+        alert.setContentText(szoveg);
         alert.showAndWait();
     }
     
@@ -513,7 +546,7 @@ public class FoablakController implements Initializable {
      * @param cim:       Az ablak címe
      * @param szoveg:    A megjelenített üzenet
      */
-    static void figyelmeztetes(String cim, String szoveg) {
+    static void figyelmeztet(String cim, String szoveg) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle(cim);
         alert.setHeaderText(null);
@@ -545,7 +578,6 @@ public class FoablakController implements Initializable {
                 btnIgnore.setDisable(false);
                 btnTanulando.setDisable(false);
             }
-
             // Figyeli, hogy a sor mondata változott-e és azt írja ki a táblázat fölötti szövegterületre
             String mondat = uj.getMondat();
             if (mondat != null) {

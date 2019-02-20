@@ -6,6 +6,7 @@ public class Sor {
     private String mondat;
     private int gyak;
     private boolean tilt;
+    private String tabla;
     
     public Sor(String szo, String mondat, int gyak, boolean tilt) {
         this.szo = szo;
@@ -45,4 +46,13 @@ public class Sor {
     public void setTilt(boolean tilt) {
         this.tilt = tilt;
     }
+
+    public String getTabla() {
+        return tabla;
+    }
+
+    public void setTabla(String tabla) {
+        this.tabla = tabla;
+    }
+    
 }
