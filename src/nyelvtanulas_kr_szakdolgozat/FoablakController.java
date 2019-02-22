@@ -1,10 +1,11 @@
 package nyelvtanulas_kr_szakdolgozat;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -80,7 +81,7 @@ public class FoablakController implements Initializable {
     
     @FXML
     private Label lblTallozasEredmeny;
-
+    
     @FXML
     private TableView<Sor> tblTablazat;
 
@@ -94,7 +95,7 @@ public class FoablakController implements Initializable {
     private TableColumn<Sor, Integer> oGyak;
     
     private ChangeListener<Sor> listener;
-    
+
     @FXML
     void futtat() {
         // Ha nem tallózott, és szöveget sem írt be, akkor nem futnak le a metódusok, csak figyelmeztető ablakot nyit meg
@@ -310,8 +311,13 @@ public class FoablakController implements Initializable {
         }
         
         // Görgetett szó előfordult a szövegben, ezért töröljük az adatbázisból
+        // A felugró ablak addig marad megnyitva, amíg az adatbázis művelet be nem bejeződött
         if (!szavak.isEmpty()) {
+            Alert alert = new Alert(AlertType.INFORMATION, "Egyszer előforduló szavak törlése az adatbázisból folyamatban...");
+            alert.setHeaderText(null);
+            alert.show();
             DB.dbTorol(szavak, tabla);
+            alert.hide();
         }
     }
     
@@ -334,8 +340,13 @@ public class FoablakController implements Initializable {
             }
         }
         // Egyszer előforduló szavak görgetettszavak táblába írása
+        // A felugró ablak addig marad megnyitva, amíg az adatbázis művelet be nem bejeződött
         if (!szavak.isEmpty()) {
+            Alert alert = new Alert(AlertType.INFORMATION, "Egyszer előforduló szavak adatbázisba írása folyamatban...");
+            alert.setHeaderText(null);
+            alert.show();
             DB.dbIr(szavak);
+            alert.hide();
         }
     }
 
@@ -487,7 +498,9 @@ public class FoablakController implements Initializable {
      * @return :        Ha sikerült a fájlba írás igazad ad vissza, ha nem akkor false-t.
      */
     public boolean ankiKartyatKeszit(String szo, String mondat, String forditas) {
-        try (FileWriter f = new FileWriter("ankiimport.txt",true); PrintWriter p = new PrintWriter(f)) {
+        // Kiírás FileOutputStream-mel, mert így megadható az utf-8 kódolás (az ANKI program csak ezt tudja beimportálni)
+        try (OutputStreamWriter writer =
+             new OutputStreamWriter(new FileOutputStream("ankiimport.txt",true), StandardCharsets.UTF_8)) {
             
             // A mondatban a szó előfordulásainak megkeresése, pontokkal helyessítése és így lyukas szöveg gyártása.
             String lyukasMondat = "";
@@ -504,14 +517,14 @@ public class FoablakController implements Initializable {
                 lyukasMondat += szavak[i] + " ";
             }
             
-            p.println(szo + "<br><br>" + mondat + "\t" + forditas + "<br><br>" + lyukasMondat);
+            writer.write(szo + "<br><br>" + mondat + "\t" + forditas + "<br><br>" + lyukasMondat + "\n");
             return true;
         } catch(IOException e) {
             System.out.println(e.getMessage());
             return false;
         }
     }
-    
+     
     /**
      * A menüből a Kilépés-t választva bezárja a programot.
      */
