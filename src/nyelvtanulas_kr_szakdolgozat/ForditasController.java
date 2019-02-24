@@ -2,6 +2,7 @@ package nyelvtanulas_kr_szakdolgozat;
 
 import java.awt.Desktop;
 import java.net.URI;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -29,6 +30,10 @@ public class ForditasController {
     public void setSzo(String szo) {
         this.szo = szo;
         lblSzo.setText(szo);
+        // A fordítás ablak megnyitásakor a kurzor a szövegbeviteli mezőn lesz
+        Platform.runLater(() -> {
+            txtForditas.requestFocus();
+        });
     }
 
     private String mondat;

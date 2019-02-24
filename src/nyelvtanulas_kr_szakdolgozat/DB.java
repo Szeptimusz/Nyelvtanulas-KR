@@ -28,15 +28,16 @@ public class DB {
                 for (String szo: szavak) {
                     ps.setString(1, szo);
                     ps.addBatch();
-                    System.out.println("Batch hozzáadva!");
                     count++;
                     if (count == 1000) {
                         ps.executeBatch();
+                        System.out.println("Adabázisba írás sikeres!");
                         count = 0;
                     }
                 }
                 if (count != 0) {
                     ps.executeBatch();
+                    System.out.println("Adabázisba írás sikeres!");
                 }
                 kapcs.commit();
         } catch (SQLException e) {
@@ -60,15 +61,16 @@ public class DB {
                 for (String szo: szavak) {
                     ps.setString(1, szo);
                     ps.addBatch();
-                    System.out.println("Batch hozzáadva!");
                     count++;
                     if (count == 1000) {
                         ps.executeBatch();
+                        System.out.println("Adatbáziból törlés sikeres!");
                         count = 0;
                     }
                 }
                 if (count != 0) {
                     ps.executeBatch();
+                    System.out.println("Adatbáziból törlés sikeres!");
                 }
                 kapcs.commit();
         } catch (SQLException e) {
@@ -93,15 +95,16 @@ public class DB {
                     ps.setInt(1, 1);
                     ps.setString(2, szo);
                     ps.addBatch();
-                    System.out.println("Batch hozzáadva!");
                     count++;
                     if (count == 1000) {
                         ps.executeBatch();
+                        System.out.println("Adatbázis módosítás sikeres!");
                         count = 0;
                     }
                 }
                 if (count != 0) {
                     ps.executeBatch();
+                    System.out.println("Adatbázis módosítás sikeres!");
                 }
                 kapcs.commit();
         } catch (SQLException e) {

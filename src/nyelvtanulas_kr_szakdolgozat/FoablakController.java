@@ -1,6 +1,7 @@
 package nyelvtanulas_kr_szakdolgozat;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -12,10 +13,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.Scanner;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
@@ -103,6 +104,12 @@ public class FoablakController implements Initializable {
             figyelmeztet("Figyelem!", "Üres szövegmező! Kérem adjon meg szöveget, vagy használja "
                 + "a Tallózás gombot!");
         } else {
+        ButtonType btn = new ButtonType("NE KATTINTSON RÁ!"); 
+        Alert alert = new Alert(Alert.AlertType.INFORMATION,"Adatok feldolgozása folyamatban... \n"
+                + " NE KATTINTSON ERRE AZ ABLAKRA!",btn);
+        alert.setHeaderText(null);
+        alert.show();    
+            
         // Korábbi listener eltávolítása
         tblTablazat.getSelectionModel().selectedItemProperty().removeListener(listener);
         // Korábbi HashMap beállítások törlése.
@@ -113,6 +120,7 @@ public class FoablakController implements Initializable {
         eloFeldolgozas();
         feldolgozas();
         azonosakTorlese();
+        long startTime = System.currentTimeMillis();
         dbOsszevet("ismertszavak");
         dbOsszevet("ignoraltszavak");
         dbOsszevet("tanulandoszavak");
@@ -120,11 +128,17 @@ public class FoablakController implements Initializable {
         if (cxbEgyszer.isSelected()) {
             dbOsszevet("gorgetettszavak");
         }
+        long endTime = System.currentTimeMillis();
+        long duration = (endTime - startTime);
+        System.out.println("Összevetések időtartam: " + duration);
         listaTorlesek();
         tblTablazat.setItems(data);
         // Listener beállítása az adatok táblázatba betöltése után
         tblTablazat.getSelectionModel().selectedItemProperty().addListener(listener);
         lblTallozasEredmeny.setText("");
+        
+        alert.hide();
+        tajekoztat("Kész!", "Az adatok feldolgozása befejeződött!");
         }
     }
 
@@ -146,26 +160,29 @@ public class FoablakController implements Initializable {
     }
     
     /**
-     * Adatok beolvasása a betallózott fájlból vagy a szövegterületből.
+     * Adatok beolvasása a betallózott fájlból vagy a szövegterületből. Az egész szöveget egyszerre olvassa be.
      */
     public void beolvasas() {
+        long startTime = System.currentTimeMillis();
         if (fajlUtvonal != null) {
             File f = new File(fajlUtvonal);
-            try (Scanner be = new Scanner(f,"Cp1250")) {
-                while (be.hasNextLine()) {
-                    minden += be.nextLine();
-                }
-                be.close();
-                // Ha egyszer lefuttatuk tallózott fájllal, kiszedjük a fájltnevet, hogy újra dönteni lehessen a tallózás-szövegdoboz között
-                // , különben a korábban tallózott fájlnév megmarad és így nem lehet használni a szövegmezőt.
+            try (FileInputStream fis = new FileInputStream(f);){
+                byte[] adat = new byte[(int) f.length()];
+                fis.read(adat);
+                minden = new String(adat, "Cp1250");
+                minden = minden.replaceAll("\t|\n|\r", "");
                 fajlUtvonal = null;
-            } catch(IOException e) {
+            } catch (IOException e) {
                 System.out.println(e.getMessage());
             }
+            
         } else {
             // A szövegdobozos szövegből kiszedjük a tabulátorokat és az új sorokat
             minden = txaBevitel.getText().replaceAll("\t|\n", "");
         }
+        long endTime = System.currentTimeMillis();
+        long duration = (endTime - startTime);
+        System.out.println("Beolvasás időtartam: " + duration);
     }
 
     /**
@@ -176,8 +193,8 @@ public class FoablakController implements Initializable {
     * a példamondatok jobban hasonlítanak az eredeti szövegben lévő mondatra.
      */
     public void eloFeldolgozas() {
+        long startTime = System.currentTimeMillis();
         StringBuilder sb = new StringBuilder(minden);
-        
         for (int i = 0; i < sb.length()-1; i++) {
             char c = sb.charAt(i);
             if (c == '.' || c == '?' || c == '!' || c == ' ') {
@@ -191,6 +208,9 @@ public class FoablakController implements Initializable {
             }
         }
         minden = sb.toString();
+        long endTime = System.currentTimeMillis();
+        long duration = (endTime - startTime);
+        System.out.println("Előfeldolgozás időtartam: " + duration);
     } 
     
     /**
@@ -198,6 +218,7 @@ public class FoablakController implements Initializable {
      * után Sor típusú objektumként hozzáadja a megfigyelhető listához.
      */
     public void feldolgozas() {
+        long startTime = System.currentTimeMillis();
         // A szöveg szétvágása "." "?" "!" szerint, plusz azok az esetek amikor szóköz van utánuk
         String mondatok [] = minden.split("\\. |\\.|\\? |\\?|\\! |\\!");
         for (int i = 0; i < mondatok.length; i++) {
@@ -250,6 +271,9 @@ public class FoablakController implements Initializable {
                 data.add(new Sor(szok[j], mondatok[i], 1, false));
             }
         }
+        long endTime = System.currentTimeMillis();
+        long duration = (endTime - startTime);
+        System.out.println("Feldolgozás időtartam: " + duration);
         // A minden String kiürítése a feldolgozás után, hogy ne foglalja tovább a memóriát
         minden = "";
     }
@@ -258,20 +282,27 @@ public class FoablakController implements Initializable {
      * Azonos szavak törlése a listából, szógyakoriság számolása, egyes szavak indexének tárolása.
      */
     public void azonosakTorlese() {
-        for (int i = 0; i < data.size()-1; i++){
-            String szo = data.get(i).getSzo();
-            //Beállítja az egyes szavak index helyét a listában (listában keresést gyorsítja)
-            szavak_indexe.put(szo, i);
+        // Lista rendezése szavak szerint, majd addig törli az adott szót, amíg előfordul
+        Collections.sort(data,(Sor s1, Sor s2) -> s1.getSzo().compareTo(s2.getSzo()));
+        long startTime = System.currentTimeMillis();
+        int i = 0;
+        while (i < data.size() - 1) {
+            szavak_indexe.put(data.get(i).getSzo(), i);
             int db = 1;
-            for (int j = i +1; j < data.size(); j++){
-                if(szo.equals(data.get(j).getSzo())){
-                    data.remove(j);
-                    j--;
-                    db++;
+            while (data.get(i).getSzo().equals(data.get(i + 1).getSzo())) {
+                data.remove(i + 1);
+                db++;
+                if (i + 1 == data.size()) {
+                    break;
                 }
             }
             data.get(i).setGyak(db);
+            i++;
         }
+        long endTime = System.currentTimeMillis();
+        long duration = (endTime - startTime);
+        System.out.println("Azonosak törlése időtartam: " + duration);
+        
         /* A lista utolsó szavánál is beállítja az indexes hashmap-et (az lista azonos szavainak törlésénél csak
            az utolsó előtti elemig mentünk el) */
         szavak_indexe.put(data.get(data.size()-1).getSzo(), data.size()-1);
@@ -327,6 +358,7 @@ public class FoablakController implements Initializable {
        akkor törli a listából és hozzáadja a görgetett szavakhoz az adatbázisban.
      */
     public void listaTorlesek() {
+        long startTime = System.currentTimeMillis();
         ArrayList<String> szavak = new ArrayList();
         for (int i = 0; i < data.size(); i++) {
             String szo = data.get(i).getSzo();
@@ -339,6 +371,9 @@ public class FoablakController implements Initializable {
                 szavak.add(szo);
             }
         }
+        long endTime = System.currentTimeMillis();
+        long duration = (endTime - startTime);
+        System.out.println("Lista törlések időtartam: " + duration);
         // Egyszer előforduló szavak görgetettszavak táblába írása
         // A felugró ablak addig marad megnyitva, amíg az adatbázis művelet be nem bejeződött
         if (!szavak.isEmpty()) {
@@ -547,10 +582,9 @@ public class FoablakController implements Initializable {
      * @param szoveg    A megjelenített szöveg.
      */
     static void tajekoztat(String cim, String szoveg) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        Alert alert = new Alert(Alert.AlertType.INFORMATION,szoveg);
         alert.setTitle(cim);
         alert.setHeaderText(null);
-        alert.setContentText(szoveg);
         alert.showAndWait();
     }
     
@@ -560,10 +594,9 @@ public class FoablakController implements Initializable {
      * @param szoveg:    A megjelenített üzenet
      */
     static void figyelmeztet(String cim, String szoveg) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
+        Alert alert = new Alert(Alert.AlertType.WARNING,szoveg);
         alert.setTitle(cim);
         alert.setHeaderText(null);
-        alert.setContentText(szoveg);
         alert.showAndWait();
     }
     
