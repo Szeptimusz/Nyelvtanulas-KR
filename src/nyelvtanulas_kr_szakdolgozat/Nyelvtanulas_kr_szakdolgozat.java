@@ -17,7 +17,7 @@ public class Nyelvtanulas_kr_szakdolgozat extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("Foablak.fxml"));
         
         Scene scene = new Scene(root);
-        
+        stage.setTitle("Nyelvtanulás program");
         stage.setScene(scene);
         stage.show();
     }

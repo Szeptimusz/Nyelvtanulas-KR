@@ -24,7 +24,7 @@
         <menus>
           <Menu mnemonicParsing="false" text="Opciók">
             <items>
-                  <MenuItem mnemonicParsing="false" onAction="#anki" text="ANKI kártya készítése" />
+                  <MenuItem mnemonicParsing="false" onAction="#ankiImport" text="ANKI kártya készítése" />
                   <MenuItem mnemonicParsing="false" text="Szavak kikérdezése" />
                   <MenuItem mnemonicParsing="false" text="Statisztika" />
               <MenuItem mnemonicParsing="false" onAction="#kilep" text="Kilépés" />

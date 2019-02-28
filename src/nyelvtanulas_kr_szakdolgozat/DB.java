@@ -1,10 +1,17 @@
 package nyelvtanulas_kr_szakdolgozat;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import javafx.collections.ObservableList;
 
 public class DB {
 
@@ -157,5 +164,45 @@ public class DB {
             System.out.println(e.getMessage());
         }
     }
+    
+    /**
+     * A kapott tábla szavait lekérdezi az adatbázisból és ha létezik a listában, akkor a lista szavát átnevezi torlendo-re, 
+       jelezve, hogy a táblázat megjelenítése előtt törölni kell a listából. Ha a görgetettszavak táblán megy végig és a szó 
+       létezik a listában, akkor 1-gyel növeli a gyakoriságát a listában (így biztos, hogy legalább kétszer előfordul globálisan) és 
+       törli a táblából a szót.
+     * @param tabla         A kapott tábla neve
+     * @param data          A kapott lista a feldolgozott szavakkal,mondatokkal
+     * @param szavak_indexe A kapott HashMap, ebben tároljuk azt, hogy az adott szó a listában hányadik indexen van
+     */
+    public static void dbOsszevet(String tabla, ObservableList<Sor> data, HashMap<String, Integer> szavak_indexe) {
+        ArrayList<String> szavak = new ArrayList();
+        String query = "SELECT szavak FROM " + tabla;
+        try (Connection kapcs = DriverManager.getConnection(dbUrl);
+            PreparedStatement ps = kapcs.prepareStatement(query)) {
+            ResultSet eredmeny = ps.executeQuery();
+            
+            while (eredmeny.next()) {
+                String szo = eredmeny.getString("szavak");
+                if (szavak_indexe.get(szo) != null) {
+                    // ha nem a gorgetettszavak táblán megyünk végig 
+                    if (!tabla.equals("gorgetettszavak")) {
+                        data.get(szavak_indexe.get(szo)).setSzo("torlendo");
+                    } else {
+                        int gyak = data.get(szavak_indexe.get(szo)).getGyak();
+                        data.get(szavak_indexe.get(szo)).setGyak(++gyak);
+                        szavak.add(szo);
+                    }
+                }
+            }
+            
+        } catch (SQLException e) {
+            System.out.println("Nem sikerült az adatbázis-lekérdezés!");
+            System.out.println(e.getMessage());
+        }
+        
+        // Görgetett szó előfordult a szövegben, ezért töröljük az adatbázisból
+        if (!szavak.isEmpty()) {
+            dbTorol(szavak, tabla);
+        }
+    }
 }
- 

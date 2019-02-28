@@ -46,54 +46,41 @@ import javafx.stage.Stage;
  */
 public class FoablakController implements Initializable {
 
-    String dbUrl = "jdbc:sqlite:";
+    static String dbUrl = "jdbc:sqlite:";
     static String minden = "";
     static String fajlUtvonal;
     static HashMap<String, Integer> szavak_indexe = new HashMap<>();
     private final ObservableList<Sor> data = FXCollections.observableArrayList();
     
     
-     @FXML
+    @FXML
     private Button btnChooser;
-
     @FXML
     private TextArea txaBevitel;
-
     @FXML
     private TextArea txaMondat;
-    
     @FXML
     private CheckBox cxbEgyszer;
-
     @FXML
     private Button btnFuttat;
-
     @FXML
     private Button btnIsmert;
-
     @FXML
     private Button btnTanulando;
-
     @FXML
     private Button btnIgnore;
-    
     @FXML
     private Button btnVisszavon;
-    
     @FXML
     private Label lblTallozasEredmeny;
-    
     @FXML
     private TableView<Sor> tblTablazat;
-
     @FXML
     private TableColumn<Sor, String> oSzo;
-
     @FXML
     private TableColumn<Sor, String> oMondat;
-
     @FXML
-    private TableColumn<Sor, Integer> oGyak;
+    private TableColumn<Sor, Integer> oGyak; 
     
     private ChangeListener<Sor> listener;
 
@@ -120,17 +107,13 @@ public class FoablakController implements Initializable {
         eloFeldolgozas();
         feldolgozas();
         azonosakTorlese();
-        long startTime = System.currentTimeMillis();
-        dbOsszevet("ismertszavak");
-        dbOsszevet("ignoraltszavak");
-        dbOsszevet("tanulandoszavak");
+        DB.dbOsszevet("ismertszavak",data,szavak_indexe);
+        DB.dbOsszevet("ignoraltszavak",data,szavak_indexe);
+        DB.dbOsszevet("tanulandoszavak",data,szavak_indexe);
         // Ha be lett pipálva a checkbox
         if (cxbEgyszer.isSelected()) {
-            dbOsszevet("gorgetettszavak");
+            DB.dbOsszevet("gorgetettszavak",data,szavak_indexe);
         }
-        long endTime = System.currentTimeMillis();
-        long duration = (endTime - startTime);
-        System.out.println("Összevetések időtartam: " + duration);
         listaTorlesek();
         tblTablazat.setItems(data);
         // Listener beállítása az adatok táblázatba betöltése után
@@ -163,7 +146,6 @@ public class FoablakController implements Initializable {
      * Adatok beolvasása a betallózott fájlból vagy a szövegterületből. Az egész szöveget egyszerre olvassa be.
      */
     public void beolvasas() {
-        long startTime = System.currentTimeMillis();
         if (fajlUtvonal != null) {
             File f = new File(fajlUtvonal);
             try (FileInputStream fis = new FileInputStream(f);){
@@ -171,18 +153,17 @@ public class FoablakController implements Initializable {
                 fis.read(adat);
                 minden = new String(adat, "Cp1250");
                 minden = minden.replaceAll("\t|\n|\r", "");
+                /* Ha egyszer lefuttatuk tallózott fájllal, kiszedjük a fájltnevet, hogy újra dönteni lehessen 
+                   a tallózás-szövegdoboz között különben a korábban tallózott fájlnév megmarad és így nem lehet
+                   használni a szövegmezőt.*/
                 fajlUtvonal = null;
             } catch (IOException e) {
                 System.out.println(e.getMessage());
             }
-            
         } else {
             // A szövegdobozos szövegből kiszedjük a tabulátorokat és az új sorokat
             minden = txaBevitel.getText().replaceAll("\t|\n", "");
         }
-        long endTime = System.currentTimeMillis();
-        long duration = (endTime - startTime);
-        System.out.println("Beolvasás időtartam: " + duration);
     }
 
     /**
@@ -193,7 +174,6 @@ public class FoablakController implements Initializable {
     * a példamondatok jobban hasonlítanak az eredeti szövegben lévő mondatra.
      */
     public void eloFeldolgozas() {
-        long startTime = System.currentTimeMillis();
         StringBuilder sb = new StringBuilder(minden);
         for (int i = 0; i < sb.length()-1; i++) {
             char c = sb.charAt(i);
@@ -208,9 +188,6 @@ public class FoablakController implements Initializable {
             }
         }
         minden = sb.toString();
-        long endTime = System.currentTimeMillis();
-        long duration = (endTime - startTime);
-        System.out.println("Előfeldolgozás időtartam: " + duration);
     } 
     
     /**
@@ -218,7 +195,6 @@ public class FoablakController implements Initializable {
      * után Sor típusú objektumként hozzáadja a megfigyelhető listához.
      */
     public void feldolgozas() {
-        long startTime = System.currentTimeMillis();
         // A szöveg szétvágása "." "?" "!" szerint, plusz azok az esetek amikor szóköz van utánuk
         String mondatok [] = minden.split("\\. |\\.|\\? |\\?|\\! |\\!");
         for (int i = 0; i < mondatok.length; i++) {
@@ -268,12 +244,9 @@ public class FoablakController implements Initializable {
                 }
                 szok[j] = szok[j].toLowerCase();
                 
-                data.add(new Sor(szok[j], mondatok[i], 1, false));
+                data.add(new Sor(szok[j], mondatok[i], 1));
             }
         }
-        long endTime = System.currentTimeMillis();
-        long duration = (endTime - startTime);
-        System.out.println("Feldolgozás időtartam: " + duration);
         // A minden String kiürítése a feldolgozás után, hogy ne foglalja tovább a memóriát
         minden = "";
     }
@@ -284,7 +257,6 @@ public class FoablakController implements Initializable {
     public void azonosakTorlese() {
         // Lista rendezése szavak szerint, majd addig törli az adott szót, amíg előfordul
         Collections.sort(data,(Sor s1, Sor s2) -> s1.getSzo().compareTo(s2.getSzo()));
-        long startTime = System.currentTimeMillis();
         int i = 0;
         while (i < data.size() - 1) {
             szavak_indexe.put(data.get(i).getSzo(), i);
@@ -299,57 +271,9 @@ public class FoablakController implements Initializable {
             data.get(i).setGyak(db);
             i++;
         }
-        long endTime = System.currentTimeMillis();
-        long duration = (endTime - startTime);
-        System.out.println("Azonosak törlése időtartam: " + duration);
-        
         /* A lista utolsó szavánál is beállítja az indexes hashmap-et (az lista azonos szavainak törlésénél csak
            az utolsó előtti elemig mentünk el) */
         szavak_indexe.put(data.get(data.size()-1).getSzo(), data.size()-1);
-    }
-
-    /**
-     * A kapott tábla szavait lekérdezi az adatbázisból és ha létezik a listában, akkor a lista szavát átnevezi torlendo-re, 
-       jelezve, hogy a táblázat megjelenítése előtt törölni kell a listából. Ha a görgetettszavak táblán megy végig és a szó 
-       létezik a listában, akkor 1-gyel növeli a gyakoriságát a listában (így biztos, hogy legalább kétszer előfordul globálisan) és 
-       törli a táblából a szót.
-     * @param tabla: Paraméterként kapott tábla neve
-     */
-    public void dbOsszevet(String tabla) {
-        ArrayList<String> szavak = new ArrayList();
-        String query = "SELECT szavak FROM " + tabla;
-        try (Connection kapcs = DriverManager.getConnection(dbUrl);
-            PreparedStatement ps = kapcs.prepareStatement(query)) {
-            ResultSet eredmeny = ps.executeQuery();
-            
-            while (eredmeny.next()) {
-                String szo = eredmeny.getString("szavak");
-                if (szavak_indexe.get(szo) != null) {
-                    // ha nem a gorgetettszavak táblán megyünk végig 
-                    if (!tabla.equals("gorgetettszavak")) {
-                        data.get(szavak_indexe.get(szo)).setSzo("torlendo");
-                    } else {
-                        int gyak = data.get(szavak_indexe.get(szo)).getGyak();
-                        data.get(szavak_indexe.get(szo)).setGyak(++gyak);
-                        szavak.add(szo);
-                    }
-                }
-            }
-            
-        } catch (SQLException e) {
-            System.out.println("Nem sikerült az adatbázis-lekérdezés!");
-            System.out.println(e.getMessage());
-        }
-        
-        // Görgetett szó előfordult a szövegben, ezért töröljük az adatbázisból
-        // A felugró ablak addig marad megnyitva, amíg az adatbázis művelet be nem bejeződött
-        if (!szavak.isEmpty()) {
-            Alert alert = new Alert(AlertType.INFORMATION, "Egyszer előforduló szavak törlése az adatbázisból folyamatban...");
-            alert.setHeaderText(null);
-            alert.show();
-            DB.dbTorol(szavak, tabla);
-            alert.hide();
-        }
     }
     
     /**
@@ -358,7 +282,6 @@ public class FoablakController implements Initializable {
        akkor törli a listából és hozzáadja a görgetett szavakhoz az adatbázisban.
      */
     public void listaTorlesek() {
-        long startTime = System.currentTimeMillis();
         ArrayList<String> szavak = new ArrayList();
         for (int i = 0; i < data.size(); i++) {
             String szo = data.get(i).getSzo();
@@ -371,17 +294,9 @@ public class FoablakController implements Initializable {
                 szavak.add(szo);
             }
         }
-        long endTime = System.currentTimeMillis();
-        long duration = (endTime - startTime);
-        System.out.println("Lista törlések időtartam: " + duration);
         // Egyszer előforduló szavak görgetettszavak táblába írása
-        // A felugró ablak addig marad megnyitva, amíg az adatbázis művelet be nem bejeződött
         if (!szavak.isEmpty()) {
-            Alert alert = new Alert(AlertType.INFORMATION, "Egyszer előforduló szavak adatbázisba írása folyamatban...");
-            alert.setHeaderText(null);
-            alert.show();
             DB.dbIr(szavak);
-            alert.hide();
         }
     }
 
@@ -422,7 +337,7 @@ public class FoablakController implements Initializable {
     public void letiltLeptet(boolean tilt, String tabla) {
         // A listener figyeli az objektum tilt változóját, ezért igazra állítjuk a gombok letiltásához
         tblTablazat.getSelectionModel().getSelectedItem().setTilt(tilt);
-        // Minden sornál a táblázatban tárolja, hogy melyik táblába lett elmentve
+        // Minden táblázatbeli sor esetén tárolja, hogy melyik táblába lett elmentve
         tblTablazat.getSelectionModel().getSelectedItem().setTabla(tabla);
         // A hozzáadás után a lista következő elemét jelölje ki
         int i = tblTablazat.getSelectionModel().getSelectedIndex();
@@ -430,7 +345,7 @@ public class FoablakController implements Initializable {
     }
     
     /**
-     * A Visszavonás -gombra kattintva (ha volt adatbázisba mentés a 3 gombbal), akkor a 3 gomb tiltását feloldja, törli a korábban
+     * A Visszavonás -gombra kattintva (ha volt adatbázisba mentés a 3 gombbal), a 3 gomb tiltását feloldja, törli a korábban
      * adatbázisba írt szót és visszaállítja a tablazat változót null-ra, hogy egy sort többször is lehessen módosítani.
      */
     @FXML
@@ -484,7 +399,7 @@ public class FoablakController implements Initializable {
      * szókártyát tud készíteni belőle.
      */
     @FXML
-    void anki() {
+    void ankiImport() {
         Alert alert = new Alert(AlertType.CONFIRMATION);
         alert.setTitle("ANKI kártya készítés");
         alert.setHeaderText(null);
@@ -559,47 +474,7 @@ public class FoablakController implements Initializable {
             return false;
         }
     }
-     
-    /**
-     * A menüből a Kilépés-t választva bezárja a programot.
-     */
-    @FXML
-    void kilep() {
-        Platform.exit();
-    }
 
-    /**
-     * A menüből a Névjegy-et választva információt ad a programról és készítőjéről.
-     */
-    @FXML
-    void nevjegy() {
-        tajekoztat("Nyelvtanulás program", "Készítette: Kremmer Róbert");
-    }
-    
-    /**
-     * Megnyit egy ablakot az adott szöveggel, amikor tájékoztató jellegű visszajelzést kell küldeni a felhasználónak.
-     * @param cim:      Az ablak címe.
-     * @param szoveg    A megjelenített szöveg.
-     */
-    static void tajekoztat(String cim, String szoveg) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION,szoveg);
-        alert.setTitle(cim);
-        alert.setHeaderText(null);
-        alert.showAndWait();
-    }
-    
-    /**
-     * Probléma esetén az adott szöveggel figyelmeztető ablak ugrik fel.
-     * @param cim:       Az ablak címe
-     * @param szoveg:    A megjelenített üzenet
-     */
-    static void figyelmeztet(String cim, String szoveg) {
-        Alert alert = new Alert(Alert.AlertType.WARNING,szoveg);
-        alert.setTitle(cim);
-        alert.setHeaderText(null);
-        alert.showAndWait();
-    }
-    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // Adatbázis helye relatív módon megadva
@@ -632,5 +507,45 @@ public class FoablakController implements Initializable {
                 txaMondat.setText("");
             }
         };
-    }    
+    }
+    
+    /**
+     * A menüből a Kilépés-t választva bezárja a programot.
+     */
+    @FXML
+    void kilep() {
+        Platform.exit();
+    }
+
+    /**
+     * A menüből a Névjegy-et választva információt ad a programról és készítőjéről.
+     */
+    @FXML
+    void nevjegy() {
+        tajekoztat("Nyelvtanulás program", "Készítette: Kremmer Róbert");
+    }
+    
+    /**
+     * Megnyit egy ablakot az adott szöveggel, amikor tájékoztató jellegű visszajelzést kell küldeni a felhasználónak.
+     * @param cim:      Az ablak címe.
+     * @param szoveg    A megjelenített üzenet.
+     */
+    static void tajekoztat(String cim, String szoveg) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION,szoveg);
+        alert.setTitle(cim);
+        alert.setHeaderText(null);
+        alert.showAndWait();
+    }
+    
+    /**
+     * Probléma esetén az adott szöveggel figyelmeztető ablak ugrik fel.
+     * @param cim:       Az ablak címe
+     * @param szoveg:    A megjelenített üzenet
+     */
+    static void figyelmeztet(String cim, String szoveg) {
+        Alert alert = new Alert(Alert.AlertType.WARNING,szoveg);
+        alert.setTitle(cim);
+        alert.setHeaderText(null);
+        alert.showAndWait();
+    }
 }

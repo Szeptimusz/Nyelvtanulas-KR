@@ -5,14 +5,13 @@ public class Sor {
     private String szo;
     private String mondat;
     private int gyak;
-    private boolean tilt;
+    private boolean tilt = false;
     private String tabla;
     
-    public Sor(String szo, String mondat, int gyak, boolean tilt) {
+    public Sor(String szo, String mondat, int gyak) {
         this.szo = szo;
         this.mondat = mondat;
         this.gyak = gyak;
-        this.tilt = tilt;
     }
 
     public String getSzo() {
