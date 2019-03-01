@@ -1,10 +1,7 @@
 package nyelvtanulas_kr_szakdolgozat;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,15 +22,17 @@ public class DB {
      * A kapott lista szavait beírja a görgetett szavak táblába. Az autoCommit letiltásával és a Batch használatával jelentősen gyorsabban végezhetők
      * az adatbázis-műveletek.
      * @param szavak   Adatbázisba írandó szólista.
+     * @param tabla
      */
-    public static void dbIr(ArrayList<String> szavak) {
-        String into = "INSERT INTO gorgetettszavak (szavak) VALUES (?)";
+    public static void dbIr(ArrayList<String> szavak, String tabla) {
+        String into = "INSERT INTO " + tabla + " VALUES (?,?)";
         try (Connection kapcs = DriverManager.getConnection(dbUrl);
                 PreparedStatement ps = kapcs.prepareStatement(into)) {
                 kapcs.setAutoCommit(false);
                 int count = 0;
                 for (String szo: szavak) {
                     ps.setString(1, szo);
+                    ps.setString(2, "gorgetett");
                     ps.addBatch();
                     count++;
                     if (count == 1000) {
@@ -77,7 +76,7 @@ public class DB {
                 }
                 if (count != 0) {
                     ps.executeBatch();
-                    System.out.println("Adatbáziból törlés sikeres!");
+                    System.out.println("Adatbázisból törlés sikeres!");
                 }
                 kapcs.commit();
         } catch (SQLException e) {
@@ -120,12 +119,13 @@ public class DB {
         }
     }
     
-    // A kapott táblához hozzáadja a kapott szót
-    public static void dbBeIr(String tabla, String szo) {
-        String into = "INSERT INTO " + tabla + " (szavak) VALUES (?)";
+    // A kapott táblához hozzáadja a kapott szót és állapotát
+    public static void dbBeIr(String tabla, String szo, String allapot) {
+        String into = "INSERT INTO " + tabla + " VALUES (?,?)";
         try (Connection kapcs = DriverManager.getConnection(dbUrl);
                 PreparedStatement ps = kapcs.prepareStatement(into)) {
                 ps.setString(1, szo);
+                ps.setString(2, allapot);
                 int sorok = ps.executeUpdate();
                 System.out.println(sorok + " sor hozzáadva.");
         } catch (SQLException e) {
@@ -173,10 +173,19 @@ public class DB {
      * @param tabla         A kapott tábla neve
      * @param data          A kapott lista a feldolgozott szavakkal,mondatokkal
      * @param szavak_indexe A kapott HashMap, ebben tároljuk azt, hogy az adott szó a listában hányadik indexen van
+     * @param miket         Az összevetni kívánt szó állapota (ismert,tanulando,ignoralt,gorgetett)
      */
-    public static void dbOsszevet(String tabla, ObservableList<Sor> data, HashMap<String, Integer> szavak_indexe) {
+    public static void dbOsszevet(String tabla, ObservableList<Sor> data, HashMap<String, Integer> szavak_indexe,
+                                  String miket) {
+        String feltetel = "";
+        if (miket.equals("ismertignoralt")) {
+            feltetel = " WHERE allapot='ismert' OR allapot='ignoralt'";
+        } else if (miket.equals("gorgetett")) {
+            feltetel = " WHERE allapot='gorgetett'";
+        }
+        
+        String query = "SELECT szavak FROM " + tabla + feltetel;
         ArrayList<String> szavak = new ArrayList();
-        String query = "SELECT szavak FROM " + tabla;
         try (Connection kapcs = DriverManager.getConnection(dbUrl);
             PreparedStatement ps = kapcs.prepareStatement(query)) {
             ResultSet eredmeny = ps.executeQuery();
@@ -185,7 +194,7 @@ public class DB {
                 String szo = eredmeny.getString("szavak");
                 if (szavak_indexe.get(szo) != null) {
                     // ha nem a gorgetettszavak táblán megyünk végig 
-                    if (!tabla.equals("gorgetettszavak")) {
+                    if (!miket.equals("gorgetett")) {
                         data.get(szavak_indexe.get(szo)).setSzo("torlendo");
                     } else {
                         int gyak = data.get(szavak_indexe.get(szo)).getGyak();
@@ -203,6 +212,64 @@ public class DB {
         // Görgetett szó előfordult a szövegben, ezért töröljük az adatbázisból
         if (!szavak.isEmpty()) {
             dbTorol(szavak, tabla);
+        }
+    }
+    
+    public static void dbTablatKeszit(String TablaNevEleje) {
+        String createTable = "CREATE TABLE IF NOT EXISTS " + TablaNevEleje + "szavak" + " (szavak VARCHAR(100) PRIMARY KEY,"
+                                                                  + "allapot VARCHAR(15));";
+        try (Connection kapcs = DriverManager.getConnection(dbUrl);
+                PreparedStatement ps = kapcs.prepareStatement(createTable)) {
+                ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        
+        String createIndex = "CREATE INDEX IF NOT EXISTS allapot ON " + TablaNevEleje + "szavak" + "(allapot);";
+        try (Connection kapcs = DriverManager.getConnection(dbUrl);
+                PreparedStatement ps2 = kapcs.prepareStatement(createIndex)) {
+                ps2.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        
+        
+        createTable = "CREATE TABLE IF NOT EXISTS " + TablaNevEleje + "tanulando" + " (szavak VARCHAR(100) NOT NULL PRIMARY KEY,"
+                       + "mondatok TEXT NOT NULL, kikerdezes_ideje DATE, forditas VARCHAR(100), ANKI INT NOT NULL);";
+        try (Connection kapcs = DriverManager.getConnection(dbUrl);
+                PreparedStatement ps = kapcs.prepareStatement(createTable)) {
+                ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        
+        createIndex = "CREATE INDEX IF NOT EXISTS allapot ON " + TablaNevEleje + "tanulando" + "(ANKI);";
+        try (Connection kapcs = DriverManager.getConnection(dbUrl);
+                PreparedStatement ps2 = kapcs.prepareStatement(createIndex)) {
+                ps2.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    
+    /**
+     * Megadja az adatbázisban lévő tanulando szavakat tartalmazó táblák nevének első két karakterét.
+     * @return  Visszaadja a tanulando tábla első két karakterét
+     */
+    public static ArrayList<String> dbTablakNevenekLekerdezese() {
+        try (Connection kapcs = DriverManager.getConnection(dbUrl)) {
+            DatabaseMetaData databaseMetaData = kapcs.getMetaData();
+            ResultSet rs = databaseMetaData.getTables(null, null, "%tanulando%", null);
+            ArrayList<String> tablakNevei = new ArrayList<>();
+            while(rs.next()) {
+                String tablaNev = rs.getString("TABLE_NAME");
+                tablaNev = tablaNev.substring(0,2);
+                tablakNevei.add(tablaNev);
+            }
+            return tablakNevei;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return null;
         }
     }
 }

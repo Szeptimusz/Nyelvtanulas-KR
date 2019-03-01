@@ -2,20 +2,11 @@ package nyelvtanulas_kr_szakdolgozat;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -27,10 +18,10 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -49,9 +40,11 @@ public class FoablakController implements Initializable {
     static String dbUrl = "jdbc:sqlite:";
     static String minden = "";
     static String fajlUtvonal;
+    static String TablaNevEleje;
+    static String forrasNyelvKod;
     static HashMap<String, Integer> szavak_indexe = new HashMap<>();
+    static HashMap<String, String> nyelvekKodja = new HashMap<>();
     private final ObservableList<Sor> data = FXCollections.observableArrayList();
-    
     
     @FXML
     private Button btnChooser;
@@ -81,6 +74,8 @@ public class FoablakController implements Initializable {
     private TableColumn<Sor, String> oMondat;
     @FXML
     private TableColumn<Sor, Integer> oGyak; 
+    @FXML
+    private ComboBox<String> cbxForras;
     
     private ChangeListener<Sor> listener;
 
@@ -90,6 +85,10 @@ public class FoablakController implements Initializable {
         if (txaBevitel.getText().equals("") && fajlUtvonal == null) {
             figyelmeztet("Figyelem!", "Üres szövegmező! Kérem adjon meg szöveget, vagy használja "
                 + "a Tallózás gombot!");
+            
+        } else if (cbxForras.getValue() == null){
+            figyelmeztet("Figyelem!", "Kérem adja meg a forrásnyelvet is!");
+            
         } else {
         ButtonType btn = new ButtonType("NE KATTINTSON RÁ!"); 
         Alert alert = new Alert(Alert.AlertType.INFORMATION,"Adatok feldolgozása folyamatban... \n"
@@ -103,16 +102,19 @@ public class FoablakController implements Initializable {
         szavak_indexe.clear();
         // Korábbi lista törlése.
         data.clear();
+        // A megadott forrásnyelv beállítása
+        forrasNyelvKod = nyelvekKodja.get(cbxForras.getValue());
+        TablaNevEleje = forrasNyelvKod + "_";
         beolvasas();
         eloFeldolgozas();
         feldolgozas();
         azonosakTorlese();
-        DB.dbOsszevet("ismertszavak",data,szavak_indexe);
-        DB.dbOsszevet("ignoraltszavak",data,szavak_indexe);
-        DB.dbOsszevet("tanulandoszavak",data,szavak_indexe);
+        DB.dbTablatKeszit(TablaNevEleje);
+        DB.dbOsszevet(TablaNevEleje + "szavak",data,szavak_indexe, "ismertignoralt");
+        DB.dbOsszevet(TablaNevEleje + "tanulando",data,szavak_indexe, "tanulando");
         // Ha be lett pipálva a checkbox
         if (cxbEgyszer.isSelected()) {
-            DB.dbOsszevet("gorgetettszavak",data,szavak_indexe);
+            DB.dbOsszevet(TablaNevEleje + "szavak",data,szavak_indexe, "gorgetett");
         }
         listaTorlesek();
         tblTablazat.setItems(data);
@@ -294,9 +296,9 @@ public class FoablakController implements Initializable {
                 szavak.add(szo);
             }
         }
-        // Egyszer előforduló szavak görgetettszavak táblába írása
+        // Egyszer előforduló görgetett szavak táblába írása
         if (!szavak.isEmpty()) {
-            DB.dbIr(szavak);
+            DB.dbIr(szavak,TablaNevEleje + "szavak");
         }
     }
 
@@ -306,8 +308,8 @@ public class FoablakController implements Initializable {
     @FXML
     void ignoralMent() {
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
-        DB.dbBeIr("ignoraltszavak",szo);
-        letiltLeptet(true,"ignoraltszavak");
+        DB.dbBeIr(TablaNevEleje + "szavak",szo, "ignoralt");
+        letiltLeptet(true,TablaNevEleje + "szavak");
     }
 
     /**
@@ -316,8 +318,8 @@ public class FoablakController implements Initializable {
     @FXML
     void ismertMent() {
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
-        DB.dbBeIr("ismertszavak",szo);
-        letiltLeptet(true,"ismertszavak");
+        DB.dbBeIr(TablaNevEleje + "szavak",szo, "ismert");
+        letiltLeptet(true,TablaNevEleje + "szavak");
     }
 
     /**
@@ -328,9 +330,9 @@ public class FoablakController implements Initializable {
     void tanulandoMent() throws Exception{
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
         String mondat = tblTablazat.getSelectionModel().getSelectedItem().getMondat();
-        ablak(szo, mondat);
+        forditasAblak(szo, mondat);
         if (ForditasController.isTanulandoElmentve()) {
-            letiltLeptet(true, "tanulandoszavak");
+            letiltLeptet(true, TablaNevEleje + "tanulando");
         }
     }
     
@@ -368,7 +370,7 @@ public class FoablakController implements Initializable {
      * @param szo:      A kijelölt sor szava.
      * @param mondat:    A kijelölt sor mondata.
      */
-    private void ablak(String szo, String mondat) {
+    private void forditasAblak(String szo, String mondat) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("Forditas.fxml"));
             Parent root = loader.load();
@@ -380,6 +382,8 @@ public class FoablakController implements Initializable {
             } else {
                 System.out.println("Nincsen szó megadva!");
             }
+            
+            fc.setForrasNyelvKod(forrasNyelvKod);
             
             Scene scene = new Scene(root);
             Stage ablak = new Stage();
@@ -394,86 +398,41 @@ public class FoablakController implements Initializable {
     }
     
     /**
-     * Az ANKI kártya készítése menüpontra kattintva végigmegy a tanulandószavak táblán és ahol az ANKI mező 0,
-     * azokból a sorból olyan txt-fájlt generál, amit az ANKI szótanuló program be tud importálni és
-     * szókártyát tud készíteni belőle.
+     * Az ANKI kártya készítése menüpontra kattintva új ablakot nyit meg, ahol a nyelv megadása után 
+     * ANKI-import fájl készíthető.
      */
     @FXML
     void ankiImport() {
-        Alert alert = new Alert(AlertType.CONFIRMATION);
-        alert.setTitle("ANKI kártya készítés");
-        alert.setHeaderText(null);
-        alert.setContentText("Valóban szeretne minden új tanulandó szóból ANKI szókártyát készíteni?");
-
-        ArrayList<String> szavak = new ArrayList<>();
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == ButtonType.OK){
-            String query = "SELECT szavak, mondatok, forditas FROM tanulandoszavak WHERE ANKI == 0";
-            try (Connection kapcs = DriverManager.getConnection(dbUrl);
-                PreparedStatement ps = kapcs.prepareStatement(query)) {
-                ResultSet eredmeny = ps.executeQuery();
-                while (eredmeny.next()) {
-                    String szo = eredmeny.getString("szavak");
-                    String mondat = eredmeny.getString("mondatok");
-                    String forditas = eredmeny.getString("forditas");
-                    if (ankiKartyatKeszit(szo, mondat, forditas)) {
-                        szavak.add(szo);
-                    } else {
-                        System.out.println("Hiba történt a kártya készítése során!");
-                    }
-                }
-            } catch (SQLException e) {
-                System.out.println("Nem sikerült az adatbázis-lekérdezés!");
-                System.out.println(e.getMessage());
-            }
-            // Ha sikeres volt az ANKI kártya készítés, akkor a táblában átírja az ANKI mezőt 0-ról 1-re.
-            if (!szavak.isEmpty()) {
-                DB.dbModosit("tanulandoszavak",szavak);
-                tajekoztat("Kártya készítés eredmény", "A kártyák sikeresen elkészítve az ankiimport fájlba!");
-                System.out.println("ANKI kártya készítés sikeres!");
-            } else {
-                figyelmeztet("Figyelem!", "Nincsen tanulandó szó amiből szókártya készíthető!");
-            }
-        } else {
-            alert.hide();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("Anki.fxml"));
+            Parent root = loader.load();
+            AnkiController ac = loader.getController();
+            Scene scene = new Scene(root);
+            Stage ablak = new Stage();
+            ablak.setResizable(false);
+            ablak.initModality(Modality.APPLICATION_MODAL);
+            ablak.setScene(scene);
+            ablak.setTitle("ANKI-import elkészítése");
+            ablak.showAndWait();
+        } catch (IOException e) {
+            System.out.println("Hiba: " + e.getMessage());
         }
     }
     
     /**
-     * A kapott szóból, mondatból és fordításból olyan .txt fájlt készít, amit az ANKI szótanuló program be tud importálni 
-     * és szókártyákat tud belőle készíteni.
-     * @param szo:      A tanulandó szó.
-     * @param mondat:   A szóhoz tartozó példamondat.
-     * @param forditas: Az általunk korábban megadott fordítása a szónak.
-     * @return :        Ha sikerült a fájlba írás igazad ad vissza, ha nem akkor false-t.
+     * A kapott comboboxba beállítja a nyelvek teljes nevét, majd hashmap-ben tárolja a hozzá tartozó rövidítést.
+     * @param combobox  A kapott legördülő lista
+     * @param hashmap   A kapott hashmap a teljesnév-rövidítettnév tárolására
      */
-    public boolean ankiKartyatKeszit(String szo, String mondat, String forditas) {
-        // Kiírás FileOutputStream-mel, mert így megadható az utf-8 kódolás (az ANKI program csak ezt tudja beimportálni)
-        try (OutputStreamWriter writer =
-             new OutputStreamWriter(new FileOutputStream("ankiimport.txt",true), StandardCharsets.UTF_8)) {
-            
-            // A mondatban a szó előfordulásainak megkeresése, pontokkal helyessítése és így lyukas szöveg gyártása.
-            String lyukasMondat = "";
-            String [] szavak = mondat.toLowerCase().split(" ");
-            for (int i = 0; i < szavak.length; i++) {
-                if (szavak[i].equals(szo)) {
-                    int szoHossza = szavak[i].length();
-                    String lyuk = "";
-                    for (int j = 0; j < szoHossza; j++) {
-                        lyuk = lyuk + ".";
-                    }
-                    szavak[i] = lyuk;
-                }
-                lyukasMondat += szavak[i] + " ";
-            }
-            
-            writer.write(szo + "<br><br>" + mondat + "\t" + forditas + "<br><br>" + lyukasMondat + "\n");
-            return true;
-        } catch(IOException e) {
-            System.out.println(e.getMessage());
-            return false;
+    public static void nyelvekBeallitasa(ComboBox<String> combobox, HashMap<String, String> hashmap) {
+        String roviditettNyelv [] = {"en","es","fr","de","it","pt","nl","pl","da","cs","sk","sl"};
+        String teljesNyelv [] = {"Angol","Spanyol","Francia","Német","Olasz","Portugál","Holland","Lengyel","Dán"
+                + "Cseh","Szlovák","Szlovén"};
+        combobox.getItems().addAll(teljesNyelv);
+        for (int i = 0; i < teljesNyelv.length; i++) {
+            hashmap.put(teljesNyelv[i], roviditettNyelv[i]);
         }
-    }
+    } 
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -481,6 +440,9 @@ public class FoablakController implements Initializable {
         String filePath = new File("").getAbsolutePath();
         dbUrl += filePath.concat("\\nyelvtanulas.db");
         DB.setDbUrl(dbUrl);
+
+        // Legördülő lista nyelveinek beállítása
+        nyelvekBeallitasa(cbxForras, nyelvekKodja);
         
         // A táblázatban az adott oszlopban megjelenő adat a Sor osztály melyik változójából legyen kiszedve
         oSzo.setCellValueFactory(new PropertyValueFactory<>("szo"));
