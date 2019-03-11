@@ -20,13 +20,12 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.stage.Window;
-import static nyelvtanulas_kr_szakdolgozat.FoablakController.dbUrl;
+import static nyelvtanulas_kr_szakdolgozat.FoablakController.adatbazisUtvonal;
 
 public class AnkiController implements Initializable {
 
     @FXML
     private ComboBox<String> cbxNyelvek;
-    
     static HashMap<String, String> nyelvekKodja = new HashMap<>();
     
     /**
@@ -46,14 +45,14 @@ public class AnkiController implements Initializable {
             String forrasNyelvKod = nyelvekKodja.get(cbxNyelvek.getValue());
             if (forrasNyelvKod != null) {
                 String query = "SELECT szavak, mondatok, forditas FROM " + forrasNyelvKod + "_tanulando WHERE ANKI == 0";
-                try (Connection kapcs = DriverManager.getConnection(dbUrl);
+                try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
                     PreparedStatement ps = kapcs.prepareStatement(query)) {
                     ResultSet eredmeny = ps.executeQuery();
                     while (eredmeny.next()) {
                         String szo = eredmeny.getString("szavak");
                         String mondat = eredmeny.getString("mondatok");
                         String forditas = eredmeny.getString("forditas");
-                        if (keszit(szo, mondat, forditas)) {
+                        if (keszit(szo, mondat, forditas, forrasNyelvKod)) {
                             szavak.add(szo);
                         } else {
                             System.out.println("Hiba történt a kártya készítése során!");
@@ -82,15 +81,16 @@ public class AnkiController implements Initializable {
     /**
      * A kapott szóból, mondatból és fordításból olyan .txt fájlt készít, amit az ANKI szótanuló program be tud importálni 
      * és szókártyákat tud belőle készíteni.
-     * @param szo:      A tanulandó szó.
-     * @param mondat:   A szóhoz tartozó példamondat.
-     * @param forditas: Az általunk korábban megadott fordítása a szónak.
-     * @return :        Ha sikerült a fájlba írás igazad ad vissza, ha nem akkor false-t.
+     * @param szo:              A tanulandó szó.
+     * @param mondat:           A szóhoz tartozó példamondat.
+     * @param forditas:         Az általunk korábban megadott fordítása a szónak
+     * @param forrasNyelvKod    A legördülő listából kiválasztott nyelv rövidített változata
+     * @return :                Ha sikerült a fájlba írás igazad ad vissza, ha nem akkor false-t.
      */
-    public boolean keszit(String szo, String mondat, String forditas) {
+    public boolean keszit(String szo, String mondat, String forditas, String forrasNyelvKod) {
         // Kiírás FileOutputStream-mel, mert így megadható az utf-8 kódolás (az ANKI program csak ezt tudja beimportálni)
         try (OutputStreamWriter writer =
-             new OutputStreamWriter(new FileOutputStream("ankiimport.txt",true), StandardCharsets.UTF_8)) {
+             new OutputStreamWriter(new FileOutputStream(forrasNyelvKod + "_ankiimport.txt",true), StandardCharsets.UTF_8)) {
             
             // A mondatban a szó előfordulásainak megkeresése, pontokkal helyessítése és így lyukas szöveg gyártása.
             String lyukasMondat = "";

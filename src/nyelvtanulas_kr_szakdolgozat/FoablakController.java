@@ -37,7 +37,7 @@ import javafx.stage.Stage;
  */
 public class FoablakController implements Initializable {
 
-    static String dbUrl = "jdbc:sqlite:";
+    static String adatbazisUtvonal = "jdbc:sqlite:";
     static String minden = "";
     static String fajlUtvonal;
     static String TablaNevEleje;
@@ -281,7 +281,7 @@ public class FoablakController implements Initializable {
     /**
      * Végigmegy a listán és ha a szó "torlendo", akkor törli onnan. Különben ha be volt jelölve az egyszer előforduló
        szavak megjelenítésének tiltása (és így a szavak görgetése) és a szó, csak egyszer fordul elő globálisan,
-       akkor törli a listából és hozzáadja a görgetett szavakhoz az adatbázisban.
+       akkor törli a listából és hozzáadja a szavak táblához görgetett állapottal.
      */
     public void listaTorlesek() {
         ArrayList<String> szavak = new ArrayList();
@@ -296,14 +296,14 @@ public class FoablakController implements Initializable {
                 szavak.add(szo);
             }
         }
-        // Egyszer előforduló görgetett szavak táblába írása
+        // Egyszer előforduló szavak táblába írása görgetett állapottal
         if (!szavak.isEmpty()) {
             DB.dbIr(szavak,TablaNevEleje + "szavak");
         }
     }
 
     /**
-     * A táblázatban kijelölt sor szavát a gomb megnyomása után elmenti az adatbázis ignoraltszavak táblájába.
+     * A táblázatban kijelölt sor szavát a gomb megnyomása után elmenti a szavak táblába ignoralt állapottal.
      */
     @FXML
     void ignoralMent() {
@@ -313,7 +313,7 @@ public class FoablakController implements Initializable {
     }
 
     /**
-     * A táblázatban kijelölt sor szavát a gomb megnyomása után elmenti az adatbázis ismertszavak táblájába.
+     * A táblázatban kijelölt sor szavát a gomb megnyomása után elmenti a szavak táblába ismert állapottal.
      */
     @FXML
     void ismertMent() {
@@ -333,7 +333,9 @@ public class FoablakController implements Initializable {
         forditasAblak(szo, mondat);
         if (ForditasController.isTanulandoElmentve()) {
             letiltLeptet(true, TablaNevEleje + "tanulando");
-        }
+            // Miután elmentette és léptetett a táblázatban, visszaállítja a ForditasController osztályban false-ra
+            ForditasController.setTanulandoElmentve(false);
+        } 
     }
     
     public void letiltLeptet(boolean tilt, String tabla) {
@@ -402,11 +404,10 @@ public class FoablakController implements Initializable {
      * ANKI-import fájl készíthető.
      */
     @FXML
-    void ankiImport() {
+    void ankiImportAblak() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("Anki.fxml"));
             Parent root = loader.load();
-            AnkiController ac = loader.getController();
             Scene scene = new Scene(root);
             Stage ablak = new Stage();
             ablak.setResizable(false);
@@ -426,8 +427,7 @@ public class FoablakController implements Initializable {
      */
     public static void nyelvekBeallitasa(ComboBox<String> combobox, HashMap<String, String> hashmap) {
         String roviditettNyelv [] = {"en","es","fr","de","it","pt","nl","pl","da","cs","sk","sl"};
-        String teljesNyelv [] = {"Angol","Spanyol","Francia","Német","Olasz","Portugál","Holland","Lengyel","Dán"
-                + "Cseh","Szlovák","Szlovén"};
+        String teljesNyelv [] = {"Angol","Spanyol","Francia","Német","Olasz","Portugál","Holland","Lengyel","Dán","Cseh","Szlovák","Szlovén"};
         combobox.getItems().addAll(teljesNyelv);
         for (int i = 0; i < teljesNyelv.length; i++) {
             hashmap.put(teljesNyelv[i], roviditettNyelv[i]);
@@ -437,10 +437,9 @@ public class FoablakController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // Adatbázis helye relatív módon megadva
-        String filePath = new File("").getAbsolutePath();
-        dbUrl += filePath.concat("\\nyelvtanulas.db");
-        DB.setDbUrl(dbUrl);
-
+        String utvonal = new File("").getAbsolutePath();
+        adatbazisUtvonal += utvonal + ("\\nyelvtanulas.db");
+        
         // Legördülő lista nyelveinek beállítása
         nyelvekBeallitasa(cbxForras, nyelvekKodja);
         

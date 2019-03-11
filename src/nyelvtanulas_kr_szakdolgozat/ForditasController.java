@@ -49,6 +49,10 @@ public class ForditasController {
     public static boolean isTanulandoElmentve() {
         return tanulandoElmentve;
     }
+
+    public static void setTanulandoElmentve(boolean tanulandoElmentve) {
+        ForditasController.tanulandoElmentve = tanulandoElmentve;
+    }
     
     /**
      * Ha a fordítás beviteli mező nem üres, akkor hozzáadja a szót,mondatot,fordítást és ANKI állapotot a tanulandó táblához
