@@ -19,7 +19,7 @@
     <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
   </rowConstraints>
    <children>
-      <Label text="Kérem válassza ki, hogy melyik nyelv tanulandó szavaiból legyenek ANKI kártyák készítve" wrapText="true">
+      <Label text="Kérem válassza ki, hogy melyik nyelv tanulandó szavaiból legyen ANKI-import készítve" wrapText="true">
          <font>
             <Font size="14.0" />
          </font>

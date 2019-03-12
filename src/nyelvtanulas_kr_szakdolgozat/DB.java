@@ -17,9 +17,9 @@ public class DB {
      * A kapott lista szavait beírja mint görgetett szó. Az autoCommit letiltásával és a Batch használatával jelentősen gyorsabban végezhetők
      * az adatbázis-műveletek.
      * @param szavak   Adatbázisba írandó szólista.
-     * @param tabla
+     * @param tabla    A kapott tábla neve.
      */
-    public static void dbIr(ArrayList<String> szavak, String tabla) {
+    public static void gorgetettSzavakatBeirAdatbazisba(ArrayList<String> szavak, String tabla) {
         String into = "INSERT INTO " + tabla + " VALUES (?,?)";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
                 PreparedStatement ps = kapcs.prepareStatement(into)) {
@@ -42,7 +42,7 @@ public class DB {
                 }
                 kapcs.commit();
         } catch (SQLException e) {
-            System.out.println("Nem sikerült a görgetett-táblába írás!");
+            System.out.println("Nem sikerült a görgetett szó adatbázisba írása!");
             System.out.println(e.getMessage());
         }
     }
@@ -52,7 +52,7 @@ public class DB {
      * @param szavak    Adatbázisból törledő szólista
      * @param tabla     A szavak törlése ebből a táblából történjen
      */
-    public static void dbTorol(ArrayList<String> szavak, String tabla) {
+    public static void szavakatTorolAdatbazisbol(ArrayList<String> szavak, String tabla) {
         String delete = "DELETE FROM " + tabla + " WHERE szavak= ?;";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
                 PreparedStatement ps = kapcs.prepareStatement(delete)) {
@@ -65,7 +65,7 @@ public class DB {
                     count++;
                     if (count == 1000) {
                         ps.executeBatch();
-                        System.out.println("Adatbáziból törlés sikeres!");
+                        System.out.println("Adatbázisból törlés sikeres!");
                         count = 0;
                     }
                 }
@@ -85,7 +85,7 @@ public class DB {
      * @param tabla     Megadja melyik táblában kell módosítani
      * @param szavak    A módosítandó rekordot azonosító szó
      */
-    public static void dbModosit(String tabla, ArrayList<String> szavak) {
+    public static void ankitModositAdatbazisban(String tabla, ArrayList<String> szavak) {
         String update = "UPDATE " + tabla + " SET ANKI = ? WHERE szavak = ?";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
                 PreparedStatement ps = kapcs.prepareStatement(update)) {
@@ -115,7 +115,7 @@ public class DB {
     }
     
     // A kapott táblához hozzáadja a kapott szót és állapotát
-    public static void dbBeIr(String tabla, String szo, String allapot) {
+    public static void szotBeirAdatbazisba(String tabla, String szo, String allapot) {
         String into = "INSERT INTO " + tabla + " VALUES (?,?)";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
                 PreparedStatement ps = kapcs.prepareStatement(into)) {
@@ -129,8 +129,8 @@ public class DB {
                mert már benne van a _szavak táblában mint görgetett. Ilyenkor az adott szót töröljük és újra hozzáadjuk a megfelelő állapot-tal.
             */
             if (e.getErrorCode() == 19) {
-                dbSzotTorol(tabla, szo);
-                dbBeIr(tabla, szo, allapot);
+                szotTorolAdatbazisbol(tabla, szo);
+                szotBeirAdatbazisba(tabla, szo, allapot);
                 System.out.println("Szó felülbírálva!");
             } else {
                 System.out.println("Nem sikerült a " + tabla + "-táblába" + " írás!");
@@ -140,7 +140,7 @@ public class DB {
     }
     
     // A kapott táblához hozzáadja a kapott szót, mondatot, fordítást és az ANKI oszlop értékét (0 vagy 1)
-    public static void dbBeIr(String tabla, String szo, String mondat, String forditas, int anki) {
+    public static void tanulandotBeirAdatbazisba(String tabla, String szo, String mondat, String forditas, int anki) {
         String into = "INSERT INTO " + tabla + " (szavak, mondatok, forditas, ANKI) VALUES (?,?,?,?)";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
                 PreparedStatement ps = kapcs.prepareStatement(into)) {
@@ -157,7 +157,7 @@ public class DB {
     }
     
     // A kapott táblából törli a kapott szót
-    public static void dbSzotTorol(String tabla, String szo) {
+    public static void szotTorolAdatbazisbol(String tabla, String szo) {
         String delete = "DELETE FROM " + tabla + " WHERE szavak= ?;";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
                 PreparedStatement ps = kapcs.prepareStatement(delete)) {
@@ -180,7 +180,7 @@ public class DB {
      * @param szavak_indexe A kapott HashMap, ebben tároljuk azt, hogy az adott szó a listában hányadik indexen van
      * @param miket         Az összevetni kívánt szó állapota (ismert,tanulando,ignoralt,gorgetett)
      */
-    public static void dbOsszevet(String tabla, ObservableList<Sor> data, HashMap<String, Integer> szavak_indexe,
+    public static void adatbazistListavalOsszevet(String tabla, ObservableList<Sor> data, HashMap<String, Integer> szavak_indexe,
                                   String miket) {
         String feltetel = "";
         if (miket.equals("ismertignoralt")) {
@@ -201,6 +201,8 @@ public class DB {
                     // ha nem görgetett a szó
                     if (!miket.equals("gorgetett")) {
                         data.get(szavak_indexe.get(szo)).setSzo("torlendo");
+                        szavak_indexe.put(szo, null);
+                    // ha görgetett a szó
                     } else {
                         int gyak = data.get(szavak_indexe.get(szo)).getGyak();
                         data.get(szavak_indexe.get(szo)).setGyak(++gyak);
@@ -216,11 +218,17 @@ public class DB {
         
         // Görgetett szó előfordult a szövegben, ezért töröljük az adatbázisból
         if (!szavak.isEmpty()) {
-            dbTorol(szavak, tabla);
+            szavakatTorolAdatbazisbol(szavak, tabla);
         }
     }
     
-    public static void dbTablatKeszit(String TablaNevEleje) {
+    /**
+     * Attól függően, hogy melyik nyelvet választottuk forrásnyelvnek, létrehoz az adott nyelv számára két egyedi táblát és 
+     * elkészíti hozzájuk az indexeket (abban az esetben ha még nem léteznek a táblák és az indexek).
+     * @param TablaNevEleje:  A választott forrásnyelv alapján generált String (pl. angolnál: 'en_' németnél: 'de_'),
+     *                        az ehhez kapcsolódó 'szavak' vagy 'tanulandó' együtt alkotja a tábla teljes nevét. 
+     */
+    public static void tablakatKeszit(String TablaNevEleje) {
         String createTable = "CREATE TABLE IF NOT EXISTS " + TablaNevEleje + "szavak" + " (szavak VARCHAR(100) PRIMARY KEY,"
                                                                   + "allapot VARCHAR(15));";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);

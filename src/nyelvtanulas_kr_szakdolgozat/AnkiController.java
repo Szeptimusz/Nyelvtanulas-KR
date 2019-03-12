@@ -64,8 +64,9 @@ public class AnkiController implements Initializable {
                 }
                 // Ha sikeres volt az ANKI kártya készítés, akkor a táblában átírja az ANKI mezőt 0-ról 1-re.
                 if (!szavak.isEmpty()) {
-                    DB.dbModosit(forrasNyelvKod + "_tanulando",szavak);
-                    FoablakController.tajekoztat("Kártya készítés eredmény", "A kártyák sikeresen elkészítve az ankiimport fájlba!");
+                    DB.ankitModositAdatbazisban(forrasNyelvKod + "_tanulando",szavak);
+                    FoablakController.tajekoztat("Kártya készítés eredmény", 
+                        "A kártyák sikeresen elkészítve a: " + forrasNyelvKod + " _ankiimport fájlba!");
                     System.out.println("ANKI kártya készítés sikeres!");
                 } else {
                     FoablakController.figyelmeztet("Figyelem!", "Nincsen tanulandó szó amiből szókártya készíthető!");

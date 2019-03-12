@@ -63,7 +63,7 @@ public class ForditasController {
         if (forditas.equals("")) {
             FoablakController.figyelmeztet("Figyelem!", "Kérem írjon be fordítást a szóhoz!");
         } else {
-            DB.dbBeIr(forrasNyelvKod + "_" + "tanulando",szo,mondat,forditas,0);
+            DB.tanulandotBeirAdatbazisba(forrasNyelvKod + "_" + "tanulando",szo,mondat,forditas,0);
             tanulandoElmentve = true;
             Window ablak = lblSzo.getScene().getWindow();
             ablak.hide();
