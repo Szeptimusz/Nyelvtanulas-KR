@@ -37,7 +37,7 @@ public class AnkiController implements Initializable {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("ANKI kártya készítés");
         alert.setHeaderText(null);
-        alert.setContentText("Valóban szeretne minden új tanulandó szóból ANKI szókártyát készíteni?");
+        alert.setContentText("Valóban szeretne minden új tanulandó szóból ANKI-importot készíteni?");
 
         ArrayList<String> szavak = new ArrayList<>();
         Optional<ButtonType> result = alert.showAndWait();
@@ -66,7 +66,7 @@ public class AnkiController implements Initializable {
                 if (!szavak.isEmpty()) {
                     DB.ankitModositAdatbazisban(forrasNyelvKod + "_tanulando",szavak);
                     FoablakController.tajekoztat("Kártya készítés eredmény", 
-                        "A kártyák sikeresen elkészítve a: " + forrasNyelvKod + " _ankiimport fájlba!");
+                        "A kártyák sikeresen elkészítve a(z):  " + forrasNyelvKod + " _ankiimport fájlba!");
                     System.out.println("ANKI kártya készítés sikeres!");
                 } else {
                     FoablakController.figyelmeztet("Figyelem!", "Nincsen tanulandó szó amiből szókártya készíthető!");
@@ -95,7 +95,7 @@ public class AnkiController implements Initializable {
             
             // A mondatban a szó előfordulásainak megkeresése, pontokkal helyessítése és így lyukas szöveg gyártása.
             String lyukasMondat = "";
-            String [] szavak = mondat.toLowerCase().split(" ");
+            String [] szavak = mondat.toLowerCase().split(" |\\,|\\, ");
             for (int i = 0; i < szavak.length; i++) {
                 if (szavak[i].equals(szo)) {
                     int szoHossza = szavak[i].length();

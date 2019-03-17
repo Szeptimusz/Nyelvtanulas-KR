@@ -172,7 +172,7 @@ public class DB {
     
     /**
      * A kapott tábla szavait lekérdezi az adatbázisból és ha létezik a listában, akkor a lista szavát átnevezi torlendo-re, 
-       jelezve, hogy a táblázat megjelenítése előtt törölni kell a listából. Ha a görgetettszavak táblán megy végig és a szó 
+       jelezve, hogy a táblázat megjelenítése előtt törölni kell a listából. Ha a görgetettszavakon megy végig és a szó 
        létezik a listában, akkor 1-gyel növeli a gyakoriságát a listában (így biztos, hogy legalább kétszer előfordul globálisan) és 
        törli a táblából a szót.
      * @param tabla         A kapott tábla neve

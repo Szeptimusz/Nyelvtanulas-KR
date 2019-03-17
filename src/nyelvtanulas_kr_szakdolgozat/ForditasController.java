@@ -6,6 +6,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Window;
 
@@ -18,7 +19,7 @@ public class ForditasController {
     @FXML
     private Label lblSzo;
     @FXML
-    private Label lblMondat;
+    private TextArea txaMondat;
     @FXML
     private TextField txtForditas;
 
@@ -35,7 +36,7 @@ public class ForditasController {
     private String mondat;
     public void setMondat(String mondat) {
         this.mondat = mondat;
-        lblMondat.setText(mondat);
+        txaMondat.setText(mondat);
     }
     
     // A Google Translate kereséshez beállítja a forrásnyelvet
@@ -63,7 +64,12 @@ public class ForditasController {
         if (forditas.equals("")) {
             FoablakController.figyelmeztet("Figyelem!", "Kérem írjon be fordítást a szóhoz!");
         } else {
+            // A mondatot a szövegterületről szedi ki, így lehetőség van a hozzáadás előtt szerkeszteni a példamondatot
+            mondat = txaMondat.getText();
             DB.tanulandotBeirAdatbazisba(forrasNyelvKod + "_" + "tanulando",szo,mondat,forditas,0);
+            /* Megpróbálja kitörölni az adott szót a szavak táblából, mert ha az előbb kiírt tanulandó szó már görgetettként szerepelt benne, akkor
+               így mindkét táblában egyszerre bent van. */
+            DB.szotTorolAdatbazisbol(forrasNyelvKod + "_" + "szavak", szo);
             tanulandoElmentve = true;
             Window ablak = lblSzo.getScene().getWindow();
             ablak.hide();

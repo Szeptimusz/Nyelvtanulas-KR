@@ -90,40 +90,41 @@ public class FoablakController implements Initializable {
             figyelmeztet("Figyelem!", "Kérem adja meg a forrásnyelvet is!");
             
         } else {
-        ButtonType btn = new ButtonType("NE KATTINTSON RÁ!"); 
-        Alert alert = new Alert(Alert.AlertType.INFORMATION,"Adatok feldolgozása folyamatban... \n"
-                + " NE KATTINTSON ERRE AZ ABLAKRA!",btn);
-        alert.setHeaderText(null);
-        alert.show();    
-            
-        // Korábbi listener eltávolítása
-        tblTablazat.getSelectionModel().selectedItemProperty().removeListener(listener);
-        // Korábbi HashMap beállítások törlése.
-        szavak_indexe.clear();
-        // Korábbi lista törlése.
-        data.clear();
-        // A megadott forrásnyelv beállítása
-        forrasNyelvKod = nyelvekKodja.get(cbxForras.getValue());
-        TablaNevEleje = forrasNyelvKod + "_";
-        beolvasas();
-        eloFeldolgozas();
-        feldolgozas();
-        azonosakTorlese();
-        DB.tablakatKeszit(TablaNevEleje);
-        DB.adatbazistListavalOsszevet(TablaNevEleje + "szavak",data,szavak_indexe, "ismertignoralt");
-        DB.adatbazistListavalOsszevet(TablaNevEleje + "tanulando",data,szavak_indexe, "tanulando");
-        // Ha be lett pipálva a checkbox
-        if (cxbEgyszer.isSelected()) {
-            DB.adatbazistListavalOsszevet(TablaNevEleje + "szavak",data,szavak_indexe, "gorgetett");
-        }
-        listaTorlesek();
-        tblTablazat.setItems(data);
-        // Listener beállítása az adatok táblázatba betöltése után
-        tblTablazat.getSelectionModel().selectedItemProperty().addListener(listener);
-        lblTallozasEredmeny.setText("");
-        
-        alert.hide();
-        tajekoztat("Kész!", "Az adatok feldolgozása befejeződött!");
+            // Tájékoztató ablak a feldolgozás alatt
+            ButtonType btn = new ButtonType("NE KATTINTSON RÁ!"); 
+            Alert alert = new Alert(Alert.AlertType.INFORMATION,"Adatok feldolgozása folyamatban... \n"
+                    + "\n NE KATTINTSON ERRE AZ ABLAKRA!",btn);
+            alert.setHeaderText(null);
+            alert.show();
+
+            // Korábbi listener eltávolítása
+            tblTablazat.getSelectionModel().selectedItemProperty().removeListener(listener);
+            // Korábbi HashMap beállítások törlése.
+            szavak_indexe.clear();
+            // Korábbi lista törlése.
+            data.clear();
+            // A megadott forrásnyelv beállítása (pl: 'Német' -> 'de')
+            forrasNyelvKod = nyelvekKodja.get(cbxForras.getValue());
+            TablaNevEleje = forrasNyelvKod + "_";
+            beolvasas();
+            eloFeldolgozas();
+            feldolgozas();
+            azonosakTorlese();
+            DB.tablakatKeszit(TablaNevEleje);
+            DB.adatbazistListavalOsszevet(TablaNevEleje + "szavak",data,szavak_indexe, "ismertignoralt");
+            DB.adatbazistListavalOsszevet(TablaNevEleje + "tanulando",data,szavak_indexe, "tanulando");
+            // Ha be lett pipálva a checkbox
+            if (cxbEgyszer.isSelected()) {
+                DB.adatbazistListavalOsszevet(TablaNevEleje + "szavak",data,szavak_indexe, "gorgetett");
+            }
+            listaTorlesek();
+            tblTablazat.setItems(data);
+            // Listener beállítása az adatok táblázatba betöltése után
+            tblTablazat.getSelectionModel().selectedItemProperty().addListener(listener);
+            lblTallozasEredmeny.setText("");
+
+            alert.hide();
+            tajekoztat("Kész!", "Az adatok feldolgozása befejeződött!");
         }
     }
 
@@ -239,9 +240,9 @@ public class FoablakController implements Initializable {
                     }
                 }
                 // Ha még a levágás után is több mint 30 karakter a szó, akkor valószínűleg a belsejében van sok nem megfelelő
-                // karakter, ezért nem dolgozzuk fel.
+                // karakter, ezért nem dolgozzuk fel. Illetve ha 2-nél kevesebb karakterből áll.
                 szok[j] = szok[j].substring(eleje, vege + 1);
-                if (szok[j].length() > 30) {
+                if (szok[j].length() > 30 || szok[j].length() < 2) {
                     continue;
                 }
                 szok[j] = szok[j].toLowerCase();
