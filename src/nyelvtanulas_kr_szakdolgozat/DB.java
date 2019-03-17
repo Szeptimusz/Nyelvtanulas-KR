@@ -264,4 +264,42 @@ public class DB {
             System.out.println(e.getMessage());
         }
     }
+    
+    /**
+     * Az kapott táblából lekérdezi a kapott állapotú sorok számát.
+     * @param tabla:    A kapott tábla teljes neve
+     * @param allapot:  A kapott állapot (ismert, ignoralt, gorgetett)
+     * @return :        Visszaadja, hogy hány ilyen állapotú sor van.
+     */
+    public static int statisztikatLekerdez(String tabla, String allapot) {
+        String query = "SELECT COUNT(*) FROM " + tabla + " WHERE allapot='"+ allapot +"'";
+        try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
+                PreparedStatement ps = kapcs.prepareStatement(query)) {
+                ResultSet eredmeny = ps.executeQuery();
+                int sorokSzama = eredmeny.getInt(1);
+                return sorokSzama;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return 0;
+        }
+    }
+    
+    /**
+     * A kapott táblából lekérdezi a kapott ANKI állapotú sorok számát.
+     * @param tabla:        A kapott tábla teljes neve.
+     * @param ankiAllapot:  A kapott ANKI állapot (0 vagy 1)
+     * @return :            Visszaadja, hogy hány ilyen állapotú sor van.
+     */
+    public static int statisztikatTanulandobolLekerdez(String tabla, int ankiAllapot) {
+        String query = "SELECT COUNT(*) FROM " + tabla + " WHERE ANKI='"+ ankiAllapot +"'";
+        try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
+                PreparedStatement ps = kapcs.prepareStatement(query)) {
+                ResultSet eredmeny = ps.executeQuery();
+                int sorokSzama = eredmeny.getInt(1);
+                return sorokSzama;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return 0;
+        }
+    }
 }

@@ -531,4 +531,21 @@ public class FoablakController implements Initializable {
         alert.setHeaderText(null);
         alert.showAndWait();
     }
+    
+    @FXML
+    void statisztika() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("Statisztika.fxml"));
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            Stage ablak = new Stage();
+            ablak.setResizable(false);
+            ablak.initModality(Modality.APPLICATION_MODAL);
+            ablak.setScene(scene);
+            ablak.setTitle("Adatbázis-statisztika");
+            ablak.showAndWait();
+        } catch (IOException e) {
+            System.out.println("Hiba: " + e.getMessage());
+        }
+    }
 }
