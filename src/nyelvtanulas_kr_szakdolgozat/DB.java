@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import javafx.collections.ObservableList;
 import static nyelvtanulas_kr_szakdolgozat.FoablakController.adatbazisUtvonal;
+import static panel.Panel.hiba;
 
 public class DB {
     
@@ -43,7 +44,7 @@ public class DB {
                 kapcs.commit();
         } catch (SQLException e) {
             System.out.println("Nem sikerült a görgetett szó adatbázisba írása!");
-            System.out.println(e.getMessage());
+            hiba("Hiba!",e.getMessage());
         }
     }
     
@@ -76,7 +77,7 @@ public class DB {
                 kapcs.commit();
         } catch (SQLException e) {
             System.out.println("Nem sikerült a" + tabla + "-ból törlés!");
-            System.out.println(e.getMessage());
+            hiba("Hiba!",e.getMessage());
         }
     }
     
@@ -110,7 +111,7 @@ public class DB {
                 kapcs.commit();
         } catch (SQLException e) {
             System.out.println("Nem sikerült a " + tabla + " módosítása!");
-            System.out.println(e.getMessage());
+            hiba("Hiba!",e.getMessage());
         }
     }
     
@@ -134,7 +135,7 @@ public class DB {
                 System.out.println("Szó felülbírálva!");
             } else {
                 System.out.println("Nem sikerült a " + tabla + "-táblába" + " írás!");
-                System.out.println(e.getMessage());
+                hiba("Hiba!",e.getMessage());
             }
         }
     }
@@ -152,7 +153,7 @@ public class DB {
                 System.out.println(sorok + " sor hozzáadva.");
         } catch (SQLException e) {
             System.out.println("Nem sikerült a " + tabla + "-táblába" + " írás!");
-            System.out.println(e.getMessage());
+            hiba("Hiba!",e.getMessage());
         }
     }
     
@@ -166,7 +167,7 @@ public class DB {
                 System.out.println(sorok + " sor törölve.");
         } catch (SQLException e) {
             System.out.println("Nem sikerült a: " + szo + " törlése a: " + tabla + " táblából!");
-            System.out.println(e.getMessage());
+            hiba("Hiba!",e.getMessage());
         }
     }
     
@@ -213,7 +214,7 @@ public class DB {
             
         } catch (SQLException e) {
             System.out.println("Nem sikerült az adatbázis-lekérdezés!");
-            System.out.println(e.getMessage());
+            hiba("Hiba!",e.getMessage());
         }
         
         // Görgetett szó előfordult a szövegben, ezért töröljük az adatbázisból
@@ -235,7 +236,7 @@ public class DB {
                 PreparedStatement ps = kapcs.prepareStatement(createTable)) {
                 ps.executeUpdate();
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            hiba("Hiba!",e.getMessage());
         }
         
         String createIndex = "CREATE INDEX IF NOT EXISTS allapot ON " + TablaNevEleje + "szavak" + "(allapot);";
@@ -243,7 +244,7 @@ public class DB {
                 PreparedStatement ps2 = kapcs.prepareStatement(createIndex)) {
                 ps2.executeUpdate();
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            hiba("Hiba!",e.getMessage());
         }
         
         
@@ -253,7 +254,7 @@ public class DB {
                 PreparedStatement ps = kapcs.prepareStatement(createTable)) {
                 ps.executeUpdate();
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            hiba("Hiba!",e.getMessage());
         }
         
         createIndex = "CREATE INDEX IF NOT EXISTS allapot ON " + TablaNevEleje + "tanulando" + "(ANKI);";
@@ -261,7 +262,7 @@ public class DB {
                 PreparedStatement ps2 = kapcs.prepareStatement(createIndex)) {
                 ps2.executeUpdate();
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            hiba("Hiba!",e.getMessage());
         }
     }
     
@@ -279,7 +280,6 @@ public class DB {
                 int sorokSzama = eredmeny.getInt(1);
                 return sorokSzama;
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
             return 0;
         }
     }
@@ -298,7 +298,6 @@ public class DB {
                 int sorokSzama = eredmeny.getInt(1);
                 return sorokSzama;
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
             return 0;
         }
     }

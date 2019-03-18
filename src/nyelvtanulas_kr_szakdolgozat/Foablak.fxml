@@ -27,7 +27,7 @@
             <items>
                   <MenuItem mnemonicParsing="false" onAction="#ankiImportAblak" text="ANKI-import készítése" />
                   <MenuItem mnemonicParsing="false" text="Szavak kikérdezése" />
-                  <MenuItem mnemonicParsing="false" onAction="#statisztika" text="Statisztika" />
+                  <MenuItem mnemonicParsing="false" onAction="#statisztikaAblak" text="Statisztika" />
               <MenuItem mnemonicParsing="false" onAction="#kilep" text="Kilépés" />
             </items>
           </Menu>

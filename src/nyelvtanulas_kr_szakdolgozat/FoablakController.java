@@ -30,6 +30,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import static panel.Panel.figyelmeztet;
+import static panel.Panel.hiba;
+import static panel.Panel.tajekoztat;
 
 /**
  *
@@ -140,7 +143,6 @@ public class FoablakController implements Initializable {
             txaBevitel.setText("");
             lblTallozasEredmeny.setText("Tallózás sikeres!");
         } else {
-            System.out.println("File is not valid");
             lblTallozasEredmeny.setText("Sikertelen tallózás!");
         }
     }
@@ -161,7 +163,7 @@ public class FoablakController implements Initializable {
                    használni a szövegmezőt.*/
                 fajlUtvonal = null;
             } catch (IOException e) {
-                System.out.println(e.getMessage());
+                hiba("Hiba!",e.getMessage());
             }
         } else {
             // A szövegdobozos szövegből kiszedjük a tabulátorokat és az új sorokat
@@ -348,7 +350,8 @@ public class FoablakController implements Initializable {
         } else {
             String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
             String mondat = tblTablazat.getSelectionModel().getSelectedItem().getMondat();
-            forditasAblak(szo, mondat);
+            // Új ablakot nyit meg és átadja neki a kijelölt sor szavát, mondatát és a forrásnyelv kódját.
+            ablakotNyit("Forditas.fxml", "Fordítás hozzáadása, feltöltés adatbázisba", szo, mondat);
             if (ForditasController.isTanulandoElmentve()) {
                 letiltLeptet(TablaNevEleje + "tanulando");
                 // Miután elmentette és léptetett a táblázatban, visszaállítja a ForditasController osztályban false-ra
@@ -393,50 +396,46 @@ public class FoablakController implements Initializable {
     }
     
     /**
-     * A Tanulandó szó -gomb megnyomásakor új ablakot nyit meg és átadja neki a kijelölt sor szavát, mondatát és a forrásnyelv kódját.
-     * @param szo:       A kijelölt sor szava.
-     * @param mondat:    A kijelölt sor mondata.
-     */
-    private void forditasAblak(String szo, String mondat) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("Forditas.fxml"));
-            Parent root = loader.load();
-            
-            ForditasController fc = loader.getController();
-            fc.setSzo(szo);
-            fc.setMondat(mondat);
-            fc.setForrasNyelvKod(forrasNyelvKod);
-            
-            Scene scene = new Scene(root);
-            Stage ablak = new Stage();
-            ablak.setResizable(false);
-            ablak.initModality(Modality.APPLICATION_MODAL);
-            ablak.setScene(scene);
-            ablak.setTitle("Fordítás hozzáadása, feltöltés adatbázisba");
-            ablak.showAndWait();
-        } catch (IOException e) {
-            System.out.println("Hiba: " + e.getMessage());
-        }
-    }
-    
-    /**
      * Az ANKI kártya készítése menüpontra kattintva új ablakot nyit meg, ahol a nyelv megadása után 
      * ANKI-import fájl készíthető.
      */
     @FXML
     void ankiImportAblak() {
+        ablakotNyit("Anki.fxml", "ANKI-import elkészítése", "", "");
+    }
+    
+    // Külön ablakban megjeleníti az adott nyelvhez tartozó statisztikát
+    @FXML
+    void statisztikaAblak() {
+        ablakotNyit("Statisztika.fxml", "Adatbázis-statisztika", "", "");
+    }
+    
+    /**
+     * A kapott fxml fájl alapján új ablakot nyit meg.
+     * @param fxmlFajl:     A kapott fxml fájl
+     * @param ablakCim:     A megnyitott ablak címe
+     * @param szo:          Fordítás ablak esetében a kapott szó
+     * @param mondat        Fordítás ablak esetében a kapott mondat
+     */
+    private void ablakotNyit(String fxmlFajl, String ablakCim, String szo, String mondat) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("Anki.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFajl));
             Parent root = loader.load();
+            if (!szo.isEmpty()) {
+                ForditasController fc = loader.getController();
+                fc.setSzo(szo);
+                fc.setMondat(mondat);
+                fc.setForrasNyelvKod(forrasNyelvKod);
+            }
             Scene scene = new Scene(root);
             Stage ablak = new Stage();
             ablak.setResizable(false);
             ablak.initModality(Modality.APPLICATION_MODAL);
             ablak.setScene(scene);
-            ablak.setTitle("ANKI-import elkészítése");
+            ablak.setTitle(ablakCim);
             ablak.showAndWait();
         } catch (IOException e) {
-            System.out.println("Hiba: " + e.getMessage());
+            hiba("Hiba!",e.getMessage());
         }
     }
     
@@ -463,7 +462,7 @@ public class FoablakController implements Initializable {
         // Legördülő lista nyelveinek beállítása
         nyelvekBeallitasa(cbxForras, nyelvekKodja);
         
-        // A táblázatban az adott oszlopban megjelenő adat a Sor osztály melyik változójából legyen kiszedve
+        // A táblázatban az adott oszlopban megjelenő adat a Sor osztály melyik mezőjéből legyen kiszedve
         oSzo.setCellValueFactory(new PropertyValueFactory<>("szo"));
         oMondat.setCellValueFactory(new PropertyValueFactory<>("mondat"));
         oGyak.setCellValueFactory(new PropertyValueFactory<>("gyak"));
@@ -506,46 +505,5 @@ public class FoablakController implements Initializable {
     @FXML
     void nevjegy() {
         tajekoztat("Nyelvtanulás program", "Készítette: Kremmer Róbert");
-    }
-    
-    /**
-     * Megnyit egy ablakot az adott szöveggel, amikor tájékoztató jellegű visszajelzést kell küldeni a felhasználónak.
-     * @param cim:      Az ablak címe.
-     * @param szoveg    A megjelenített üzenet.
-     */
-    static void tajekoztat(String cim, String szoveg) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION,szoveg);
-        alert.setTitle(cim);
-        alert.setHeaderText(null);
-        alert.showAndWait();
-    }
-    
-    /**
-     * Probléma esetén az adott szöveggel figyelmeztető ablak ugrik fel.
-     * @param cim:       Az ablak címe
-     * @param szoveg:    A megjelenített üzenet
-     */
-    static void figyelmeztet(String cim, String szoveg) {
-        Alert alert = new Alert(Alert.AlertType.WARNING,szoveg);
-        alert.setTitle(cim);
-        alert.setHeaderText(null);
-        alert.showAndWait();
-    }
-    
-    @FXML
-    void statisztika() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("Statisztika.fxml"));
-            Parent root = loader.load();
-            Scene scene = new Scene(root);
-            Stage ablak = new Stage();
-            ablak.setResizable(false);
-            ablak.initModality(Modality.APPLICATION_MODAL);
-            ablak.setScene(scene);
-            ablak.setTitle("Adatbázis-statisztika");
-            ablak.showAndWait();
-        } catch (IOException e) {
-            System.out.println("Hiba: " + e.getMessage());
-        }
     }
 }

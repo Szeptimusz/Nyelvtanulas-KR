@@ -12,15 +12,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.stage.Window;
 import static nyelvtanulas_kr_szakdolgozat.FoablakController.adatbazisUtvonal;
+import static panel.Panel.figyelmeztet;
+import static panel.Panel.hiba;
+import static panel.Panel.igennem;
+import static panel.Panel.tajekoztat;
 
 public class AnkiController implements Initializable {
 
@@ -34,14 +35,8 @@ public class AnkiController implements Initializable {
      */
     @FXML
     void kartyatKeszit() {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("ANKI kártya készítés");
-        alert.setHeaderText(null);
-        alert.setContentText("Valóban szeretne minden új tanulandó szóból ANKI-importot készíteni?");
-
-        ArrayList<String> szavak = new ArrayList<>();
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == ButtonType.OK){
+        if (igennem("ANKI kártya készítés","Valóban szeretne minden új tanulandó szóból ANKI-importot készíteni?")) {
+            ArrayList<String> szavak = new ArrayList<>();
             String forrasNyelvKod = nyelvekKodja.get(cbxNyelvek.getValue());
             if (forrasNyelvKod != null) {
                 String query = "SELECT szavak, mondatok, forditas FROM " + forrasNyelvKod + "_tanulando WHERE ANKI == 0";
@@ -60,22 +55,20 @@ public class AnkiController implements Initializable {
                     }
                 } catch (SQLException e) {
                     System.out.println("Nem sikerült az adatbázis-lekérdezés!");
-                    System.out.println(e.getMessage());
+                    hiba("Hiba!",e.getMessage());
                 }
                 // Ha sikeres volt az ANKI kártya készítés, akkor a táblában átírja az ANKI mezőt 0-ról 1-re.
                 if (!szavak.isEmpty()) {
                     DB.ankitModositAdatbazisban(forrasNyelvKod + "_tanulando",szavak);
-                    FoablakController.tajekoztat("Kártya készítés eredmény", 
+                    tajekoztat("Kártya készítés eredmény", 
                         "A kártyák sikeresen elkészítve a(z):  " + forrasNyelvKod + " _ankiimport fájlba!");
                     System.out.println("ANKI kártya készítés sikeres!");
                 } else {
-                    FoablakController.figyelmeztet("Figyelem!", "Nincsen tanulandó szó amiből szókártya készíthető!");
+                    figyelmeztet("Figyelem!", "Nincsen tanulandó szó amiből szókártya készíthető!");
                 }
             } else {
-                FoablakController.figyelmeztet("Figyelem!", "Kérem adja meg a nyelvet!");
+                figyelmeztet("Figyelem!", "Kérem adja meg a nyelvet!");
             }
-        } else {
-            alert.hide();
         }
     }
 
@@ -113,7 +106,7 @@ public class AnkiController implements Initializable {
             writer.write(szo + "<br><br>" + mondat + "\t" + forditas + "<br><br>" + lyukasMondat + "\n");
             return true;
         } catch(IOException e) {
-            System.out.println(e.getMessage());
+            hiba("Hiba!",e.getMessage());
             return false;
         }
     }

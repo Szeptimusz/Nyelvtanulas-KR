@@ -9,11 +9,14 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Window;
+import static panel.Panel.figyelmeztet;
 
 public class ForditasController {
     
     @FXML
     private Button btnGoogleTrans;
+    @FXML
+    private Button btnCambridge;
     @FXML
     private Button btnHozzaad;
     @FXML
@@ -43,6 +46,10 @@ public class ForditasController {
     private String forrasNyelvKod;
     public void setForrasNyelvKod(String forrasNyelvKod) {
         this.forrasNyelvKod = forrasNyelvKod;
+        // Ha nem angol a forrásnyelv, akkor a Cambridge gombot letiltja
+        if (!forrasNyelvKod.equals("en")) {
+            btnCambridge.setDisable(true); 
+        }
     }
 
     // Visszaadja, hogy hozzá lett-e adva a fordítás
@@ -62,7 +69,7 @@ public class ForditasController {
     void hozzaad() {
         String forditas = txtForditas.getText();
         if (forditas.equals("")) {
-            FoablakController.figyelmeztet("Figyelem!", "Kérem írjon be fordítást a szóhoz!");
+            figyelmeztet("Figyelem!", "Kérem írjon be fordítást a szóhoz!");
         } else {
             // A mondatot a szövegterületről szedi ki, így lehetőség van a hozzáadás előtt szerkeszteni a példamondatot
             mondat = txaMondat.getText();
@@ -93,6 +100,6 @@ public class ForditasController {
      */
     @FXML
     void megnyitCambridge() throws Exception{
-        Desktop.getDesktop().browse(new URI("https://dictionary.cambridge.org/dictionary/english/" + szo));
+            Desktop.getDesktop().browse(new URI("https://dictionary.cambridge.org/dictionary/english/" + szo));
     }
 }
