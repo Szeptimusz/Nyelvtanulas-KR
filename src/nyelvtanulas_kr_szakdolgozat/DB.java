@@ -11,6 +11,10 @@ import javafx.collections.ObservableList;
 import static nyelvtanulas_kr_szakdolgozat.FoablakController.adatbazisUtvonal;
 import static panel.Panel.hiba;
 
+/**
+ *
+ * @author Kremmer Róbert
+ */
 public class DB {
     
   
@@ -115,7 +119,12 @@ public class DB {
         }
     }
     
-    // A kapott táblához hozzáadja a kapott szót és állapotát
+    /**
+     * A kapott táblához hozzáadja a kapott szót és állapotát.
+     * @param tabla:   A kapott tábla neve
+     * @param szo:     A kapott szó
+     * @param allapot: A kiírandó szó állapota (ismert,ignoralt,tanulando)
+     */
     public static void szotBeirAdatbazisba(String tabla, String szo, String allapot) {
         String into = "INSERT INTO " + tabla + " VALUES (?,?)";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
@@ -139,8 +148,15 @@ public class DB {
             }
         }
     }
-    
-    // A kapott táblához hozzáadja a kapott szót, mondatot, fordítást és az ANKI oszlop értékét (0 vagy 1)
+
+    /**
+     * A kapott táblához hozzáadja a kapott szót, mondatot, fordítást és az ANKI oszlop értékét (0 vagy 1)
+     * @param tabla:    A kapott tábla neve.
+     * @param szo:      A kapott szó
+     * @param mondat:   A kapott mondat
+     * @param forditas: A szó általunk megadott fordítása
+     * @param anki:     A kiírandó anki állapot (0 vagy 1)
+     */
     public static void tanulandotBeirAdatbazisba(String tabla, String szo, String mondat, String forditas, int anki) {
         String into = "INSERT INTO " + tabla + " (szavak, mondatok, forditas, ANKI) VALUES (?,?,?,?)";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
@@ -156,8 +172,12 @@ public class DB {
             hiba("Hiba!",e.getMessage());
         }
     }
-    
-    // A kapott táblából törli a kapott szót
+
+    /**
+     * A kapott táblából törli a kapott szót
+     * @param tabla: A kapott tábla neve.
+     * @param szo:   A kapott szó.
+     */
     public static void szotTorolAdatbazisbol(String tabla, String szo) {
         String delete = "DELETE FROM " + tabla + " WHERE szavak= ?;";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);

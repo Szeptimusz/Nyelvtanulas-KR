@@ -23,6 +23,10 @@ import static panel.Panel.hiba;
 import static panel.Panel.igennem;
 import static panel.Panel.tajekoztat;
 
+/**
+ *
+ * @author Kremmer Róbert
+ */
 public class AnkiController implements Initializable {
 
     @FXML

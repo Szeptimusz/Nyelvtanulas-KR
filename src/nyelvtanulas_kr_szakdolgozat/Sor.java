@@ -1,5 +1,9 @@
 package nyelvtanulas_kr_szakdolgozat;
 
+/**
+ *
+ * @author Kremmer Róbert
+ */
 public class Sor {
 
     private String szo;
@@ -8,6 +12,13 @@ public class Sor {
     private boolean tilt = false;
     private String tabla;
     
+    /**
+     * Az osztály konstruktora, ami meghíváskor beállítja a szót, a mondatot,
+     * és a szó gyakoriságát.
+     * @param szo:    A kapott szó
+     * @param mondat: A szóhoz tartozó példamondat
+     * @param gyak:   A szó gyakorisága
+     */
     public Sor(String szo, String mondat, int gyak) {
         this.szo = szo;
         this.mondat = mondat;

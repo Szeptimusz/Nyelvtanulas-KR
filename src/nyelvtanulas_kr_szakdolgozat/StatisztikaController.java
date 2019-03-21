@@ -8,6 +8,10 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 
+/**
+ *
+ * @author Kremmer Róbert
+ */
 public class StatisztikaController implements Initializable {
 
     static HashMap<String, String> nyelvekKodja = new HashMap<>();

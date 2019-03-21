@@ -11,6 +11,10 @@ import javafx.scene.control.TextField;
 import javafx.stage.Window;
 import static panel.Panel.figyelmeztet;
 
+/**
+ *
+ * @author Kremmer Róbert
+ */
 public class ForditasController {
     
     @FXML

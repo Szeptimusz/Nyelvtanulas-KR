@@ -17,9 +17,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -93,41 +91,49 @@ public class FoablakController implements Initializable {
             figyelmeztet("Figyelem!", "Kérem adja meg a forrásnyelvet is!");
             
         } else {
-            // Tájékoztató ablak a feldolgozás alatt
-            ButtonType btn = new ButtonType("NE KATTINTSON RÁ!"); 
-            Alert alert = new Alert(Alert.AlertType.INFORMATION,"Adatok feldolgozása folyamatban... \n"
-                    + "\n NE KATTINTSON ERRE AZ ABLAKRA!",btn);
-            alert.setHeaderText(null);
-            alert.show();
+            try {
+                // Töltés ablak a feldolgozás alatt
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("Toltes.fxml"));
+                Parent root = loader.load();
+                Scene scene = new Scene(root);
+                Stage ablak = new Stage();
+                ablak.setResizable(false);
+                ablak.initModality(Modality.APPLICATION_MODAL);
+                ablak.setScene(scene);
+                ablak.setTitle("Feldolgozás");
+                ablak.show();
 
-            // Korábbi listener eltávolítása
-            tblTablazat.getSelectionModel().selectedItemProperty().removeListener(listener);
-            // Korábbi HashMap beállítások törlése.
-            szavak_indexe.clear();
-            // Korábbi lista törlése.
-            data.clear();
-            // A megadott forrásnyelv beállítása (pl: 'Német' -> 'de')
-            forrasNyelvKod = nyelvekKodja.get(cbxForras.getValue());
-            TablaNevEleje = forrasNyelvKod + "_";
-            beolvasas();
-            eloFeldolgozas();
-            feldolgozas();
-            azonosakTorlese();
-            DB.tablakatKeszit(TablaNevEleje);
-            DB.adatbazistListavalOsszevet(TablaNevEleje + "szavak",data,szavak_indexe, "ismertignoralt");
-            DB.adatbazistListavalOsszevet(TablaNevEleje + "tanulando",data,szavak_indexe, "tanulando");
-            // Ha be lett pipálva a checkbox
-            if (cxbEgyszer.isSelected()) {
-                DB.adatbazistListavalOsszevet(TablaNevEleje + "szavak",data,szavak_indexe, "gorgetett");
+                // Korábbi listener eltávolítása
+                tblTablazat.getSelectionModel().selectedItemProperty().removeListener(listener);
+                // Korábbi HashMap beállítások törlése.
+                szavak_indexe.clear();
+                // Korábbi lista törlése.
+                data.clear();
+                // A megadott forrásnyelv beállítása (pl: 'Német' -> 'de')
+                forrasNyelvKod = nyelvekKodja.get(cbxForras.getValue());
+                TablaNevEleje = forrasNyelvKod + "_";
+                beolvasas();
+                eloFeldolgozas();
+                feldolgozas();
+                azonosakTorlese();
+                DB.tablakatKeszit(TablaNevEleje);
+                DB.adatbazistListavalOsszevet(TablaNevEleje + "szavak",data,szavak_indexe, "ismertignoralt");
+                DB.adatbazistListavalOsszevet(TablaNevEleje + "tanulando",data,szavak_indexe, "tanulando");
+                // Ha be lett pipálva a checkbox
+                if (cxbEgyszer.isSelected()) {
+                    DB.adatbazistListavalOsszevet(TablaNevEleje + "szavak",data,szavak_indexe, "gorgetett");
+                }
+                listaTorlesek();
+                tblTablazat.setItems(data);
+                // Listener beállítása az adatok táblázatba betöltése után
+                tblTablazat.getSelectionModel().selectedItemProperty().addListener(listener);
+                lblTallozasEredmeny.setText("");
+
+                ablak.hide();
+                tajekoztat("Kész!", "Az adatok feldolgozása befejeződött!");
+            } catch (IOException e) {
+                hiba("Hiba!",e.getMessage());
             }
-            listaTorlesek();
-            tblTablazat.setItems(data);
-            // Listener beállítása az adatok táblázatba betöltése után
-            tblTablazat.getSelectionModel().selectedItemProperty().addListener(listener);
-            lblTallozasEredmeny.setText("");
-
-            alert.hide();
-            tajekoztat("Kész!", "Az adatok feldolgozása befejeződött!");
         }
     }
 
@@ -360,14 +366,18 @@ public class FoablakController implements Initializable {
         }
     }
     
+    /**
+     * Letiltja az adott táblázatbeli sor gombjainak a használatát, tárolja
+     * a tábla nevét ahova a beírás történt és kijelöli a táblázat következő elemét.
+     * @param tabla: A kapott tábla, ahova az adatbázisban a szó el lett mentve
+     */
     public void letiltLeptet(String tabla) {
-        // A listener figyeli az objektum tilt változóját, ezért igazra állítjuk a gombok letiltásához
         tblTablazat.getSelectionModel().getSelectedItem().setTilt(true);
-        // Minden táblázatbeli sor esetén tárolja, hogy melyik táblába lett elmentve (visszavonáshoz kell)
         tblTablazat.getSelectionModel().getSelectedItem().setTabla(tabla);
-        // A hozzáadás után a táblázat következő elemét jelölje ki
         int i = tblTablazat.getSelectionModel().getSelectedIndex();
-        tblTablazat.getSelectionModel().select(i+1);
+        if (i + 1 < data.size()) {
+            tblTablazat.getSelectionModel().select(i+1);
+        }
     }
     
     /**
@@ -394,11 +404,8 @@ public class FoablakController implements Initializable {
             }
         }
     }
-    
-    /**
-     * Az ANKI kártya készítése menüpontra kattintva új ablakot nyit meg, ahol a nyelv megadása után 
-     * ANKI-import fájl készíthető.
-     */
+
+    // Új ablakot nyit meg, ahol a nyelv megadása után ANKI-import fájl készíthető.
     @FXML
     void ankiImportAblak() {
         ablakotNyit("Anki.fxml", "ANKI-import elkészítése", "", "");
