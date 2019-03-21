@@ -119,10 +119,6 @@ public class FoablakController implements Initializable {
                 DB.tablakatKeszit(TablaNevEleje);
                 DB.adatbazistListavalOsszevet(TablaNevEleje + "szavak",data,szavak_indexe, "ismertignoralt");
                 DB.adatbazistListavalOsszevet(TablaNevEleje + "tanulando",data,szavak_indexe, "tanulando");
-                // Ha be lett pipálva a checkbox
-                if (cxbEgyszer.isSelected()) {
-                    DB.adatbazistListavalOsszevet(TablaNevEleje + "szavak",data,szavak_indexe, "gorgetett");
-                }
                 listaTorlesek();
                 tblTablazat.setItems(data);
                 // Listener beállítása az adatok táblázatba betöltése után
@@ -302,12 +298,7 @@ public class FoablakController implements Initializable {
             } else if (cxbEgyszer.isSelected() && data.get(i).getGyak() == 1) {
                 data.remove(i);
                 i--;
-                szavak.add(szo);
             }
-        }
-        // Egyszer előforduló szavak táblába írása görgetett állapottal
-        if (!szavak.isEmpty()) {
-            DB.gorgetettSzavakatBeirAdatbazisba(szavak,TablaNevEleje + "szavak");
         }
     }
 
@@ -377,6 +368,8 @@ public class FoablakController implements Initializable {
         int i = tblTablazat.getSelectionModel().getSelectedIndex();
         if (i + 1 < data.size()) {
             tblTablazat.getSelectionModel().select(i+1);
+        } else {
+            tblTablazat.getSelectionModel().select(i-1);
         }
     }
     

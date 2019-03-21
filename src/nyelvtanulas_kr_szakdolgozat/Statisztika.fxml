@@ -9,7 +9,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="nyelvtanulas_kr_szakdolgozat.StatisztikaController">
    <children>
       <GridPane hgap="10.0" vgap="10.0">
@@ -33,17 +32,12 @@
                   <Font size="15.0" />
                </font>
             </Label>
-            <Label text="Ismert szavak:" GridPane.rowIndex="2">
+            <Label text="Ismert szavak:" GridPane.rowIndex="3">
                <font>
                   <Font size="15.0" />
                </font>
             </Label>
-            <Label text="Figyelmen kívül hagyott szavak:" GridPane.rowIndex="3">
-               <font>
-                  <Font size="15.0" />
-               </font>
-            </Label>
-            <Label text="Görgetett szavak:" GridPane.rowIndex="4">
+            <Label text="Figyelmen kívül hagyott szavak:" GridPane.rowIndex="4">
                <font>
                   <Font size="15.0" />
                </font>
@@ -78,17 +72,12 @@
                   <Insets />
                </GridPane.margin>
             </Label>
-            <Label fx:id="lblIsmertekSzama" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <Label fx:id="lblIsmertekSzama" GridPane.columnIndex="1" GridPane.rowIndex="3">
                <font>
                   <Font size="15.0" />
                </font>
             </Label>
-            <Label fx:id="lblIgnoraltakSzama" GridPane.columnIndex="1" GridPane.rowIndex="3">
-               <font>
-                  <Font size="15.0" />
-               </font>
-            </Label>
-            <Label fx:id="lblGorgetettekSzama" GridPane.columnIndex="1" GridPane.rowIndex="4">
+            <Label fx:id="lblIgnoraltakSzama" GridPane.columnIndex="1" GridPane.rowIndex="4">
                <font>
                   <Font size="15.0" />
                </font>
@@ -108,6 +97,15 @@
                   <Font size="15.0" />
                </font>
             </Label>
+            <Label text="Összes szó:" GridPane.rowIndex="2">
+               <font>
+                  <Font size="15.0" />
+               </font>
+            </Label>
+            <Label fx:id="lblOsszes" GridPane.columnIndex="1" GridPane.rowIndex="2">
+               <font>
+                  <Font size="15.0" />
+               </font></Label>
          </children>
          <padding>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

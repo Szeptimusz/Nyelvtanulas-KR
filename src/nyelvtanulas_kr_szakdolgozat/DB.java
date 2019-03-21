@@ -16,75 +16,7 @@ import static panel.Panel.hiba;
  * @author Kremmer Róbert
  */
 public class DB {
-    
-  
-    /**
-     * A kapott lista szavait beírja mint görgetett szó. Az autoCommit letiltásával és a Batch használatával jelentősen gyorsabban végezhetők
-     * az adatbázis-műveletek.
-     * @param szavak   Adatbázisba írandó szólista.
-     * @param tabla    A kapott tábla neve.
-     */
-    public static void gorgetettSzavakatBeirAdatbazisba(ArrayList<String> szavak, String tabla) {
-        String into = "INSERT INTO " + tabla + " VALUES (?,?)";
-        try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
-                PreparedStatement ps = kapcs.prepareStatement(into)) {
-                kapcs.setAutoCommit(false);
-                int count = 0;
-                for (String szo: szavak) {
-                    ps.setString(1, szo);
-                    ps.setString(2, "gorgetett");
-                    ps.addBatch();
-                    count++;
-                    if (count == 1000) {
-                        ps.executeBatch();
-                        System.out.println("Adabázisba írás sikeres!");
-                        count = 0;
-                    }
-                }
-                if (count != 0) {
-                    ps.executeBatch();
-                    System.out.println("Adabázisba írás sikeres!");
-                }
-                kapcs.commit();
-        } catch (SQLException e) {
-            System.out.println("Nem sikerült a görgetett szó adatbázisba írása!");
-            hiba("Hiba!",e.getMessage());
-        }
-    }
-    
-    /**
-     * A kapott lista szavait kitörli a kapott táblából. AutoCommit letiltása és Batch használata.
-     * @param szavak    Adatbázisból törledő szólista
-     * @param tabla     A szavak törlése ebből a táblából történjen
-     */
-    public static void szavakatTorolAdatbazisbol(ArrayList<String> szavak, String tabla) {
-        String delete = "DELETE FROM " + tabla + " WHERE szavak= ?;";
-        try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
-                PreparedStatement ps = kapcs.prepareStatement(delete)) {
-                kapcs.setAutoCommit(false);
-            
-                int count = 0;
-                for (String szo: szavak) {
-                    ps.setString(1, szo);
-                    ps.addBatch();
-                    count++;
-                    if (count == 1000) {
-                        ps.executeBatch();
-                        System.out.println("Adatbázisból törlés sikeres!");
-                        count = 0;
-                    }
-                }
-                if (count != 0) {
-                    ps.executeBatch();
-                    System.out.println("Adatbázisból törlés sikeres!");
-                }
-                kapcs.commit();
-        } catch (SQLException e) {
-            System.out.println("Nem sikerült a" + tabla + "-ból törlés!");
-            hiba("Hiba!",e.getMessage());
-        }
-    }
-    
+   
     /**
      * Az adott szóhoz tartozó adatbázis-rekordban az ANKI mező értékét átírja 1-re, jelezve, hogy készült belőle ANKI kártya.
      * @param tabla     Megadja melyik táblában kell módosítani
@@ -134,18 +66,7 @@ public class DB {
                 int sorok = ps.executeUpdate();
                 System.out.println(sorok + " sor hozzáadva.");
         } catch (SQLException e) {
-            /* Ha egy szót elmentett görgetettnek, majd utána lefuttatjuk úgy, hogy ne vegye figyelembe a görgetetteket és a szó megjelenik
-               a táblázatban, akkor az ismert és ignorált gombokkal elmentve primary key hibát dob (19-es a hibakódja),
-               mert már benne van a _szavak táblában mint görgetett. Ilyenkor az adott szót töröljük és újra hozzáadjuk a megfelelő állapot-tal.
-            */
-            if (e.getErrorCode() == 19) {
-                szotTorolAdatbazisbol(tabla, szo);
-                szotBeirAdatbazisba(tabla, szo, allapot);
-                System.out.println("Szó felülbírálva!");
-            } else {
-                System.out.println("Nem sikerült a " + tabla + "-táblába" + " írás!");
                 hiba("Hiba!",e.getMessage());
-            }
         }
     }
 
@@ -193,21 +114,17 @@ public class DB {
     
     /**
      * A kapott tábla szavait lekérdezi az adatbázisból és ha létezik a listában, akkor a lista szavát átnevezi torlendo-re, 
-       jelezve, hogy a táblázat megjelenítése előtt törölni kell a listából. Ha a görgetettszavakon megy végig és a szó 
-       létezik a listában, akkor 1-gyel növeli a gyakoriságát a listában (így biztos, hogy legalább kétszer előfordul globálisan) és 
-       törli a táblából a szót.
+       jelezve, hogy a táblázat megjelenítése előtt törölni kell a listából.
      * @param tabla         A kapott tábla neve
      * @param data          A kapott lista a feldolgozott szavakkal,mondatokkal
      * @param szavak_indexe A kapott HashMap, ebben tároljuk azt, hogy az adott szó a listában hányadik indexen van
-     * @param miket         Az összevetni kívánt szó állapota (ismert,tanulando,ignoralt,gorgetett)
+     * @param miket         Az összevetni kívánt szó állapota (ismert,tanulando,ignoralt)
      */
     public static void adatbazistListavalOsszevet(String tabla, ObservableList<Sor> data, HashMap<String, Integer> szavak_indexe,
                                   String miket) {
         String feltetel = "";
         if (miket.equals("ismertignoralt")) {
             feltetel = " WHERE allapot='ismert' OR allapot='ignoralt'";
-        } else if (miket.equals("gorgetett")) {
-            feltetel = " WHERE allapot='gorgetett'";
         }
         
         String query = "SELECT szavak FROM " + tabla + feltetel;
@@ -219,16 +136,8 @@ public class DB {
             while (eredmeny.next()) {
                 String szo = eredmeny.getString("szavak");
                 if (szavak_indexe.get(szo) != null) {
-                    // ha nem görgetett a szó
-                    if (!miket.equals("gorgetett")) {
-                        data.get(szavak_indexe.get(szo)).setSzo("torlendo");
-                        szavak_indexe.put(szo, null);
-                    // ha görgetett a szó
-                    } else {
-                        int gyak = data.get(szavak_indexe.get(szo)).getGyak();
-                        data.get(szavak_indexe.get(szo)).setGyak(++gyak);
-                        szavak.add(szo);
-                    }
+                    data.get(szavak_indexe.get(szo)).setSzo("torlendo");
+                    szavak_indexe.put(szo, null);
                 }
             }
             
@@ -237,10 +146,6 @@ public class DB {
             hiba("Hiba!",e.getMessage());
         }
         
-        // Görgetett szó előfordult a szövegben, ezért töröljük az adatbázisból
-        if (!szavak.isEmpty()) {
-            szavakatTorolAdatbazisbol(szavak, tabla);
-        }
     }
     
     /**
@@ -289,7 +194,7 @@ public class DB {
     /**
      * Az kapott táblából lekérdezi a kapott állapotú sorok számát.
      * @param tabla:    A kapott tábla teljes neve
-     * @param allapot:  A kapott állapot (ismert, ignoralt, gorgetett)
+     * @param allapot:  A kapott állapot (ismert, ignoralt)
      * @return :        Visszaadja, hogy hány ilyen állapotú sor van.
      */
     public static int statisztikatLekerdez(String tabla, String allapot) {

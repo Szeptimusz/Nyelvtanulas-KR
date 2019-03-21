@@ -74,7 +74,7 @@
                   </Label>
                   <Button fx:id="btnChooser" mnemonicParsing="false" onAction="#talloz" prefWidth="80.0" text="Tallózás" GridPane.halignment="LEFT" GridPane.rowIndex="2" />
                   <Button fx:id="btnFuttat" mnemonicParsing="false" onAction="#futtat" text="Adatok feldolgozása" GridPane.columnSpan="3" GridPane.halignment="LEFT" GridPane.rowIndex="7" />
-                  <Label text="A globálisan csak egyszer előforduló szavakat ne listázza: " wrapText="true" GridPane.columnSpan="2" GridPane.rowIndex="5">
+                  <Label text="Az egyszer előforduló szavakat ne listázza: " wrapText="true" GridPane.columnSpan="2" GridPane.rowIndex="5">
                      <font>
                         <Font size="15.0" />
                      </font>
@@ -87,9 +87,9 @@
                      <padding>
                         <Insets left="30.0" />
                      </padding></Label>
-                  <CheckBox fx:id="cxbEgyszer" mnemonicParsing="false" prefHeight="4.0" prefWidth="0.0" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="5">
+                  <CheckBox fx:id="cxbEgyszer" mnemonicParsing="false" prefHeight="4.0" prefWidth="0.0" GridPane.columnIndex="2" GridPane.halignment="LEFT" GridPane.rowIndex="5">
                      <GridPane.margin>
-                        <Insets left="40.0" />
+                        <Insets />
                      </GridPane.margin>
                   </CheckBox>
                   <Label text="Forrásnyelv megadása (kötelező):" GridPane.columnSpan="2" GridPane.rowIndex="6">

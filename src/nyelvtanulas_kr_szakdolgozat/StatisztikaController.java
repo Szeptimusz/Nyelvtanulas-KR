@@ -22,13 +22,13 @@ public class StatisztikaController implements Initializable {
     @FXML
     private Label lblIgnoraltakSzama;
     @FXML
-    private Label lblGorgetettekSzama;
-    @FXML
     private Label lblTanulandoOsszes;
     @FXML
     private Label lblImportaltTanulando;
     @FXML
     private Label lblNemImportaltTanulando;
+    @FXML
+    private Label lblOsszes;
    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -39,13 +39,15 @@ public class StatisztikaController implements Initializable {
         cbxNyelvek.getSelectionModel().selectedItemProperty().addListener(
             (v, regi, uj) -> {
                 String nyelvKodja = nyelvekKodja.get(uj);
-                lblIsmertekSzama.setText("" + DB.statisztikatLekerdez(nyelvKodja + "_szavak","ismert"));
-                lblIgnoraltakSzama.setText("" + DB.statisztikatLekerdez(nyelvKodja + "_szavak","ignoralt"));
-                lblGorgetettekSzama.setText("" + DB.statisztikatLekerdez(nyelvKodja + "_szavak","gorgetett"));
-                
+
+                int ismert = DB.statisztikatLekerdez(nyelvKodja + "_szavak","ismert");
+                int ignoralt = DB.statisztikatLekerdez(nyelvKodja + "_szavak","ignoralt");
                 int importalt = DB.statisztikatTanulandobolLekerdez(nyelvKodja + "_tanulando",1);
                 int nemImportalt = DB.statisztikatTanulandobolLekerdez(nyelvKodja + "_tanulando",0);
                 
+                lblOsszes.setText((ismert + ignoralt + importalt + nemImportalt) + "");
+                lblIsmertekSzama.setText(ismert + "");
+                lblIgnoraltakSzama.setText(ignoralt + "");
                 lblTanulandoOsszes.setText((importalt + nemImportalt) + "");
                 lblImportaltTanulando.setText(importalt + "");
                 lblNemImportaltTanulando.setText(nemImportalt + "");

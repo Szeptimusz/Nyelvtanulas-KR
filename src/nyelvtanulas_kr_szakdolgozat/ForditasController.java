@@ -78,9 +78,6 @@ public class ForditasController {
             // A mondatot a szövegterületről szedi ki, így lehetőség van a hozzáadás előtt szerkeszteni a példamondatot
             mondat = txaMondat.getText();
             DB.tanulandotBeirAdatbazisba(forrasNyelvKod + "_" + "tanulando",szo,mondat,forditas,0);
-            /* Megpróbálja kitörölni az adott szót a szavak táblából, mert ha az előbb kiírt tanulandó szó már görgetettként szerepelt benne, akkor
-               így mindkét táblában egyszerre bent van. */
-            DB.szotTorolAdatbazisbol(forrasNyelvKod + "_" + "szavak", szo);
             tanulandoElmentve = true;
             Window ablak = lblSzo.getScene().getWindow();
             ablak.hide();
