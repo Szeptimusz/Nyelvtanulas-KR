@@ -10,7 +10,7 @@ Működés részletesebb leírása:
 -------------------------
 A feldolgozandó szöveg megadható tallózással, vagy egyszerű bemásolással.
 
-Ki lehet választani, hogy az eredmények megjelenítésénél azokat a szavakat, amik csak egyszer fordulnak elő globálisan (a szövegben egyszer fordul elő és az adatbázisban nincs bent mint görgetett szó), azokat mentse el az adatbázisba mint görgetett szó. Ha legközelebb ez a szó előfordul egy szövegben, akkor már globálisan 2-szer fordul elő, így meg fog jelenni a táblázatban. Vagyis az egyszer előforduló szavakat addig görgeti tovább amíg nem adunk meg neki olyan szöveget amiben újra szerepel.
+Ki lehet választani, hogy az eredmények megjelenítésénél azokat a szavakat, amik csak egyszer fordulnak elő ne jelenítse meg a táblázatban.
 
 A feldolgozás előtt meg kell adni, hogy milyen nyelvű a szöveg, mert a különböző nyelveket különböző táblákba menti el.
 
@@ -22,3 +22,5 @@ szöveggel újra futtatjuk a feldolgozást, akkor a korábban elmentett szavak m
 A tanulandó szavak elmentésénél tárolja az adott szót, a hozzá tartozó példamondatot, és a szó általunk megadott fordítását. A fordításhoz segítséget nyújt a gombbal megnyitható Google Translate (az adott nyelvről fordítja le a szót magyarra).
 
 Az opcióknál lehet ANKI importot készíteni. A nyelv kiválasztásával az adott nyelvhez tartozó tanulandó szavakból anki-import fájlt készít. A korábban elkészített importot nem írja felül, hanem az új szavakat hozzáadja az import-fájl végéhez. Az elkészített import a szón kívül tartalmazza a példamondatot, a szó fordítását, és a lyukas példamondatot (a szó helye ki van pontozva).
+
+A Statisztika menüpontnál meg lehet nézni az adott nyelvre vonatkozóan az adatbázisban tárolt különböző állapotú (ismert,ignoralt, tanulandó) szavak számát.
