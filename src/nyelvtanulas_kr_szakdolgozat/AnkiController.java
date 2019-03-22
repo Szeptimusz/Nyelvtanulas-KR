@@ -89,30 +89,33 @@ public class AnkiController implements Initializable {
         // Kiírás FileOutputStream-mel, mert így megadható az utf-8 kódolás (az ANKI program csak ezt tudja beimportálni)
         try (OutputStreamWriter writer =
              new OutputStreamWriter(new FileOutputStream(forrasNyelvKod + "_ankiimport.txt",true), StandardCharsets.UTF_8)) {
-            
-            // A mondatban a szó előfordulásainak megkeresése, pontokkal helyessítése és így lyukas szöveg gyártása.
-            String lyukasMondat = "";
-            String [] szavak = mondat.toLowerCase().split(" |\\,|\\, ");
-            for (int i = 0; i < szavak.length; i++) {
-                if (szavak[i].equals(szo)) {
-                    int szoHossza = szavak[i].length();
-                    String lyuk = "";
-                    for (int j = 0; j < szoHossza; j++) {
-                        lyuk = lyuk + ".";
-                    }
-                    szavak[i] = lyuk;
-                }
-                lyukasMondat += szavak[i] + " ";
-            }
-            // Lyukas mondat első betűjének nagybetűssé alakítása
-            lyukasMondat = lyukasMondat.substring(0, 1).toUpperCase() + lyukasMondat.substring(1);
-            // A szó,mondat,lyukasmondat fájlba írása - az ANKI importálási szabályainak megfelelően
-            writer.write(szo + "<br><br>" + mondat + "\t" + forditas + "<br><br>" + lyukasMondat + "\n");
-            return true;
+                // A szó,mondat,lyukasmondat fájlba írása - az ANKI importálási szabályainak megfelelően
+                writer.write(szo + "<br><br>" + mondat + "\t" + forditas + "<br><br>" + lyukasMondatotKeszit(szo, mondat) + "\n");
+                return true;
         } catch(IOException e) {
             hiba("Hiba!",e.getMessage());
             return false;
         }
+    }
+    
+    // A mondatban a szó előfordulásainak megkeresése, pontokkal helyessítése és így lyukas szöveg gyártása.
+    public String lyukasMondatotKeszit(String szo, String mondat) {
+        String lyukasMondat = "";
+        String [] szavak = mondat.toLowerCase().split(" |\\,|\\, ");
+        for (int i = 0; i < szavak.length; i++) {
+            if (szavak[i].equals(szo)) {
+                int szoHossza = szavak[i].length();
+                String lyuk = "";
+                for (int j = 0; j < szoHossza; j++) {
+                    lyuk = lyuk + ".";
+                }
+                szavak[i] = lyuk;
+            }
+            lyukasMondat += szavak[i] + " ";
+        }
+        // Lyukas mondat első betűjének nagybetűssé alakítása
+        lyukasMondat = lyukasMondat.substring(0, 1).toUpperCase() + lyukasMondat.substring(1);
+        return lyukasMondat;
     }
     
     @Override

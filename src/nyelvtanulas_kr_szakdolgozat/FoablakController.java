@@ -285,8 +285,7 @@ public class FoablakController implements Initializable {
     
     /**
      * Végigmegy a listán és ha a szó "torlendo", akkor törli onnan. Különben ha be volt jelölve az egyszer előforduló
-       szavak megjelenítésének tiltása (és így a szavak görgetése) és a szó, csak egyszer fordul elő globálisan,
-       akkor törli a listából és hozzáadja a szavak táblához görgetett állapottal.
+       szavak megjelenítésének tiltása akkor is törli a listából.
      */
     public void listaTorlesek() {
         ArrayList<String> szavak = new ArrayList();
@@ -398,16 +397,22 @@ public class FoablakController implements Initializable {
         }
     }
 
-    // Új ablakot nyit meg, ahol a nyelv megadása után ANKI-import fájl készíthető.
+    // Új ablakot nyit meg, ahol ANKI-import fájl készíthető.
     @FXML
     void ankiImportAblak() {
         ablakotNyit("Anki.fxml", "ANKI-import elkészítése", "", "");
     }
     
-    // Külön ablakban megjeleníti az adott nyelvhez tartozó statisztikát
+    // Új ablakban megjeleníti az adott nyelvhez tartozó statisztikát
     @FXML
     void statisztikaAblak() {
         ablakotNyit("Statisztika.fxml", "Adatbázis-statisztika", "", "");
+    }
+    
+    // Új ablakban megjeleníti a szókártya-kikérdezés felületet
+    @FXML
+    void kikerdezesAblak() {
+        ablakotNyit("Kikerdezes.fxml","Szavak kikérdezése szókártyákkal","","");
     }
     
     /**

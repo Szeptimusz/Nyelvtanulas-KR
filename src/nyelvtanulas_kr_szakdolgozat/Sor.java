@@ -11,9 +11,12 @@ public class Sor {
     private int gyak;
     private boolean tilt = false;
     private String tabla;
+    private String forditas;
+    private long kikerdezes_ideje;
     
     /**
-     * Az osztály konstruktora, ami meghíváskor beállítja a szót, a mondatot,
+     * A Főablakban használt konstruktor.
+     * Meghívásakor beállítja a szót, a mondatot,
      * és a szó gyakoriságát.
      * @param szo:    A kapott szó
      * @param mondat: A szóhoz tartozó példamondat
@@ -25,6 +28,14 @@ public class Sor {
         this.gyak = gyak;
     }
 
+    // A szavak kikérdezéséhez használt konstruktor
+    public Sor(String szo, String mondat, String forditas, long kikerdezes_ideje) {
+        this.szo = szo;
+        this.mondat = mondat;
+        this.forditas = forditas;
+        this.kikerdezes_ideje = kikerdezes_ideje;
+    }
+    
     public String getSzo() {
         return szo;
     }
@@ -64,5 +75,22 @@ public class Sor {
     public void setTabla(String tabla) {
         this.tabla = tabla;
     }
+
+    public String getForditas() {
+        return forditas;
+    }
+
+    public void setForditas(String forditas) {
+        this.forditas = forditas;
+    }
+
+    public long getKikerdezes_ideje() {
+        return kikerdezes_ideje;
+    }
+
+    public void setKikerdezes_ideje(long kikerdezes_ideje) {
+        this.kikerdezes_ideje = kikerdezes_ideje;
+    }
+    
     
 }

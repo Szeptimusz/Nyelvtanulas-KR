@@ -5,6 +5,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import javafx.collections.ObservableList;
@@ -79,13 +81,14 @@ public class DB {
      * @param anki:     A kiírandó anki állapot (0 vagy 1)
      */
     public static void tanulandotBeirAdatbazisba(String tabla, String szo, String mondat, String forditas, int anki) {
-        String into = "INSERT INTO " + tabla + " (szavak, mondatok, forditas, ANKI) VALUES (?,?,?,?)";
+        String into = "INSERT INTO " + tabla + " (szavak, mondatok, kikerdezes_ideje, forditas, ANKI) VALUES (?,?,?,?,?)";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
                 PreparedStatement ps = kapcs.prepareStatement(into)) {
                 ps.setString(1, szo);
                 ps.setString(2, mondat);
-                ps.setString(3, forditas);
-                ps.setInt(4, anki);
+                ps.setLong(3, System.currentTimeMillis());
+                ps.setString(4, forditas);
+                ps.setInt(5, anki);
                 int sorok = ps.executeUpdate();
                 System.out.println(sorok + " sor hozzáadva.");
         } catch (SQLException e) {
@@ -128,7 +131,6 @@ public class DB {
         }
         
         String query = "SELECT szavak FROM " + tabla + feltetel;
-        ArrayList<String> szavak = new ArrayList();
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
             PreparedStatement ps = kapcs.prepareStatement(query)) {
             ResultSet eredmeny = ps.executeQuery();
@@ -174,7 +176,7 @@ public class DB {
         
         
         createTable = "CREATE TABLE IF NOT EXISTS " + TablaNevEleje + "tanulando" + " (szavak VARCHAR(100) NOT NULL PRIMARY KEY,"
-                       + "mondatok TEXT NOT NULL, kikerdezes_ideje DATE, forditas VARCHAR(100), ANKI INT NOT NULL);";
+                       + "mondatok TEXT NOT NULL, kikerdezes_ideje BIGINT, forditas VARCHAR(100), ANKI INT NOT NULL);";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
                 PreparedStatement ps = kapcs.prepareStatement(createTable)) {
                 ps.executeUpdate();
@@ -224,6 +226,37 @@ public class DB {
                 return sorokSzama;
         } catch (SQLException e) {
             return 0;
+        }
+    }
+    
+    public static ArrayList<Sor> tanulandotLekerdez(String tabla) {
+        ArrayList<Sor> rekordok = new ArrayList<>();
+        String query = "SELECT * FROM " + tabla + " WHERE kikerdezes_ideje<=" + System.currentTimeMillis();
+        try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
+             PreparedStatement ps = kapcs.prepareStatement(query)) {
+             ResultSet eredmeny = ps.executeQuery();
+             while (eredmeny.next()) {
+                 rekordok.add(new Sor(eredmeny.getString("szavak"),
+                                      eredmeny.getString("mondatok"),
+                                      eredmeny.getString("forditas"),
+                                      eredmeny.getLong("kikerdezes_ideje")));
+             }
+             return rekordok;
+        } catch (SQLException e) {
+            hiba("Hiba!",e.getMessage());
+            return rekordok;
+        }
+    }
+    
+    public static void frissitKikerdezes(String tabla, String szo, long kikerdezesIdeje) {
+        String update = "UPDATE " + tabla + " SET kikerdezes_ideje= ? WHERE szavak= ?;";
+        try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
+             PreparedStatement ps = kapcs.prepareStatement(update)) {
+                ps.setLong(1, kikerdezesIdeje);
+                ps.setString(2, szo);
+                ps.executeUpdate();
+        } catch (SQLException e) {
+            hiba("Hiba!",e.getMessage());
         }
     }
 }
