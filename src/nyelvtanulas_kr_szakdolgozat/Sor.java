@@ -12,8 +12,7 @@ public class Sor {
     private boolean tilt = false;
     private String tabla;
     private String forditas;
-    private long kikerdezes_ideje;
-    
+  
     /**
      * A Főablakban használt konstruktor.
      * Meghívásakor beállítja a szót, a mondatot,
@@ -29,11 +28,10 @@ public class Sor {
     }
 
     // A szavak kikérdezéséhez használt konstruktor
-    public Sor(String szo, String mondat, String forditas, long kikerdezes_ideje) {
+    public Sor(String szo, String mondat, String forditas) {
         this.szo = szo;
         this.mondat = mondat;
         this.forditas = forditas;
-        this.kikerdezes_ideje = kikerdezes_ideje;
     }
     
     public String getSzo() {
@@ -84,13 +82,4 @@ public class Sor {
         this.forditas = forditas;
     }
 
-    public long getKikerdezes_ideje() {
-        return kikerdezes_ideje;
-    }
-
-    public void setKikerdezes_ideje(long kikerdezes_ideje) {
-        this.kikerdezes_ideje = kikerdezes_ideje;
-    }
-    
-    
 }

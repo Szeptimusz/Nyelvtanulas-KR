@@ -238,8 +238,7 @@ public class DB {
              while (eredmeny.next()) {
                  rekordok.add(new Sor(eredmeny.getString("szavak"),
                                       eredmeny.getString("mondatok"),
-                                      eredmeny.getString("forditas"),
-                                      eredmeny.getLong("kikerdezes_ideje")));
+                                      eredmeny.getString("forditas")));
              }
              return rekordok;
         } catch (SQLException e) {

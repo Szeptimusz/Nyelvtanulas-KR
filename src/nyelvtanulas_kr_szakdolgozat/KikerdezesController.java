@@ -89,7 +89,7 @@ public class KikerdezesController implements Initializable {
     void nehez() {
         // Ha a szókártya nehéz volt, akkor 2 nap múlva kérdezi ki újra
         DB.frissitKikerdezes(forrasNyelvKod + "_tanulando", rekordok.get(index).getSzo(), 
-                (rekordok.get(index).getKikerdezes_ideje() + 2*24*3600*1000));
+                (System.currentTimeMillis() + 2*24*3600*1000));
         index++;
         lblForditas.setText("");
         szotMondatotBeallit(index);
@@ -100,7 +100,7 @@ public class KikerdezesController implements Initializable {
     void konnyu() {
         // Ha a szókártya könnyű volt, akkor 10 nap múlva kérdezi ki újra
         DB.frissitKikerdezes(forrasNyelvKod + "_tanulando", rekordok.get(index).getSzo(), 
-                (rekordok.get(index).getKikerdezes_ideje() + 10*24*3600*1000));
+                (System.currentTimeMillis() + 10*24*3600*1000));
         index++;
         lblForditas.setText("");
         szotMondatotBeallit(index);
@@ -111,7 +111,7 @@ public class KikerdezesController implements Initializable {
     void jo() {
         // Ha a szókártya jó volt, akkor 5 nap múlva kérdezi ki újra
         DB.frissitKikerdezes(forrasNyelvKod + "_tanulando", rekordok.get(index).getSzo(), 
-                (rekordok.get(index).getKikerdezes_ideje() + 5*24*3600*1000));
+                (System.currentTimeMillis() + 5*24*3600*1000));
         index++;
         lblForditas.setText("");
         szotMondatotBeallit(index);
