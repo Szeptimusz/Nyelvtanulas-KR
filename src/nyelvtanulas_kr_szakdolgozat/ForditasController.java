@@ -29,6 +29,8 @@ public class ForditasController {
     private TextArea txaMondat;
     @FXML
     private TextField txtForditas;
+    @FXML
+    private Button btnVisszaallit;
 
     private String szo;
     public void setSzo(String szo) {
@@ -40,14 +42,16 @@ public class ForditasController {
         });
     }
 
-    private String mondat;
+    private String eredetiMondat;
     public void setMondat(String mondat) {
-        this.mondat = mondat;
-        txaMondat.setText(mondat);
+        eredetiMondat = mondat;
+        txaMondat.setText(eredetiMondat);
     }
     
-    // A Google Translate kereséshez beállítja a forrásnyelvet
+    
     private String forrasNyelvKod;
+    
+    // A Google Translate kereséshez beállítja a forrásnyelvet
     public void setForrasNyelvKod(String forrasNyelvKod) {
         this.forrasNyelvKod = forrasNyelvKod;
         // Ha nem angol a forrásnyelv, akkor a Cambridge gombot letiltja
@@ -56,8 +60,10 @@ public class ForditasController {
         }
     }
 
-    // Visszaadja, hogy hozzá lett-e adva a fordítás
+    
     private static boolean tanulandoElmentve = false;
+    
+    // Visszaadja, hogy hozzá lett-e adva a fordítás
     public static boolean isTanulandoElmentve() {
         return tanulandoElmentve;
     }
@@ -74,9 +80,11 @@ public class ForditasController {
         String forditas = txtForditas.getText();
         if (forditas.equals("")) {
             figyelmeztet("Figyelem!", "Kérem írjon be fordítást a szóhoz!");
+        } else if (txaMondat.getText().equals("")){
+            figyelmeztet("Figyelem!", "Az adott szóhoz nincsen megadva példamondat!");
         } else {
             // A mondatot a szövegterületről szedi ki, így lehetőség van a hozzáadás előtt szerkeszteni a példamondatot
-            mondat = txaMondat.getText();
+            String mondat = txaMondat.getText();
             DB.tanulandotBeirAdatbazisba(forrasNyelvKod + "_" + "tanulando",szo,mondat,forditas,0);
             tanulandoElmentve = true;
             Window ablak = lblSzo.getScene().getWindow();
@@ -84,6 +92,12 @@ public class ForditasController {
         }
     }
 
+    // Visszaállítja a szövegterületre az eredeti példamondatot
+    @FXML
+    void visszaallit() {
+        txaMondat.setText(eredetiMondat);
+    }
+    
     /**
      * Megnyitja a Google Translate egy adott forrás-nyelvről magyarra fordító oldalát az adott szóval.
      * @throws Exception 

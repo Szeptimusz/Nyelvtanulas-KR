@@ -73,6 +73,7 @@
             <Insets left="120.0" right="20.0" />
          </GridPane.margin>
       </TextArea>
+      <Button fx:id="btnVisszaallit" alignment="CENTER" mnemonicParsing="false" onAction="#visszaallit" prefHeight="60.0" prefWidth="100.0" text="Eredeti példamondat visszaállítása" wrapText="true" GridPane.rowIndex="2" />
    </children>
    <padding>
       <Insets bottom="10.0" left="20.0" right="10.0" top="10.0" />

@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.ResourceBundle;
@@ -126,7 +125,13 @@ public class FoablakController implements Initializable {
                 lblTallozasEredmeny.setText("");
 
                 ablak.hide();
-                tajekoztat("Kész!", "Az adatok feldolgozása befejeződött!");
+                
+                if (data.isEmpty()) {
+                    figyelmeztet("Figyelem!", "A nem megfelelő karakterek eltávolítása után nem "
+                            + "maradt megjeleníthető eredmény!");
+                } else {
+                    tajekoztat("Kész!", "Az adatok feldolgozása befejeződött!");
+                }
             } catch (IOException e) {
                 hiba("Hiba!",e.getMessage());
             }
@@ -280,7 +285,9 @@ public class FoablakController implements Initializable {
         }
         /* A lista utolsó szavánál is beállítja az indexes hashmap-et (az lista azonos szavainak törlésénél csak
            az utolsó előtti elemig mentünk el) */
-        szavak_indexe.put(data.get(data.size()-1).getSzo(), data.size()-1);
+        if (!data.isEmpty()) {
+            szavak_indexe.put(data.get(data.size()-1).getSzo(), data.size()-1);
+        }
     }
     
     /**
@@ -288,7 +295,6 @@ public class FoablakController implements Initializable {
        szavak megjelenítésének tiltása akkor is törli a listából.
      */
     public void listaTorlesek() {
-        ArrayList<String> szavak = new ArrayList();
         for (int i = 0; i < data.size(); i++) {
             String szo = data.get(i).getSzo();
             if (szo.equals("torlendo")) {
