@@ -101,7 +101,7 @@ public class AnkiController implements Initializable {
     // A mondatban a szó előfordulásainak megkeresése, pontokkal helyessítése és így lyukas szöveg gyártása.
     public String lyukasMondatotKeszit(String szo, String mondat) {
         String lyukasMondat = "";
-        String [] szavak = mondat.toLowerCase().split(" |\\,|\\, ");
+        String [] szavak = mondat.toLowerCase().split(" |\\, |\\,");
         for (int i = 0; i < szavak.length; i++) {
             if (szavak[i].equals(szo)) {
                 int szoHossza = szavak[i].length();

@@ -112,8 +112,7 @@ public class FoablakController implements Initializable {
                 forrasNyelvKod = nyelvekKodja.get(cbxForras.getValue());
                 TablaNevEleje = forrasNyelvKod + "_";
                 beolvasas();
-                eloFeldolgozas();
-                feldolgozas();
+                feldolgozas(eloFeldolgozas(minden));
                 azonosakTorlese();
                 DB.tablakatKeszit(TablaNevEleje);
                 DB.adatbazistListavalOsszevet(TablaNevEleje + "szavak",data,szavak_indexe, "ismertignoralt");
@@ -155,7 +154,7 @@ public class FoablakController implements Initializable {
     }
     
     /**
-     * Adatok beolvasása a betallózott fájlból vagy a szövegterületből. Az egész szöveget egyszerre olvassa be.
+     * Adatok beolvasása a betallózott fájlból vagy a szövegterületből. Az egész szöveget egyszerre olvassa be. 
      */
     public void beolvasas() {
         if (fajlUtvonal != null) {
@@ -184,9 +183,11 @@ public class FoablakController implements Initializable {
     Végigmegy a teljes szövegen karakterenként, ha a karakter ".?!" , akkor ha a következő karakter is
     ugyanolyan, addig törli a következőket amíg nem talál egy más karaktert. Azzal, hogy csak ezt a 3 karaktert nézi
      a példamondatok jobban hasonlítanak az eredeti szövegben lévő mondatra.
+     * @param szoveg: A kapott feldolgozandó szöveg
+     * @return: Visszadja a feldolgozott szöveget
      */
-    public void eloFeldolgozas() {
-        StringBuilder sb = new StringBuilder(minden);
+    public String eloFeldolgozas(String szoveg) {
+        StringBuilder sb = new StringBuilder(szoveg);
         for (int i = 0; i < sb.length()-1; i++) {
             char c = sb.charAt(i);
             if (c == '.' || c == '?' || c == '!' || c == ' ') {
@@ -199,16 +200,18 @@ public class FoablakController implements Initializable {
                 }
             }
         }
-        minden = sb.toString();
+        szoveg = sb.toString();
+        return szoveg;
     } 
     
     /**
      * A beolvasott sorokat .?!-szerint mondatokká, azokat szóköz és vessző szerint szavakká vágva tárolja tömbben. A karakterkezelések 
      * után Sor típusú objektumként hozzáadja a megfigyelhető listához.
+     * @param szoveg: A kapott feldolgozandó szöveg
      */
-    public void feldolgozas() {
+    public void feldolgozas(String szoveg) {
         // A szöveg szétvágása "." "?" "!" szerint, plusz azok az esetek amikor szóköz van utánuk
-        String mondatok [] = minden.split("\\. |\\.|\\? |\\?|\\! |\\!");
+        String mondatok [] = szoveg.split("\\. |\\.|\\? |\\?|\\! |\\!");
         for (int i = 0; i < mondatok.length; i++) {
             // Mondat szétvágása szavakká szóköz vagy vessző szerint
             String[] szok = mondatok[i].split(" |\\, |\\,");
@@ -218,51 +221,61 @@ public class FoablakController implements Initializable {
                 if (szok[j].length() < 2) {
                     continue;
                 }
+
+                String szo = megtisztit(szok[j]);
                 
-                // Szó elejének megtisztítása az első szöveges karakterig
-                int eleje = 0;
-                int vege = szok[j].length()-1;
-                while (szok[j].charAt(eleje) < 'A' 
-                        || (szok[j].charAt(eleje) > 'z' && szok[j].charAt(eleje) < 193) 
-                        || (szok[j].charAt(eleje) > 'Z' && szok[j].charAt(eleje) < 'a') 
-                        || (szok[j].charAt(eleje) >= '0' && szok[j].charAt(eleje) <= '9') 
-                        || szok[j].charAt(eleje) > 382) {
-                    if (eleje == szok[j].length()-1) {
-                        break;
-                    }
-                    eleje++;
-                }
-                // Ha teljesen elfogyott a szó a tisztítás során akkor nem dolgozza fel
-                if (eleje == szok[j].length()-1) {
-                        continue;
-                } else {
-                // Különben ha nem fogyott el a szó, akkor a szó végéről indulva is megtisztítja
-                    while (szok[j].charAt(vege) < 'A' 
-                            || (szok[j].charAt(vege) > 'z' && szok[j].charAt(vege) < 193) 
-                            || (szok[j].charAt(vege) > 'Z' && szok[j].charAt(vege) < 'a') 
-                            || (szok[j].charAt(vege) >= '0' && szok[j].charAt(vege) <= '9') 
-                            || szok[j].charAt(vege) > 382) {
-                        if (vege == 0) {
-                            break;
-                        }
-                        vege--;
-                    }
-                }
-                // Ha még a levágás után is több mint 30 karakter a szó, akkor valószínűleg a belsejében van sok nem megfelelő
+                // Ha még a megtisztítás után is több mint 30 karakter a szó, akkor valószínűleg a belsejében van sok nem megfelelő
                 // karakter, ezért nem dolgozzuk fel. Illetve ha 2-nél kevesebb karakterből áll.
-                szok[j] = szok[j].substring(eleje, vege + 1);
-                if (szok[j].length() > 30 || szok[j].length() < 2) {
+                if (szo.length() > 30 || szo.length() < 2) {
                     continue;
                 }
-                szok[j] = szok[j].toLowerCase();
+                szo = szo.toLowerCase();
                 
-                data.add(new Sor(szok[j], mondatok[i], 1));
+                data.add(new Sor(szo, mondatok[i], 1));
             }
         }
-        // A minden String kiürítése a feldolgozás után, hogy ne foglalja tovább a memóriát
-        minden = "";
     }
 
+    /**
+     * A kapott szó elejét és végét megtisztítja a nem megfelelő karakterektől.
+     * @param szo: A kapott szó
+     * @return: Visszadja a megtisztított szót
+     */
+    public String megtisztit(String szo) {
+        // Szó elejének megtisztítása az első szöveges karakterig
+        int eleje = 0;
+        int vege = szo.length()-1;
+        while (szo.charAt(eleje) < 'A' 
+                || (szo.charAt(eleje) > 'z' && szo.charAt(eleje) < 193) 
+                || (szo.charAt(eleje) > 'Z' && szo.charAt(eleje) < 'a') 
+                || (szo.charAt(eleje) >= '0' && szo.charAt(eleje) <= '9') 
+                || szo.charAt(eleje) > 382) {
+            if (eleje == szo.length()-1) {
+                break;
+            }
+            eleje++;
+        }
+        // Ha teljesen elfogyott a szó a tisztítás során akkor üres Stringet ad vissza
+        if (eleje == szo.length()-1) {
+                return "";
+        } else {
+        // Különben ha nem fogyott el a szó, akkor a szó végéről indulva is megtisztítja
+            while (szo.charAt(vege) < 'A' 
+                    || (szo.charAt(vege) > 'z' && szo.charAt(vege) < 193) 
+                    || (szo.charAt(vege) > 'Z' && szo.charAt(vege) < 'a') 
+                    || (szo.charAt(vege) >= '0' && szo.charAt(vege) <= '9') 
+                    || szo.charAt(vege) > 382) {
+                if (vege == 0) {
+                    break;
+                }
+                vege--;
+            }
+        }
+        
+        szo = szo.substring(eleje, vege + 1);
+        return szo;
+    }
+    
     /**
      * Azonos szavak törlése a listából, az így megmaradó egyedi szavak lista-indexének tárolása valamint szógyakoriság számolása.
      */
