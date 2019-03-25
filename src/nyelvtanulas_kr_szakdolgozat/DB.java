@@ -1,5 +1,6 @@
 package nyelvtanulas_kr_szakdolgozat;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -17,6 +18,23 @@ import static panel.Panel.hiba;
  */
 public class DB {
    
+    /**
+     * Megpróbál csatlakozni a projekt mappájában egy adott nevű adatbázishoz,
+     * ha még nem létezik, akkor létre is hozza.
+     * @param adatbazisNeve   A kapott adatbázis neve
+     * @return 
+     */
+    public static String adatbazistKeszit(String adatbazisNeve) {
+        String utvonal = new File("").getAbsolutePath();
+        String adatbazisUtvonal = "jdbc:sqlite:" + utvonal + adatbazisNeve;
+ 
+        try (Connection conn = DriverManager.getConnection(adatbazisUtvonal)) {
+            return adatbazisUtvonal;
+        } catch (SQLException e) {
+            return e.getMessage();
+        }
+    }
+    
     /**
      * Az adott szóhoz tartozó adatbázis-rekordban az ANKI mező értékét átírja 1-re, jelezve, hogy készült belőle ANKI kártya.
      * @param tabla     Megadja melyik táblában kell módosítani

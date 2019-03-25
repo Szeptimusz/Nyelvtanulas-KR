@@ -482,10 +482,9 @@ public class FoablakController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Adatbázis helye relatív módon megadva
-        String utvonal = new File("").getAbsolutePath();
-        adatbazisUtvonal += utvonal + ("\\nyelvtanulas.db");
-        
+        // Adatbázis elérési útvonalát beállítja, ha nincs adatbázis akkor létrehozza
+        adatbazisUtvonal = DB.adatbazistKeszit("\\nyelvtanulas.db");
+
         // Legördülő lista nyelveinek beállítása
         nyelvekBeallitasa(cbxForras, nyelvekKodja);
         
