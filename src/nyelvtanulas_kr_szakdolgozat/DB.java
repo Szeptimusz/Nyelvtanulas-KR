@@ -227,24 +227,37 @@ public class DB {
         }
     }
     
+    /**
+     * Lekérdezi azokat a tanulandó szavakat (mondattal és fordítással), amiknél
+     * a kikérdezés már esedékes (a jelenlegi időpont nagyobbegyenlő, mint a tervezett
+     * kikérdezési idő).
+     * @param tabla   A kapott tanulando tábla neve
+     * @return        Visszaadja a lekérdezett sorok listáját
+     */
     public static ArrayList<Sor> tanulandotLekerdez(String tabla) {
         ArrayList<Sor> rekordok = new ArrayList<>();
         String query = "SELECT * FROM " + tabla + " WHERE kikerdezes_ideje<=" + System.currentTimeMillis();
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
-             PreparedStatement ps = kapcs.prepareStatement(query)) {
-             ResultSet eredmeny = ps.executeQuery();
-             while (eredmeny.next()) {
-                 rekordok.add(new Sor(eredmeny.getString("szavak"),
-                                      eredmeny.getString("mondatok"),
-                                      eredmeny.getString("forditas")));
-             }
-             return rekordok;
+            PreparedStatement ps = kapcs.prepareStatement(query)) {
+            ResultSet eredmeny = ps.executeQuery();
+            while (eredmeny.next()) {
+                rekordok.add(new Sor(eredmeny.getString("szavak"),
+                                     eredmeny.getString("mondatok"),
+                                     eredmeny.getString("forditas")));
+            }
+            return rekordok;
         } catch (SQLException e) {
             hiba("Hiba!",e.getMessage());
             return rekordok;
         }
     }
     
+    /**
+     * Az adott tanulandó szónak beállítja a következő kikérdezési idejét.
+     * @param tabla             A kapott tábla neve
+     * @param szo               A kapott tanulandó szó
+     * @param kikerdezesIdeje   A következő kikérdezés ideje
+     */
     public static void frissitKikerdezes(String tabla, String szo, long kikerdezesIdeje) {
         String update = "UPDATE " + tabla + " SET kikerdezes_ideje= ? WHERE szavak= ?;";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);

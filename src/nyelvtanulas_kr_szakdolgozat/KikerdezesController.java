@@ -44,8 +44,8 @@ public class KikerdezesController implements Initializable {
     @FXML
     private Button btnValasz;
 
-    // A nyelv kiválasztása után elindítja az ahhoz a nyelvhez tartozó aktuálisan
-    // tanulandó szókártyák kikérdezését
+    /* A nyelv kiválasztása után elindítja az ahhoz a nyelvhez tartozó aktuálisan
+       tanulandó szókártyák kikérdezését */
     @FXML
     void kikerdez() {
         
@@ -56,7 +56,6 @@ public class KikerdezesController implements Initializable {
             rekordok = DB.tanulandotLekerdez(forrasNyelvKod + "_tanulando");
             if (rekordok.isEmpty()) {
                 figyelmeztet("Figyelem","Nincsen aktuálisan tanulandó szó!");
-                btnValasz.setDisable(true);
             } else {
                 index = 0;
                 szotMondatotBeallit(index);
@@ -68,6 +67,7 @@ public class KikerdezesController implements Initializable {
         
     }
     
+    // A gombra kattintva megmutatja a szóhoz tartozó fordítást
     @FXML
     void valasz() {
         lblForditas.setText(rekordok.get(index).getForditas());
@@ -118,6 +118,11 @@ public class KikerdezesController implements Initializable {
         gombokatTilt(true);
     }
     
+    /**
+     * Az értékelés gombok megnyomása után ha még van listaelem, akkor beállítja
+     * a label-be a szót és mondatot, egyébként befejeződik a kikérdezés.
+     * @param index:  A szókártya-listában adja meg, hogy hányadik helyen vagyunk 
+     */
     private void szotMondatotBeallit(int index) {
         if (index < rekordok.size()) {
             lblSzo.setText(rekordok.get(index).getSzo());
@@ -145,7 +150,8 @@ public class KikerdezesController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         // Legördülő lista nyelveinek beállítása
         FoablakController.nyelvekBeallitasa(cbxNyelvek, nyelvekKodja);
-        gombokatTilt(true);   
+        gombokatTilt(true);
+        btnValasz.setDisable(true);
     }
     
     

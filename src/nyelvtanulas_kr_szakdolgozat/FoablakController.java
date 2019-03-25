@@ -78,6 +78,21 @@ public class FoablakController implements Initializable {
     
     private ChangeListener<Sor> listener;
 
+    // A Tallózás-gomb megnyomása után felugró ablakból kiválasztható a beolvasandó fájl.
+    @FXML
+    void talloz() {
+        FileChooser fc = new FileChooser();
+        File selectedFile = fc.showOpenDialog(null);
+        if (selectedFile != null) {
+            fajlUtvonal = selectedFile.getAbsolutePath();
+            txaBevitel.setText("");
+            lblTallozasEredmeny.setText("Tallózás sikeres!");
+        } else {
+            lblTallozasEredmeny.setText("Sikertelen tallózás!");
+        }
+    }
+    
+    // Az Adatok feldolgozása-gomb megnyomásakor lezajló metódus. 
     @FXML
     void futtat() {
         // Ha nem tallózott, és szöveget sem írt be, akkor nem futnak le a metódusok, csak figyelmeztető ablakot nyit meg
@@ -136,21 +151,6 @@ public class FoablakController implements Initializable {
         }
     }
 
-    /**
-     * A Tallózás-gomb megnyomása után felugró ablakból kiválasztható a beolvasandó fájl.
-     */
-    @FXML
-    void talloz() {
-        FileChooser fc = new FileChooser();
-        File selectedFile = fc.showOpenDialog(null);
-        if (selectedFile != null) {
-            fajlUtvonal = selectedFile.getAbsolutePath();
-            txaBevitel.setText("");
-            lblTallozasEredmeny.setText("Tallózás sikeres!");
-        } else {
-            lblTallozasEredmeny.setText("Sikertelen tallózás!");
-        }
-    }
     
     /**
      * Adatok beolvasása a betallózott fájlból vagy a szövegterületből. Az egész szöveget egyszerre olvassa be.
@@ -182,10 +182,10 @@ public class FoablakController implements Initializable {
     
     /**
      * A feldolgozás() metódus előtt szükséges azokat az egymás után többször előforduló karaktereket törölni, amik alapján majd a 
-    splittelés történik ("." "?" "!").
-    Végigmegy a teljes szövegen karakterenként, ha a karakter ".?!" , akkor ha a következő karakter is
-    ugyanolyan, addig törli a következőket amíg nem talál egy más karaktert. Azzal, hogy csak ezt a 3 karaktert nézi
-     a példamondatok jobban hasonlítanak az eredeti szövegben lévő mondatra.
+     * splittelés történik ("." "?" "!").
+     * Végigmegy a teljes szövegen karakterenként, ha a karakter ".?!" , akkor ha a következő karakter is
+     * ugyanolyan, addig törli a következőket amíg nem talál egy más karaktert. Azzal, hogy csak ezt a 3 karaktert nézi
+     * a példamondatok jobban hasonlítanak az eredeti szövegben lévő mondatra.
      * @param szoveg: A kapott feldolgozandó szöveg
      * @return Visszadja a feldolgozott szöveget
      */
@@ -242,7 +242,7 @@ public class FoablakController implements Initializable {
     /**
      * A kapott szó elejét és végét megtisztítja a nem megfelelő karakterektől.
      * @param szo: A kapott szó
-     * @return: Visszadja a megtisztított szót
+     * @return Visszadja a megtisztított szót
      */
     public String megtisztit(String szo) {
         // Szó elejének megtisztítása az első szöveges karakterig
@@ -518,17 +518,13 @@ public class FoablakController implements Initializable {
         };
     }
     
-    /**
-     * A menüből a Kilépés-t választva bezárja a programot.
-     */
+    // A menüből a Kilépés-t választva bezárja a programot.
     @FXML
     void kilep() {
         Platform.exit();
     }
 
-    /**
-     * A menüből a Névjegy-et választva információt ad a programról és készítőjéről.
-     */
+    // A menüből a Névjegy-et választva információt ad a programról és készítőjéről.
     @FXML
     void nevjegy() {
         tajekoztat("Nyelvtanulás program", "Készítette: Kremmer Róbert");
