@@ -38,7 +38,6 @@ import static panel.Panel.tajekoztat;
 public class FoablakController implements Initializable {
 
     static String adatbazisUtvonal = "jdbc:sqlite:";
-    static String minden = "";
     static String fajlUtvonal;
     static String TablaNevEleje;
     static String forrasNyelvKod;
@@ -108,11 +107,11 @@ public class FoablakController implements Initializable {
                 szavak_indexe.clear();
                 // Korábbi lista törlése.
                 data.clear();
+                txaMondat.setText("");
                 // A megadott forrásnyelv beállítása (pl: 'Német' -> 'de')
                 forrasNyelvKod = nyelvekKodja.get(cbxForras.getValue());
                 TablaNevEleje = forrasNyelvKod + "_";
-                beolvasas();
-                feldolgozas(eloFeldolgozas(minden));
+                beolvasasFeldolgozas();
                 azonosakTorlese();
                 DB.tablakatKeszit(TablaNevEleje);
                 DB.adatbazistListavalOsszevet(TablaNevEleje + "szavak",data,szavak_indexe, "ismertignoralt");
@@ -154,16 +153,19 @@ public class FoablakController implements Initializable {
     }
     
     /**
-     * Adatok beolvasása a betallózott fájlból vagy a szövegterületből. Az egész szöveget egyszerre olvassa be. 
+     * Adatok beolvasása a betallózott fájlból vagy a szövegterületből. Az egész szöveget egyszerre olvassa be.
+     * A beolvasás után lefutnak az előfeldolgozás és a feldolgozás metódusok.
      */
-    public void beolvasas() {
+    public void beolvasasFeldolgozas() {
+        String eredetiSzoveg = "";
         if (fajlUtvonal != null) {
             File f = new File(fajlUtvonal);
             try (FileInputStream fis = new FileInputStream(f);){
                 byte[] adat = new byte[(int) f.length()];
                 fis.read(adat);
-                minden = new String(adat, "Cp1250");
-                minden = minden.replaceAll("\t|\n|\r", "");
+                eredetiSzoveg = new String(adat, "Cp1250");
+                eredetiSzoveg = eredetiSzoveg.replaceAll("\t|\n|\r", "");
+                feldolgozas(eloFeldolgozas(eredetiSzoveg));
                 /* Ha egyszer lefuttatuk tallózott fájllal, kiszedjük a fájltnevet, hogy újra dönteni lehessen 
                    a tallózás-szövegdoboz között különben a korábban tallózott fájlnév megmarad és így nem lehet
                    használni a szövegmezőt.*/
@@ -173,10 +175,11 @@ public class FoablakController implements Initializable {
             }
         } else {
             // A szövegdobozos szövegből kiszedjük a tabulátorokat és az új sorokat
-            minden = txaBevitel.getText().replaceAll("\t|\n", "");
+            eredetiSzoveg = txaBevitel.getText().replaceAll("\t|\n", "");
+            feldolgozas(eloFeldolgozas(eredetiSzoveg));
         }
     }
-
+    
     /**
      * A feldolgozás() metódus előtt szükséges azokat az egymás után többször előforduló karaktereket törölni, amik alapján majd a 
     splittelés történik ("." "?" "!").
@@ -184,7 +187,7 @@ public class FoablakController implements Initializable {
     ugyanolyan, addig törli a következőket amíg nem talál egy más karaktert. Azzal, hogy csak ezt a 3 karaktert nézi
      a példamondatok jobban hasonlítanak az eredeti szövegben lévő mondatra.
      * @param szoveg: A kapott feldolgozandó szöveg
-     * @return: Visszadja a feldolgozott szöveget
+     * @return Visszadja a feldolgozott szöveget
      */
     public String eloFeldolgozas(String szoveg) {
         StringBuilder sb = new StringBuilder(szoveg);
