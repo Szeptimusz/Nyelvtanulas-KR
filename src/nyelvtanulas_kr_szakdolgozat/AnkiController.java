@@ -17,7 +17,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.stage.Window;
-import static nyelvtanulas_kr_szakdolgozat.FoablakController.adatbazisUtvonal;
+import static nyelvtanulas_kr_szakdolgozat.DB.adatbazisUtvonal;
 import static panel.Panel.figyelmeztet;
 import static panel.Panel.hiba;
 import static panel.Panel.igennem;

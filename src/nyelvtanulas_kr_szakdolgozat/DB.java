@@ -9,7 +9,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import javafx.collections.ObservableList;
-import static nyelvtanulas_kr_szakdolgozat.FoablakController.adatbazisUtvonal;
 import static panel.Panel.hiba;
 
 /**
@@ -18,20 +17,21 @@ import static panel.Panel.hiba;
  */
 public class DB {
    
+    static String adatbazisUtvonal;
+    
     /**
      * Megpróbál csatlakozni a projekt mappájában egy adott nevű adatbázishoz,
      * ha még nem létezik, akkor létre is hozza.
-     * @param adatbazisNeve   A kapott adatbázis neve
-     * @return 
+     * @param adatbazisNeve   A kapott adatbázis neve 
      */
-    public static String adatbazistKeszit(String adatbazisNeve) {
+    public static void adatbazistKeszit(String adatbazisNeve) {
         String utvonal = new File("").getAbsolutePath();
-        String adatbazisUtvonal = "jdbc:sqlite:" + utvonal + adatbazisNeve;
+        adatbazisUtvonal = "jdbc:sqlite:" + utvonal + adatbazisNeve;
  
         try (Connection conn = DriverManager.getConnection(adatbazisUtvonal)) {
-            return adatbazisUtvonal;
+            
         } catch (SQLException e) {
-            return e.getMessage();
+            hiba("hiba",e.getMessage());
         }
     }
     
@@ -64,7 +64,6 @@ public class DB {
                 }
                 kapcs.commit();
         } catch (SQLException e) {
-            System.out.println("Nem sikerült a " + tabla + " módosítása!");
             hiba("Hiba!",e.getMessage());
         }
     }
@@ -108,7 +107,6 @@ public class DB {
                 int sorok = ps.executeUpdate();
                 System.out.println(sorok + " sor hozzáadva.");
         } catch (SQLException e) {
-            System.out.println("Nem sikerült a " + tabla + "-táblába" + " írás!");
             hiba("Hiba!",e.getMessage());
         }
     }
@@ -126,7 +124,6 @@ public class DB {
                 int sorok = ps.executeUpdate();
                 System.out.println(sorok + " sor törölve.");
         } catch (SQLException e) {
-            System.out.println("Nem sikerült a: " + szo + " törlése a: " + tabla + " táblából!");
             hiba("Hiba!",e.getMessage());
         }
     }
@@ -137,16 +134,10 @@ public class DB {
      * @param tabla         A kapott tábla neve
      * @param data          A kapott lista a feldolgozott szavakkal,mondatokkal
      * @param szavak_indexe A kapott HashMap, ebben tároljuk azt, hogy az adott szó a listában hányadik indexen van
-     * @param miket         Az összevetni kívánt szó állapota (ismert,tanulando,ignoralt)
      */
-    public static void adatbazistListavalOsszevet(String tabla, ObservableList<Sor> data, HashMap<String, Integer> szavak_indexe,
-                                  String miket) {
-        String feltetel = "";
-        if (miket.equals("ismertignoralt")) {
-            feltetel = " WHERE allapot='ismert' OR allapot='ignoralt'";
-        }
+    public static void adatbazistListavalOsszevet(String tabla, ObservableList<Sor> data, HashMap<String, Integer> szavak_indexe) {
         
-        String query = "SELECT szavak FROM " + tabla + feltetel;
+        String query = "SELECT szavak FROM " + tabla;
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
             PreparedStatement ps = kapcs.prepareStatement(query)) {
             ResultSet eredmeny = ps.executeQuery();
@@ -160,7 +151,6 @@ public class DB {
             }
             
         } catch (SQLException e) {
-            System.out.println("Nem sikerült az adatbázis-lekérdezés!");
             hiba("Hiba!",e.getMessage());
         }
         
@@ -173,8 +163,8 @@ public class DB {
      *                        az ehhez kapcsolódó 'szavak' vagy 'tanulandó' együtt alkotja a tábla teljes nevét. 
      */
     public static void tablakatKeszit(String TablaNevEleje) {
-        String createTable = "CREATE TABLE IF NOT EXISTS " + TablaNevEleje + "szavak" + " (szavak VARCHAR(100) PRIMARY KEY,"
-                                                                  + "allapot VARCHAR(15));";
+        String createTable = "CREATE TABLE IF NOT EXISTS " + TablaNevEleje + "szavak" + " (szavak VARCHAR(100) NOT NULL PRIMARY KEY,"
+                                                                  + "allapot VARCHAR(15) NOT NULL);";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
                 PreparedStatement ps = kapcs.prepareStatement(createTable)) {
                 ps.executeUpdate();
@@ -192,7 +182,7 @@ public class DB {
         
         
         createTable = "CREATE TABLE IF NOT EXISTS " + TablaNevEleje + "tanulando" + " (szavak VARCHAR(100) NOT NULL PRIMARY KEY,"
-                       + "mondatok TEXT NOT NULL, kikerdezes_ideje BIGINT, forditas VARCHAR(100), ANKI INT NOT NULL);";
+                       + "mondatok TEXT NOT NULL, kikerdezes_ideje BIGINT NOT NULL, forditas VARCHAR(100) NOT NULL, ANKI INT NOT NULL);";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
                 PreparedStatement ps = kapcs.prepareStatement(createTable)) {
                 ps.executeUpdate();
@@ -216,12 +206,13 @@ public class DB {
      * @return :        Visszaadja, hogy hány ilyen állapotú sor van.
      */
     public static int statisztikatLekerdez(String tabla, String allapot) {
-        String query = "SELECT COUNT(*) FROM " + tabla + " WHERE allapot='"+ allapot +"'";
+        String query = "SELECT COUNT(*) FROM " + tabla + " WHERE allapot=?";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
-                PreparedStatement ps = kapcs.prepareStatement(query)) {
-                ResultSet eredmeny = ps.executeQuery();
-                int sorokSzama = eredmeny.getInt(1);
-                return sorokSzama;
+            PreparedStatement ps = kapcs.prepareStatement(query)) {
+            ps.setString(1, allapot);
+            ResultSet eredmeny = ps.executeQuery();
+            int sorokSzama = eredmeny.getInt(1);
+            return sorokSzama;
         } catch (SQLException e) {
             return 0;
         }
@@ -234,12 +225,13 @@ public class DB {
      * @return :            Visszaadja, hogy hány ilyen állapotú sor van.
      */
     public static int statisztikatTanulandobolLekerdez(String tabla, int ankiAllapot) {
-        String query = "SELECT COUNT(*) FROM " + tabla + " WHERE ANKI='"+ ankiAllapot +"'";
+        String query = "SELECT COUNT(*) FROM " + tabla + " WHERE ANKI=?";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
-                PreparedStatement ps = kapcs.prepareStatement(query)) {
-                ResultSet eredmeny = ps.executeQuery();
-                int sorokSzama = eredmeny.getInt(1);
-                return sorokSzama;
+            PreparedStatement ps = kapcs.prepareStatement(query)) {
+            ps.setInt(1, ankiAllapot);
+            ResultSet eredmeny = ps.executeQuery();
+            int sorokSzama = eredmeny.getInt(1);
+            return sorokSzama;
         } catch (SQLException e) {
             return 0;
         }

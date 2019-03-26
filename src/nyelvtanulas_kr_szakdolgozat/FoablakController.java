@@ -37,7 +37,6 @@ import static panel.Panel.tajekoztat;
  */
 public class FoablakController implements Initializable {
 
-    static String adatbazisUtvonal = "jdbc:sqlite:";
     static String fajlUtvonal;
     static String TablaNevEleje;
     static String forrasNyelvKod;
@@ -129,8 +128,8 @@ public class FoablakController implements Initializable {
                 beolvasasFeldolgozas();
                 azonosakTorlese();
                 DB.tablakatKeszit(TablaNevEleje);
-                DB.adatbazistListavalOsszevet(TablaNevEleje + "szavak",data,szavak_indexe, "ismertignoralt");
-                DB.adatbazistListavalOsszevet(TablaNevEleje + "tanulando",data,szavak_indexe, "tanulando");
+                DB.adatbazistListavalOsszevet(TablaNevEleje + "szavak",data,szavak_indexe);
+                DB.adatbazistListavalOsszevet(TablaNevEleje + "tanulando",data,szavak_indexe);
                 listaTorlesek();
                 tblTablazat.setItems(data);
                 // Listener beállítása az adatok táblázatba betöltése után
@@ -483,7 +482,7 @@ public class FoablakController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // Adatbázis elérési útvonalát beállítja, ha nincs adatbázis akkor létrehozza
-        adatbazisUtvonal = DB.adatbazistKeszit("\\nyelvtanulas.db");
+        DB.adatbazistKeszit("\\nyelvtanulas.db");
 
         // Legördülő lista nyelveinek beállítása
         nyelvekBeallitasa(cbxForras, nyelvekKodja);
