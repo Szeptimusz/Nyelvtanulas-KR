@@ -30,6 +30,15 @@ public class StatisztikaController implements Initializable {
     @FXML
     private Label lblOsszes;
    
+    /**
+     * Beállítja a legördülő lista nyelveit és tárolja azok kódját.
+     * A legördülő listához rendelt listener figyeli a kiválasztott nyelvet és mindig az aktuálisan
+     * kiválasztott nyelv tábláinak adatait jeleníti meg az ablak címkéiben. A címkékben megjelenített adatok:
+     * az ósszes szó mennyisége, az ismert szavak száma, a figyelmen kívül hagyott szavak száma, az összes tanulandó
+     * szó mennyisége, az importált tanulandó szavak száma és a nem importált tanulandó szavak száma.
+     * @param url
+     * @param rb 
+     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // Legördülő lista nyelveinek beállítása

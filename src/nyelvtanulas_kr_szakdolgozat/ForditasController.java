@@ -33,6 +33,15 @@ public class ForditasController {
     private Button btnVisszaallit;
 
     private String szo;
+    private String eredetiMondat;
+    private String forrasNyelvKod;
+    private static boolean tanulandoElmentve = false;
+    
+    /**
+     * A fordítás ablak megnyitásakor beállítja az adott szót és
+     * kiírja az ablak mgfelelő címkéjébe.
+     * @param szo A FoablakController-ből átadott szó
+     */
     public void setSzo(String szo) {
         this.szo = szo;
         lblSzo.setText(szo);
@@ -42,16 +51,21 @@ public class ForditasController {
         });
     }
 
-    private String eredetiMondat;
+    /**
+     * A fordítás ablak megnyitásakor beállítja az adott mondatot és
+     * kiírja az ablak mgfelelő címkéjébe.
+     * @param mondat A FoablakController-ből átadott mondat.
+     */
     public void setMondat(String mondat) {
         eredetiMondat = mondat;
         txaMondat.setText(eredetiMondat);
     }
-    
-    
-    private String forrasNyelvKod;
-    
-    // A Google Translate kereséshez beállítja a forrásnyelvet
+
+    /**
+     * A Google Translate kereséshez beállítja a forrásnyelvet. Ha az adott nyelv nem
+     * angol, akkor a Cambridge gombot letiltja.
+     * @param forrasNyelvKod A FoablakController-ből átadott forrásnyelv kód
+     */
     public void setForrasNyelvKod(String forrasNyelvKod) {
         this.forrasNyelvKod = forrasNyelvKod;
         // Ha nem angol a forrásnyelv, akkor a Cambridge gombot letiltja
@@ -60,23 +74,28 @@ public class ForditasController {
         }
     }
 
-    
-    private static boolean tanulandoElmentve = false;
-    
-    // Visszaadja, hogy hozzá lett-e adva a fordítás
+    /**
+     * Lekérdezi, hogy az adatok hozzá lettek-e adva a tanulando táblához.
+     * @return Visszaadja, hogy megtörtént-e a hozzáadás az adatbázishoz
+     */
     public static boolean isTanulandoElmentve() {
         return tanulandoElmentve;
     }
 
+    /**
+     * Beállitja, hogy hozzá lettek-e adva az adatok az adatbázishoz vagy nem.
+     * @param tanulandoElmentve Boolean típussal megadja, hogy el lett-e mentve vagy nem
+     */
     public static void setTanulandoElmentve(boolean tanulandoElmentve) {
         ForditasController.tanulandoElmentve = tanulandoElmentve;
     }
     
     /**
-     * Ha a fordítás beviteli mező nem üres, akkor hozzáadja a szót,mondatot,fordítást és ANKI állapotot a tanulandó táblához
+     * Ha a fordítás beviteli mező és a példamondat nem üres, akkor hozzáadja a szót,mondatot,fordítást és 
+     * ANKI állapotot a tanulandó táblához; beállítja az elmentettséget és bezárja az ablakot.
      */
     @FXML
-    void hozzaad() {
+    public void hozzaad() {
         String forditas = txtForditas.getText();
         if (forditas.equals("")) {
             figyelmeztet("Figyelem!", "Kérem írjon be fordítást a szóhoz!");
@@ -92,18 +111,20 @@ public class ForditasController {
         }
     }
 
-    // Visszaállítja a szövegterületre az eredeti példamondatot
+    /**
+     * Visszaállítja a szövegterületre az eredeti példamondatot
+     */
     @FXML
-    void visszaallit() {
+    public void visszaallit() {
         txaMondat.setText(eredetiMondat);
     }
     
     /**
      * Megnyitja a Google Translate egy adott forrás-nyelvről magyarra fordító oldalát az adott szóval.
-     * @throws Exception 
+     * @throws Exception Hiba esetén kivételt dob
      */
     @FXML
-    void megnyitGoogleTranslate() throws Exception {
+    public void megnyitGoogleTranslate() throws Exception {
         Desktop.getDesktop().browse(new URI("https://translate.google.com/"
                     + "?hl=hu#view=home&op=translate&sl=" + forrasNyelvKod
                     + "&tl=hu&text=" + szo));
@@ -111,10 +132,10 @@ public class ForditasController {
     
     /**
      * Megnyitja a dictionary.cambridge.org weblapot az adott szóval: példamondatok és angol nyelvű körülírása a szónak.
-     * @throws Exception 
+     * @throws Exception Exception Hiba esetén kivételt dob
      */
     @FXML
-    void megnyitCambridge() throws Exception{
+    public void megnyitCambridge() throws Exception{
             Desktop.getDesktop().browse(new URI("https://dictionary.cambridge.org/dictionary/english/" + szo));
     }
 }

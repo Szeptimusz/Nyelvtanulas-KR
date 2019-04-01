@@ -35,10 +35,11 @@ public class AnkiController implements Initializable {
     
     /**
      * Ha van kiválasztott nyelv, akkor az ahhoz tartozó tanulandó táblában megkeresi azokat a rekordokat, amikből még nem volt
-     * txt import készítve. Megcsinálja a fájlírást és módosítja a tanulandó táblában az ANKI állapotot 1-re.
+     * Anki-import készítve. Elkészíti az Anki-import fájlt és átírja az érintett szavak ANKI állapotát 1-re a tanulandó táblában.
+     * Ezzel jelzi azt, hogy az adott rekordból készült már Anki-import.
      */
     @FXML
-    void kartyatKeszit() {
+    public void kartyatKeszit() {
         if (igennem("ANKI kártya készítés","Valóban szeretne minden új tanulandó szóból ANKI-importot készíteni?")) {
             ArrayList<String> szavak = new ArrayList<>();
             String forrasNyelvKod = nyelvekKodja.get(cbxNyelvek.getValue());
@@ -55,6 +56,7 @@ public class AnkiController implements Initializable {
                             szavak.add(szo);
                         } else {
                             System.out.println("Hiba történt a kártya készítése során!");
+                            hiba("Hiba!","Hiba történt a kártya készítése során!");
                         }
                     }
                 } catch (SQLException e) {
@@ -78,12 +80,14 @@ public class AnkiController implements Initializable {
 
     /**
      * A kapott szóból, mondatból és fordításból olyan .txt fájlt készít, amit az ANKI szótanuló program be tud importálni 
-     * és szókártyákat tud belőle készíteni.
-     * @param szo:              A tanulandó szó.
-     * @param mondat:           A szóhoz tartozó példamondat.
-     * @param forditas:         Az általunk korábban megadott fordítása a szónak
+     * és szókártyákat tud belőle készíteni. A fájlba írás FileOutputStream-el, UTF-8 kódolással történik (az Anki program
+     * csak UTF-8-at fogad el importálásnál). A kiírásnál a szókártya két oldalát a \t - tabulátor jelzi és a szókártyákat \n-
+     * új sor választja el.
+     * @param szo              A tanulandó szó.
+     * @param mondat           A szóhoz tartozó példamondat.
+     * @param forditas         Az általunk korábban megadott fordítása a szónak
      * @param forrasNyelvKod    A legördülő listából kiválasztott nyelv rövidített változata
-     * @return :                Ha sikerült a fájlba írás igazad ad vissza, ha nem akkor false-t.
+     * @return                 Ha sikerült a fájlba írás igazad ad vissza, ha nem akkor false-t.
      */
     public boolean keszit(String szo, String mondat, String forditas, String forrasNyelvKod) {
         // Kiírás FileOutputStream-mel, mert így megadható az utf-8 kódolás (az ANKI program csak ezt tudja beimportálni)
@@ -98,7 +102,14 @@ public class AnkiController implements Initializable {
         }
     }
     
-    // A mondatban a szó előfordulásainak megkeresése, pontokkal helyessítése és így lyukas szöveg gyártása.
+    /**
+     * A mondatban a szó előfordulásainak megkeresése, pontokkal helyessítése és így lyukas szöveg gyártása.
+     * A kapott mondaton végigmegy és ha talál keresett szót, akkor annyi ponttal helyettesíti, amennyi a szó hossza.
+     * A mondaton való végighaladás során egy új String-ben szavanként felépíti a lyukasmondatot.
+     * @param szo    A pontokkal helyettesítendő szó
+     * @param mondat A helyettesítendó szót tartalmazó mondat
+     * @return       Visszaadja a készített lyukasmondatot
+     */
     public String lyukasMondatotKeszit(String szo, String mondat) {
         String lyukasMondat = "";
         String [] szavak = mondat.toLowerCase().split(" |\\, |\\,");
@@ -118,6 +129,11 @@ public class AnkiController implements Initializable {
         return lyukasMondat;
     }
     
+    /**
+     * A nyelv kiválaszthatóságához beállítja a legördülő lista nyelveit és tárolja azok kódját.
+     * @param url
+     * @param rb 
+     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // Legördülő lista nyelveinek beállítása
@@ -128,7 +144,7 @@ public class AnkiController implements Initializable {
      * Mégse-gombra kattintva az ablak bezárása
      */
     @FXML
-    void megse() {
+    public void megse() {
         Window ablak = cbxNyelvek.getScene().getWindow();
         ablak.hide();
     }

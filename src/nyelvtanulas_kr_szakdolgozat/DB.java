@@ -20,9 +20,9 @@ public class DB {
     static String adatbazisUtvonal;
     
     /**
-     * Megpróbál csatlakozni a projekt mappájában egy adott nevű adatbázishoz,
-     * ha még nem létezik, akkor létre is hozza.
-     * @param adatbazisNeve   A kapott adatbázis neve 
+     * Megpróbál csatlakozni a projekt mappájában a kapott nevű adatbázishoz és beállítja az elérési útvonalat
+     * az osztályváltozóba. Ha még nem létezik ilyen nevű adatbázis, akkor létrehozza.
+     * @param adatbazisNeve   Az adatbázis neve 
      */
     public static void adatbazistKeszit(String adatbazisNeve) {
         String utvonal = new File("").getAbsolutePath();
@@ -36,9 +36,11 @@ public class DB {
     }
     
     /**
-     * Az adott szóhoz tartozó adatbázis-rekordban az ANKI mező értékét átírja 1-re, jelezve, hogy készült belőle ANKI kártya.
-     * @param tabla     Megadja melyik táblában kell módosítani
-     * @param szavak    A módosítandó rekordot azonosító szó
+     * A kapott lista szavainak ANKI mezőjét az adatbázisban átírja 1-re, jelezve, hogy az adott rekordból már 
+     * készült Anki-import. Nagy mennyiségű sor módosítása esetén a műveletet gyorsítja az AutoCommit letiltása 
+     * és a Batch használata.
+     * @param tabla     A tábla neve
+     * @param szavak    A szavakat tartalmazó lista neve
      */
     public static void ankitModositAdatbazisban(String tabla, ArrayList<String> szavak) {
         String update = "UPDATE " + tabla + " SET ANKI = ? WHERE szavak = ?";
@@ -69,10 +71,10 @@ public class DB {
     }
     
     /**
-     * A kapott táblához hozzáadja a kapott szót és állapotát.
-     * @param tabla:   A kapott tábla neve
-     * @param szo:     A kapott szó
-     * @param allapot: A kiírandó szó állapota (ismert,ignoralt,tanulando)
+     * A kapott táblához hozzáadja a kapott szót és annak állapotát.
+     * @param tabla   A tábla neve
+     * @param szo     A kiírandó szó
+     * @param allapot A kiírandó szó állapota (ismert,ignoralt,tanulando)
      */
     public static void szotBeirAdatbazisba(String tabla, String szo, String allapot) {
         String into = "INSERT INTO " + tabla + " VALUES (?,?)";
@@ -88,12 +90,13 @@ public class DB {
     }
 
     /**
-     * A kapott táblához hozzáadja a kapott szót, mondatot, fordítást és az ANKI oszlop értékét (0 vagy 1)
-     * @param tabla:    A kapott tábla neve.
-     * @param szo:      A kapott szó
-     * @param mondat:   A kapott mondat
-     * @param forditas: A szó általunk megadott fordítása
-     * @param anki:     A kiírandó anki állapot (0 vagy 1)
+     * A kapott táblához hozzáadja a kapott szót, mondatot, fordítást, a kikérdezés idejét és az 
+     * ANKI oszlop értékét (0 vagy 1). A kikérdezést ideje a függvény hívásakor az 1970-óta eltelt milliszekundumok számával egyenlő.
+     * @param tabla    A tábla neve.
+     * @param szo      A kiírandó szó
+     * @param mondat   A kiírandó mondat
+     * @param forditas A szó általunk megadott fordítása
+     * @param anki     A kiírandó anki állapot (0 vagy 1)
      */
     public static void tanulandotBeirAdatbazisba(String tabla, String szo, String mondat, String forditas, int anki) {
         String into = "INSERT INTO " + tabla + " (szavak, mondatok, kikerdezes_ideje, forditas, ANKI) VALUES (?,?,?,?,?)";
@@ -113,8 +116,8 @@ public class DB {
 
     /**
      * A kapott táblából törli a kapott szót
-     * @param tabla: A kapott tábla neve.
-     * @param szo:   A kapott szó.
+     * @param tabla A tábla neve.
+     * @param szo   A törlendő szó.
      */
     public static void szotTorolAdatbazisbol(String tabla, String szo) {
         String delete = "DELETE FROM " + tabla + " WHERE szavak= ?;";
@@ -129,11 +132,12 @@ public class DB {
     }
     
     /**
-     * A kapott tábla szavait lekérdezi az adatbázisból és ha létezik a listában, akkor a lista szavát átnevezi torlendo-re, 
-       jelezve, hogy a táblázat megjelenítése előtt törölni kell a listából.
+     * A kapott tábla szavait lekérdezi az adatbázisból és ha a szó létezik a listában, akkor a lista szavát átnevezi torlendo-re,
+     * jelezve, hogy a táblázat megjelenítése előtt törölni kell a listából. Továbbá az adott szó hashmap-ben tárolt indexét
+     * beállítja null-ra.
      * @param tabla         A kapott tábla neve
-     * @param data          A kapott lista a feldolgozott szavakkal,mondatokkal
-     * @param szavak_indexe A kapott HashMap, ebben tároljuk azt, hogy az adott szó a listában hányadik indexen van
+     * @param data          A szinkronizálandó lista neve
+     * @param szavak_indexe A lista szavainak indexét tároló HashMap neve
      */
     public static void adatbazistListavalOsszevet(String tabla, ObservableList<Sor> data, HashMap<String, Integer> szavak_indexe) {
         
@@ -157,9 +161,9 @@ public class DB {
     }
     
     /**
-     * Attól függően, hogy melyik nyelvet választottuk forrásnyelvnek, létrehoz az adott nyelv számára két egyedi táblát és 
+     * A korábban választott nyelvtől függően létrehoz az adott nyelv számára két egyedi táblát és 
      * elkészíti hozzájuk az indexeket (abban az esetben ha még nem léteznek a táblák és az indexek).
-     * @param TablaNevEleje:  A választott forrásnyelv alapján generált String (pl. angolnál: 'en_' németnél: 'de_'),
+     * @param TablaNevEleje  A korábban választott forrásnyelv alapján generált String (pl. angolnál: 'en_' németnél: 'de_'),
      *                        az ehhez kapcsolódó 'szavak' vagy 'tanulandó' együtt alkotja a tábla teljes nevét. 
      */
     public static void tablakatKeszit(String TablaNevEleje) {
@@ -190,7 +194,7 @@ public class DB {
             hiba("Hiba!",e.getMessage());
         }
         
-        createIndex = "CREATE INDEX IF NOT EXISTS allapot ON " + TablaNevEleje + "tanulando" + "(ANKI);";
+        createIndex = "CREATE INDEX IF NOT EXISTS anki ON " + TablaNevEleje + "tanulando" + "(ANKI);";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
                 PreparedStatement ps2 = kapcs.prepareStatement(createIndex)) {
                 ps2.executeUpdate();
@@ -200,10 +204,10 @@ public class DB {
     }
     
     /**
-     * Az kapott táblából lekérdezi a kapott állapotú sorok számát.
-     * @param tabla:    A kapott tábla teljes neve
-     * @param allapot:  A kapott állapot (ismert, ignoralt)
-     * @return :        Visszaadja, hogy hány ilyen állapotú sor van.
+     * A kapott szavak táblából lekérdezi a kapott állapotú szavak számát.
+     * @param tabla    A tábla neve
+     * @param allapot  A szó állapota (ismert, ignoralt)
+     * @return         Visszaadja, hogy hány ilyen állapotú sor van.
      */
     public static int statisztikatLekerdez(String tabla, String allapot) {
         String query = "SELECT COUNT(*) FROM " + tabla + " WHERE allapot=?";
@@ -219,10 +223,10 @@ public class DB {
     }
     
     /**
-     * A kapott táblából lekérdezi a kapott ANKI állapotú sorok számát.
-     * @param tabla:        A kapott tábla teljes neve.
-     * @param ankiAllapot:  A kapott ANKI állapot (0 vagy 1)
-     * @return :            Visszaadja, hogy hány ilyen állapotú sor van.
+     * A kapott tanulando táblából lekérdezi a kapott ANKI állapotú szavak számát.
+     * @param tabla       A tábla neve.
+     * @param ankiAllapot A szó ANKI állapota (0 vagy 1)
+     * @return            Visszaadja, hogy hány ilyen állapotú szó van.
      */
     public static int statisztikatTanulandobolLekerdez(String tabla, int ankiAllapot) {
         String query = "SELECT COUNT(*) FROM " + tabla + " WHERE ANKI=?";
@@ -240,9 +244,10 @@ public class DB {
     /**
      * Lekérdezi azokat a tanulandó szavakat (mondattal és fordítással), amiknél
      * a kikérdezés már esedékes (a jelenlegi időpont nagyobbegyenlő, mint a tervezett
-     * kikérdezési idő).
-     * @param tabla   A kapott tanulando tábla neve
-     * @return        Visszaadja a lekérdezett sorok listáját
+     * kikérdezési idő). A rekodok szavak, mondatok, és fordítás mezőinek értékeiből Sor típusú objektumot készít,
+     * amit hozzáad a listához.
+     * @param tabla   A tanulando tábla neve
+     * @return        Visszaadja a lekérdezett rekordokból készített Sor típusú listát
      */
     public static ArrayList<Sor> tanulandotLekerdez(String tabla) {
         ArrayList<Sor> rekordok = new ArrayList<>();
@@ -250,11 +255,13 @@ public class DB {
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
             PreparedStatement ps = kapcs.prepareStatement(query)) {
             ResultSet eredmeny = ps.executeQuery();
+            
             while (eredmeny.next()) {
                 rekordok.add(new Sor(eredmeny.getString("szavak"),
                                      eredmeny.getString("mondatok"),
                                      eredmeny.getString("forditas")));
             }
+            
             return rekordok;
         } catch (SQLException e) {
             hiba("Hiba!",e.getMessage());
@@ -264,9 +271,9 @@ public class DB {
     
     /**
      * Az adott tanulandó szónak beállítja a következő kikérdezési idejét.
-     * @param tabla             A kapott tábla neve
-     * @param szo               A kapott tanulandó szó
-     * @param kikerdezesIdeje   A következő kikérdezés ideje
+     * @param tabla             A tanulandó tábla neve
+     * @param szo               A tanulandó szó ahol a módosítást végre kell hajtani
+     * @param kikerdezesIdeje   A következő kikérdezés ideje milliszekundumban
      */
     public static void frissitKikerdezes(String tabla, String szo, long kikerdezesIdeje) {
         String update = "UPDATE " + tabla + " SET kikerdezes_ideje= ? WHERE szavak= ?;";

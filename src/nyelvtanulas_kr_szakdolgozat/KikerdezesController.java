@@ -44,10 +44,12 @@ public class KikerdezesController implements Initializable {
     @FXML
     private Button btnValasz;
 
-    /* A nyelv kiválasztása után elindítja az ahhoz a nyelvhez tartozó aktuálisan
-       tanulandó szókártyák kikérdezését */
+    /**
+     * A nyelv kiválasztása után elindítja az ahhoz a nyelvhez tartozó aktuálisan
+       tanulandó szókártyák kikérdezését.
+     */
     @FXML
-    void kikerdez() {
+    public void kikerdez() {
         
         if (cbxNyelvek.getValue() == null) {
             figyelmeztet("Figyelem!","Kérem válassza ki, hogy melyik nyelv szókártyáit szeretné használni");
@@ -67,15 +69,22 @@ public class KikerdezesController implements Initializable {
         
     }
     
-    // A gombra kattintva megmutatja a szóhoz tartozó fordítást
+    /**
+     * A Válasz mutatása -gombra kattintva megmutatja a szóhoz tartozó fordítást
+     * és kikapcsolja az értékelő gombok tiltását.
+     */
     @FXML
-    void valasz() {
+    public void valasz() {
         lblForditas.setText(rekordok.get(index).getForditas());
         gombokatTilt(false);
     }
     
+    /**
+     * Az Újra -gombra kattintva hozzáadja a kártyát a kikérdezi sor (a lista)
+     * végéhez. Így addig kérdezi ki újra a kártyát, amíg nem lesz máshogyan értékelve.
+     */
     @FXML
-    void ujra() {
+    public void ujra() {
         // Ha nem tudjuk a szókártyát, akkor addig ismétli a kikérdezést, amíg
         // nem kíttintunk rá valamelyik másik értékelő gombra
         rekordok.add(rekordok.get(index));
@@ -85,8 +94,12 @@ public class KikerdezesController implements Initializable {
         gombokatTilt(true);
     }
     
+    /**
+     * A Nehéz-gombra kattintva úgy frissíti az adott szókártya kikérdezési idejét,
+     * hogy 2 nap múlva legyen esedékes.
+     */
     @FXML
-    void nehez() {
+    public void nehez() {
         // Ha a szókártya nehéz volt, akkor 2 nap múlva kérdezi ki újra
         DB.frissitKikerdezes(forrasNyelvKod + "_tanulando", rekordok.get(index).getSzo(), 
                 (System.currentTimeMillis() + 2*24*3600*1000));
@@ -96,8 +109,12 @@ public class KikerdezesController implements Initializable {
         gombokatTilt(true);
     }
     
+    /**
+     * A Könnyű-gombra kattintva úgy frissíti az adott szókártya kikérdezési idejét,
+     * hogy 10 nap múlva legyen esedékes.
+     */
     @FXML
-    void konnyu() {
+    public void konnyu() {
         // Ha a szókártya könnyű volt, akkor 10 nap múlva kérdezi ki újra
         DB.frissitKikerdezes(forrasNyelvKod + "_tanulando", rekordok.get(index).getSzo(), 
                 (System.currentTimeMillis() + 10*24*3600*1000));
@@ -107,8 +124,12 @@ public class KikerdezesController implements Initializable {
         gombokatTilt(true);
     }
 
+    /**
+     * A Jó-gombra kattintva úgy frissíti az adott szókártya kikérdezési idejét,
+     * hogy 5 nap múlva legyen esedékes.
+     */
     @FXML
-    void jo() {
+    public void jo() {
         // Ha a szókártya jó volt, akkor 5 nap múlva kérdezi ki újra
         DB.frissitKikerdezes(forrasNyelvKod + "_tanulando", rekordok.get(index).getSzo(), 
                 (System.currentTimeMillis() + 5*24*3600*1000));
@@ -121,7 +142,7 @@ public class KikerdezesController implements Initializable {
     /**
      * Az értékelés gombok megnyomása után ha még van listaelem, akkor beállítja
      * a label-be a szót és mondatot, egyébként befejeződik a kikérdezés.
-     * @param index:  A szókártya-listában adja meg, hogy hányadik helyen vagyunk 
+     * @param index:  A kikérdezési sorban (listában) adja meg, hogy hányadik helyen vagyunk
      */
     private void szotMondatotBeallit(int index) {
         if (index < rekordok.size()) {
@@ -139,6 +160,10 @@ public class KikerdezesController implements Initializable {
         }
     }
     
+    /**
+     * Beállítja, hogy az értékelő gombok le legyenek-e tiltva
+     * @param letilt boolean típussal megkapja, hogy tiltsa a gombokat vagy ne
+     */
     private void gombokatTilt(boolean letilt) {
         btnUjra.setDisable(letilt);
         btnNehez.setDisable(letilt);
@@ -146,6 +171,12 @@ public class KikerdezesController implements Initializable {
         btnKonnyu.setDisable(letilt);
     }
     
+    /**
+     * A legördülő lista nyelveinek beállítása és rövidítéseik tárolása.
+     * Alapértelmezetten az értékelő és válasz gombok letiltása.
+     * @param url
+     * @param rb 
+     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // Legördülő lista nyelveinek beállítása
