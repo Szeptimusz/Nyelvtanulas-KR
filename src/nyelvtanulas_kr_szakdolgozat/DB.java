@@ -46,8 +46,8 @@ public class DB {
         String update = "UPDATE " + tabla + " SET ANKI = ? WHERE szavak = ?";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
                 PreparedStatement ps = kapcs.prepareStatement(update)) {
-                kapcs.setAutoCommit(false);
-                
+            
+                kapcs.setAutoCommit(false);  
                 int count = 0;
                 for (String szo: szavak) {
                     ps.setInt(1, 1);
@@ -65,6 +65,7 @@ public class DB {
                     System.out.println("Adatbázis módosítás sikeres!");
                 }
                 kapcs.commit();
+                
         } catch (SQLException e) {
             hiba("Hiba!",e.getMessage());
         }
@@ -80,10 +81,12 @@ public class DB {
         String into = "INSERT INTO " + tabla + " VALUES (?,?)";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
                 PreparedStatement ps = kapcs.prepareStatement(into)) {
+            
                 ps.setString(1, szo);
                 ps.setString(2, allapot);
                 int sorok = ps.executeUpdate();
                 System.out.println(sorok + " sor hozzáadva.");
+                
         } catch (SQLException e) {
                 hiba("Hiba!",e.getMessage());
         }
@@ -91,7 +94,7 @@ public class DB {
 
     /**
      * A kapott táblához hozzáadja a kapott szót, mondatot, fordítást, a kikérdezés idejét és az 
-     * ANKI oszlop értékét (0 vagy 1). A kikérdezést ideje a függvény hívásakor az 1970-óta eltelt milliszekundumok számával egyenlő.
+     * ANKI oszlop értékét (0 vagy 1). A kikérdezés ideje a függvény hívásakor az 1970-óta eltelt milliszekundumok számával egyenlő.
      * @param tabla    A tábla neve.
      * @param szo      A kiírandó szó
      * @param mondat   A kiírandó mondat
@@ -102,6 +105,7 @@ public class DB {
         String into = "INSERT INTO " + tabla + " (szavak, mondatok, kikerdezes_ideje, forditas, ANKI) VALUES (?,?,?,?,?)";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
                 PreparedStatement ps = kapcs.prepareStatement(into)) {
+            
                 ps.setString(1, szo);
                 ps.setString(2, mondat);
                 ps.setLong(3, System.currentTimeMillis());
@@ -109,6 +113,7 @@ public class DB {
                 ps.setInt(5, anki);
                 int sorok = ps.executeUpdate();
                 System.out.println(sorok + " sor hozzáadva.");
+                
         } catch (SQLException e) {
             hiba("Hiba!",e.getMessage());
         }
@@ -123,9 +128,11 @@ public class DB {
         String delete = "DELETE FROM " + tabla + " WHERE szavak= ?;";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
                 PreparedStatement ps = kapcs.prepareStatement(delete)) {
+            
                 ps.setString(1, szo);
                 int sorok = ps.executeUpdate();
                 System.out.println(sorok + " sor törölve.");
+                
         } catch (SQLException e) {
             hiba("Hiba!",e.getMessage());
         }
@@ -204,7 +211,7 @@ public class DB {
     }
     
     /**
-     * A kapott szavak táblából lekérdezi a kapott állapotú szavak számát.
+     * A kapott _szavak táblából lekérdezi a kapott állapotú szavak számát.
      * @param tabla    A tábla neve
      * @param allapot  A szó állapota (ismert, ignoralt)
      * @return         Visszaadja, hogy hány ilyen állapotú sor van.
@@ -213,17 +220,19 @@ public class DB {
         String query = "SELECT COUNT(*) FROM " + tabla + " WHERE allapot=?";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
             PreparedStatement ps = kapcs.prepareStatement(query)) {
+            
             ps.setString(1, allapot);
             ResultSet eredmeny = ps.executeQuery();
             int sorokSzama = eredmeny.getInt(1);
             return sorokSzama;
+            
         } catch (SQLException e) {
             return 0;
         }
     }
     
     /**
-     * A kapott tanulando táblából lekérdezi a kapott ANKI állapotú szavak számát.
+     * A kapott _tanulando táblából lekérdezi a kapott ANKI állapotú szavak számát.
      * @param tabla       A tábla neve.
      * @param ankiAllapot A szó ANKI állapota (0 vagy 1)
      * @return            Visszaadja, hogy hány ilyen állapotú szó van.
@@ -232,10 +241,12 @@ public class DB {
         String query = "SELECT COUNT(*) FROM " + tabla + " WHERE ANKI=?";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
             PreparedStatement ps = kapcs.prepareStatement(query)) {
+            
             ps.setInt(1, ankiAllapot);
             ResultSet eredmeny = ps.executeQuery();
             int sorokSzama = eredmeny.getInt(1);
             return sorokSzama;
+            
         } catch (SQLException e) {
             return 0;
         }
@@ -244,7 +255,7 @@ public class DB {
     /**
      * Lekérdezi azokat a tanulandó szavakat (mondattal és fordítással), amiknél
      * a kikérdezés már esedékes (a jelenlegi időpont nagyobbegyenlő, mint a tervezett
-     * kikérdezési idő). A rekodok szavak, mondatok, és fordítás mezőinek értékeiből Sor típusú objektumot készít,
+     * kikérdezési idő). A rekordok szavak, mondatok, és fordítás mezőinek értékeiből Sor típusú objektumot készít,
      * amit hozzáad a listához.
      * @param tabla   A tanulando tábla neve
      * @return        Visszaadja a lekérdezett rekordokból készített Sor típusú listát
@@ -254,15 +265,15 @@ public class DB {
         String query = "SELECT * FROM " + tabla + " WHERE kikerdezes_ideje<=" + System.currentTimeMillis();
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
             PreparedStatement ps = kapcs.prepareStatement(query)) {
-            ResultSet eredmeny = ps.executeQuery();
             
+            ResultSet eredmeny = ps.executeQuery();
             while (eredmeny.next()) {
                 rekordok.add(new Sor(eredmeny.getString("szavak"),
                                      eredmeny.getString("mondatok"),
                                      eredmeny.getString("forditas")));
             }
-            
             return rekordok;
+            
         } catch (SQLException e) {
             hiba("Hiba!",e.getMessage());
             return rekordok;
@@ -279,9 +290,11 @@ public class DB {
         String update = "UPDATE " + tabla + " SET kikerdezes_ideje= ? WHERE szavak= ?;";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
              PreparedStatement ps = kapcs.prepareStatement(update)) {
+            
                 ps.setLong(1, kikerdezesIdeje);
                 ps.setString(2, szo);
                 ps.executeUpdate();
+                
         } catch (SQLException e) {
             hiba("Hiba!",e.getMessage());
         }

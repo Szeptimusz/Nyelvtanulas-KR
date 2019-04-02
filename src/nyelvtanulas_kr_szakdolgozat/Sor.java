@@ -17,9 +17,9 @@ public class Sor {
      * A Főablakban a lista feltöltésekor használt konstruktor.
      * Meghívásakor beállítja a szót, a mondatot,
      * és a szó gyakoriságát.
-     * @param szo:    A szó
-     * @param mondat: A szóhoz tartozó példamondat
-     * @param gyak:   A szó gyakorisága
+     * @param szo    A szó
+     * @param mondat A szóhoz tartozó példamondat
+     * @param gyak   A szó gyakorisága
      */
     public Sor(String szo, String mondat, int gyak) {
         this.szo = szo;
@@ -31,8 +31,8 @@ public class Sor {
      * A szavak kikérdezésekor a lekérdezett rekordok feldolgozása során
      * használt konstruktor. Beállítja a szót, a mondatot és a hozzá tartozó 
      * fordítást.
-     * @param szo A szó
-     * @param mondat A szóhoz tartozó példamondat
+     * @param szo      A szó
+     * @param mondat   A szóhoz tartozó példamondat
      * @param forditas A szó fordítása
      */
     public Sor(String szo, String mondat, String forditas) {

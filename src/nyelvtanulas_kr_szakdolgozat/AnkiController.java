@@ -81,12 +81,12 @@ public class AnkiController implements Initializable {
     /**
      * A kapott szóból, mondatból és fordításból olyan .txt fájlt készít, amit az ANKI szótanuló program be tud importálni 
      * és szókártyákat tud belőle készíteni. A fájlba írás FileOutputStream-el, UTF-8 kódolással történik (az Anki program
-     * csak UTF-8-at fogad el importálásnál). A kiírásnál a szókártya két oldalát a \t - tabulátor jelzi és a szókártyákat \n-
+     * csak UTF-8-at fogad el importálásnál). A kiírásnál a szókártya két oldalát a \t - tabulátor jelzi, a szókártyákat \n-
      * új sor választja el.
      * @param szo              A tanulandó szó.
      * @param mondat           A szóhoz tartozó példamondat.
      * @param forditas         Az általunk korábban megadott fordítása a szónak
-     * @param forrasNyelvKod    A legördülő listából kiválasztott nyelv rövidített változata
+     * @param forrasNyelvKod   A legördülő listából kiválasztott nyelv rövidített változata
      * @return                 Ha sikerült a fájlba írás igazad ad vissza, ha nem akkor false-t.
      */
     public boolean keszit(String szo, String mondat, String forditas, String forrasNyelvKod) {
@@ -131,8 +131,6 @@ public class AnkiController implements Initializable {
     
     /**
      * A nyelv kiválaszthatóságához beállítja a legördülő lista nyelveit és tárolja azok kódját.
-     * @param url
-     * @param rb 
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {

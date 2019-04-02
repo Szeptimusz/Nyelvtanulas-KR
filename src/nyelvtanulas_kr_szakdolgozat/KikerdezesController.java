@@ -142,7 +142,7 @@ public class KikerdezesController implements Initializable {
     /**
      * Az értékelés gombok megnyomása után ha még van listaelem, akkor beállítja
      * a label-be a szót és mondatot, egyébként befejeződik a kikérdezés.
-     * @param index:  A kikérdezési sorban (listában) adja meg, hogy hányadik helyen vagyunk
+     * @param index  A kikérdezési sorban (listában) adja meg, hogy hányadik helyen vagyunk
      */
     private void szotMondatotBeallit(int index) {
         if (index < rekordok.size()) {
@@ -174,8 +174,6 @@ public class KikerdezesController implements Initializable {
     /**
      * A legördülő lista nyelveinek beállítása és rövidítéseik tárolása.
      * Alapértelmezetten az értékelő és válasz gombok letiltása.
-     * @param url
-     * @param rb 
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {

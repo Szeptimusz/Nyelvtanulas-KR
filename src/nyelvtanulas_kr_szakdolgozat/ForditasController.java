@@ -18,19 +18,13 @@ import static panel.Panel.figyelmeztet;
 public class ForditasController {
     
     @FXML
-    private Button btnGoogleTrans;
-    @FXML
     private Button btnCambridge;
-    @FXML
-    private Button btnHozzaad;
     @FXML
     private Label lblSzo;
     @FXML
     private TextArea txaMondat;
     @FXML
     private TextField txtForditas;
-    @FXML
-    private Button btnVisszaallit;
 
     private String szo;
     private String eredetiMondat;
@@ -120,7 +114,7 @@ public class ForditasController {
     }
     
     /**
-     * Megnyitja a Google Translate egy adott forrás-nyelvről magyarra fordító oldalát az adott szóval.
+     * Megnyitja a Google Translate egy adott forrásnyelvről magyarra fordító oldalát az adott szóval.
      * @throws Exception Hiba esetén kivételt dob
      */
     @FXML

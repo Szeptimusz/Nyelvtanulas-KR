@@ -40,7 +40,7 @@
             <Font size="16.0" />
          </font>
       </Label>
-      <Button fx:id="btnGoogleTrans" mnemonicParsing="false" onAction="#megnyitGoogleTranslate" text="Rákeresek a szóra Google Translate-en !" GridPane.columnSpan="2" GridPane.rowIndex="3" GridPane.valignment="BOTTOM">
+      <Button mnemonicParsing="false" onAction="#megnyitGoogleTranslate" text="Rákeresek a szóra Google Translate-en !" GridPane.columnSpan="2" GridPane.rowIndex="3" GridPane.valignment="BOTTOM">
          <font>
             <Font size="13.0" />
          </font>
@@ -67,13 +67,13 @@
             <Font size="13.0" />
          </font>
       </Button>
-      <Button fx:id="btnHozzaad" defaultButton="true" mnemonicParsing="false" onAction="#hozzaad" prefWidth="200.0" text="Hozzáadás" GridPane.halignment="CENTER" GridPane.rowIndex="6" />
+      <Button defaultButton="true" mnemonicParsing="false" onAction="#hozzaad" prefWidth="200.0" text="Hozzáadás" GridPane.halignment="CENTER" GridPane.rowIndex="6" />
       <TextArea fx:id="txaMondat" prefHeight="130.0" prefWidth="430.0" wrapText="true" GridPane.columnSpan="2" GridPane.rowIndex="2">
          <GridPane.margin>
             <Insets left="120.0" right="20.0" />
          </GridPane.margin>
       </TextArea>
-      <Button fx:id="btnVisszaallit" alignment="CENTER" mnemonicParsing="false" onAction="#visszaallit" prefHeight="60.0" prefWidth="100.0" text="Eredeti példamondat visszaállítása" wrapText="true" GridPane.rowIndex="2" />
+      <Button alignment="CENTER" mnemonicParsing="false" onAction="#visszaallit" prefHeight="60.0" prefWidth="100.0" text="Eredeti példamondat visszaállítása" wrapText="true" GridPane.rowIndex="2" />
    </children>
    <padding>
       <Insets bottom="10.0" left="20.0" right="10.0" top="10.0" />

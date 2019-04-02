@@ -29,6 +29,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import static panel.Panel.figyelmeztet;
 import static panel.Panel.hiba;
+import static panel.Panel.igennem;
 import static panel.Panel.tajekoztat;
 
 /**
@@ -45,23 +46,17 @@ public class FoablakController implements Initializable {
     private final ObservableList<Sor> data = FXCollections.observableArrayList();
     
     @FXML
-    private Button btnChooser;
-    @FXML
     private TextArea txaBevitel;
     @FXML
     private TextArea txaMondat;
     @FXML
     private CheckBox cxbEgyszer;
     @FXML
-    private Button btnFuttat;
-    @FXML
     private Button btnIsmert;
     @FXML
     private Button btnTanulando;
     @FXML
     private Button btnIgnore;
-    @FXML
-    private Button btnVisszavon;
     @FXML
     private Label lblTallozasEredmeny;
     @FXML
@@ -79,7 +74,7 @@ public class FoablakController implements Initializable {
 
     /**
      * A Tallózás-gomb megnyomása után felugró ablakból kiválasztható a beolvasandó fájl.
-     * A művelet sikerességéről a gomb melletti label-ben üzenet jelenik meg és a szövegbeviteli
+     * A művelet sikerességéről a gomb melletti címkében üzenet jelenik meg és a szövegbeviteli
      * mezőt üresre állítja.
      */
     @FXML
@@ -97,10 +92,10 @@ public class FoablakController implements Initializable {
     
     /**
      * Az 'Adatok feldolgozása'-gomb megnyomásakor lefutó metódus. Csak akkor kezdődik meg
-     * a bevitt adatok feldolgozása, ha tallózással, vagy a szövegbeviteli mezót használva lett megadva bemenő adat, illetve
-     * ha lett kiválasztva forrás nyelv a legördülő listából. A feldolgozás előtt a szavakat tároló lista- és a szavak indexét tároló
+     * a bevitt adatok feldolgozása, ha tallózással, vagy a szövegbeviteli mezót használva meg lett adva bemenő adat, illetve
+     * ha lett kiválasztva forrás nyelv a legördülő listából. A feldolgozás előtt a szavakat tároló lista és a szavak indexét tároló
      * HashMap tartalmát törli, a mondatok szövegmezőt üresre állítja és a táblázathoz rendelt listenert eltávolítja. Beállítja az
-     * adott nyelvhez tartozó kódot, ami alapján az egyedi nevű táblákat is létrehozza. Lefut az előfeldolgozás, a feldolgozás, az
+     * adott nyelvhez tartozó kódot, ami alapján az egyedi nevű táblákat létre is hozza. Lefut az előfeldolgozás, a feldolgozás, az
      * azonos szavak törlése - és így a szógyakoriság számlálása - majd az egyedi szavakat összeveti az adatbázis szavaival és 
      * törli a listából ami már szerepel az adatbázisban. A már szinkronizált lista tartalmát megjeleníti a táblázatban és hozzáadja
      * a táblázathoz a listenert. A tallózásról tájékoztató label-t kiüríti.
@@ -199,7 +194,7 @@ public class FoablakController implements Initializable {
     /**
      * Törli azokat a többször egymás után előforduló karaktereket, amik alapján majd a 
      * splittelés történik ("." "?" "!"). Végigmegy a teljes szövegen karakterenként, ha a karakter "." "?" "!" vagy " " , akkor ha a következő karakter is
-     * ugyanolyan, addig törli a következőket amíg nem talál egy más karaktert. Mivel a kapott szöveg karakterét tudni kell törölni, ezért a
+     * ugyanolyan, addig törli a következőket amíg nem talál egy más karaktert. Mivel a kapott szöveg egy adott karakterét tudni kell törölni, ezért a
      * feldolgozandó szövegből StringBuildert készít. Az előfeldolgozott szöveget visszaalakítja String-é és úgy adja vissza.
      * Így a feldolgozas metódus splittelése után a feltöltött tömbök nem fognak feleslegesen üres String-eket tartalmazni.
      * Továbbá eltünteti a nem megfelelő fájl-konvertálásból eredő felesleges szóközöket mind a szavakban, mind a mondatokban.
@@ -228,7 +223,7 @@ public class FoablakController implements Initializable {
      * A kapott szöveget "." "?" "!" és ezek szóközzel ellátott verziói alapján splitteli a mondatok tömbbe, majd a mondatok tömböt
      * " " ", " és "," alapján splitteli a szavak tömbbe. Ha a szó legalább 2 karakter akkor megtisztítja elölről és hátulról, ha ezek után 
      * legalább 2 de maximum 30 karakter hosszú akkor kisbetűssé alakítva a szintén megtisztított mondattal együtt -Sor típusú objektumként-
-     * hozzáadja a listához. 
+     * hozzáadja a listához.
      * @param szoveg A feldolgozandó szöveg
      */
     public void feldolgozas(String szoveg) {
@@ -300,8 +295,8 @@ public class FoablakController implements Initializable {
     }
     
     /**
-     * Beépített rendezéssel rendezi a Sor típusú elemekből álló listát, így az azonos szavak egymás mellé kerülnek. Majd addig 
-     * törli az azonos szavakat, amíg csak egyetlen példány marad, közben számolja a szavak gyakoriságát.A megmaradó szó gyakoriság 
+     * Beépített rendezéssel rendezi a Sor típusú elemekből álló listát a szavak alapján, így az azonos szavak egymás mellé kerülnek. Majd addig 
+     * törli az azonos szavakat, amíg csak egyetlen példány marad, közben számolja a szavak gyakoriságát. A megmaradó szó gyakoriság 
      * mezőjének értékére beállítja a törlések során számolt gyakoriságot.
      * Egy HashMap-ben tárolja az így már egyszer előforduló szóhoz tartozó lista-indexet, így keresés nélkül megállíptható, hogy 
      * egy adott szó benne van-e a listában. Végül ha a lista nem üres, akkor az utolsó elemre is beállítja a HashMap-et.
@@ -332,7 +327,7 @@ public class FoablakController implements Initializable {
     
     /**
      * Végigmegy a listán és ha a szó "torlendo", akkor törli onnan. Különben ha be volt jelölve az egyszer előforduló
-     * szavak megjelenítésének tiltása akkor is törli a listából.
+     * szavak megjelenítésének tiltása és egyszer fordul elő a szó, akkor szintén törli a listából.
      */
     public void listaTorlesek() {       
         for (int i = 0; i < data.size(); i++) {
@@ -349,7 +344,7 @@ public class FoablakController implements Initializable {
 
     /**
      * Ha a feldolgozás után a lista nem üres, akkor a táblázatban kijelölt sor szavát a gomb megnyomása 
-     * után elmenti a szavak táblába ignoralt állapottal, majd léptet a táblázatban és letiltja a gombokat.
+     * után elmenti a szavak táblába ignoralt állapottal, majd letiltja a sorhoz tartozó gombokat és léptet a táblázatban.
      */
     @FXML
     public void ignoralMent() {
@@ -365,7 +360,7 @@ public class FoablakController implements Initializable {
 
     /**
      * Ha a feldolgozás után a lista nem üres, akkor a táblázatban kijelölt sor szavát a gomb megnyomása 
-     * után elmenti a szavak táblába ismert állapottal, majd léptet a táblázatban és letiltja a gombokat.
+     * után elmenti a szavak táblába ismert állapottal, majd letiltja a sorhoz tartozó gombokat és léptet a táblázatban.
      */
     @FXML
     public void ismertMent() {
@@ -382,8 +377,8 @@ public class FoablakController implements Initializable {
     /**
      * Ha a feldolgozás után a lista nem üres, akkor a gomb megnyomása után megnyit egy új ablakot és 
      * átadja neki a szo és mondat String tartalmát. Ha az új ablakban a tanulandó szó sikeresen el lett mentve,
-     * akkor léptet a táblázatban.
-     * @throws Exception 
+     * akkor letiltja a sorhoz tartozó gombokat és léptet a táblázatban.
+     * @throws Exception Hiba esetén kivételt dob
      */
     @FXML
     public void tanulandoMent() throws Exception{
@@ -424,7 +419,7 @@ public class FoablakController implements Initializable {
     /**
      * A Visszavonás -gombra kattintva (ha a feldolgozás után a lista nem üres és ha volt adatbázisba mentés a 3 gombbal), 
      * a 3 gomb tiltását feloldja, törli a korábban adatbázisba írt szót és visszaállítja a tabla változót null-ra, 
-     * hogy ellenőrizni lehessen történt-e változás.
+     * hogy később is ellenőrizni lehessen történt-e változás.
      */
     @FXML
     public void visszavon() {
@@ -471,12 +466,12 @@ public class FoablakController implements Initializable {
     }
     
     /**
-     * A kapott fxml fájl alapján új ablakot nyit meg. Ha a szó paraméter nem üres, akkor a fordítás ablakot
-     * nyitja meg, ekkor az új ablaknak átadja a szó és mondat paramétert, valamint beállítja a forrás nyelv kódját.
-     * @param fxmlFajl:     Az fxml fájl neve
-     * @param ablakCim:     A megnyitott ablak címe
-     * @param szo:          Fordítás ablak esetében a kapott szó
-     * @param mondat        Fordítás ablak esetében a kapott mondat
+     * A kapott fxml fájlnév alapján új ablakot nyit meg. Ha a szó paraméter nem üres, akkor a fordítás ablakot
+     * nyitja meg, ekkor az új ablakhoz tartozó controller osztályban beállítja a szó, mondat és forrás nyelv kód mezők értékeit.
+     * @param fxmlFajl     Az fxml fájl neve
+     * @param ablakCim     A megnyitott ablak címe
+     * @param szo          Fordítás ablak esetében a kapott szó
+     * @param mondat       Fordítás ablak esetében a kapott mondat
      */
     private void ablakotNyit(String fxmlFajl, String ablakCim, String szo, String mondat) {
         try {
@@ -515,13 +510,11 @@ public class FoablakController implements Initializable {
     } 
 
     /**
-     * A program indulásakor DB osztály osztályváltozójára beállítja az adatbázis elérési útvonalát, ha nincsen 
+     * A program indulásakor a DB osztály osztályváltozójára beállítja az adatbázis elérési útvonalát, ha nincsen 
      * adatbázis, akkor előtte létrehozza a projekt mappájába. Beállítja a Főbablak legördülő listájának nyelveit.
-     * Megadja, hogy a táblázat egy adott oszlopának típusa a Sor osztály melyik mezőjének típusa legyen. Az ismert-tanulandó-
+     * Megadja, hogy a táblázat egy adott oszlopának értéke a Sor osztály melyik mezőjéből legyen kiszedve. Az ismert-tanulandó-
      * ignorált gombok letiltásához és a táblázat feletti mondatkiíráshoz definiál egy listenert, amit még nem rendel hozzá semmihez.
      * 
-     * @param url
-     * @param rb 
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -561,18 +554,23 @@ public class FoablakController implements Initializable {
     }
     
     /**
-     * A menüből a Kilépés-t választva bezárja a programot.
+     * A menüből a Kilépés-t választva megerősítést vár a kilépésre, igen válasz
+     * esetén bezárja a programot.
      */
     @FXML
     public void kilep() {
-        Platform.exit();
+        if (igennem("Kilépés megerősítés", "Valóban be szeretné zárni a programot?")) {
+            Platform.exit();
+        }
     }
 
     /**
-     * A menüből a Névjegy-et választva információt ad a programról és készítőjéről.
+     * A menüből a Névjegy-et választva új ablakot nyit meg, ahol tájékoztat a program készítőjéről,
+     * a verziószámról és megnyitható böngészőben a fejlesztői dokumentáció.
+     * @throws java.lang.Exception Hiba esetén kivételt dob
      */
     @FXML
-    public void nevjegy() {
-        tajekoztat("Nyelvtanulás program", "Készítette: Kremmer Róbert");
+    public void nevjegy() throws Exception {
+        ablakotNyit("Nevjegy.fxml", "Nyelvtanulás program","","");
     }
 }
