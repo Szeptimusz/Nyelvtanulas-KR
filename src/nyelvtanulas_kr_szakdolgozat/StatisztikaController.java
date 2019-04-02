@@ -9,7 +9,8 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 
 /**
- *
+ * A statisztika ablakot kezelő osztály. Megjeleníti az adott nyelv tábláiban 
+ * tárolt szavak számát különböző szempontok alapján.
  * @author Kremmer Róbert
  */
 public class StatisztikaController implements Initializable {

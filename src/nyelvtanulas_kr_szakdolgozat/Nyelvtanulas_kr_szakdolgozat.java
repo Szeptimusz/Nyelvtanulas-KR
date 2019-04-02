@@ -7,7 +7,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 /**
- *
+ * A program elindulását és a főablak megjelenítését biztosító osztály.
  * @author Kremmer Róbert
  */
 public class Nyelvtanulas_kr_szakdolgozat extends Application {

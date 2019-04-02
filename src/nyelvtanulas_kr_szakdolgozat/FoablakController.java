@@ -33,7 +33,9 @@ import static panel.Panel.igennem;
 import static panel.Panel.tajekoztat;
 
 /**
- *
+ * A program indításakor megjelenő ablakot kezelő osztály. Itt történik meg az adatok bevitele, feldolgozása,
+ * táblázatban való megjelenítése, majd lehetőség szerint azok adatbázisba mentése. Ebből az
+ * ablakből lehet megnyitni a program többi ablakát (menüpontok vagy gomb által).
  * @author Kremmer Róbert
  */
 public class FoablakController implements Initializable {

@@ -12,7 +12,8 @@ import javafx.collections.ObservableList;
 import static panel.Panel.hiba;
 
 /**
- *
+ * Az adatbázis kezelést végző osztály. A benne található statikus metódusok bármely más 
+ * osztályból meghívhatóak. 
  * @author Kremmer Róbert
  */
 public class DB {

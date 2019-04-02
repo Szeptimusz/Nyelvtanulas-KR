@@ -12,7 +12,8 @@ import javafx.stage.Window;
 import static panel.Panel.figyelmeztet;
 
 /**
- *
+ * A Fordítás ablakot kezelő osztály. A Főablak táblázatában kiválasztott szó
+ * tanulandóként való elmentéséért felel.
  * @author Kremmer Róbert
  */
 public class ForditasController {

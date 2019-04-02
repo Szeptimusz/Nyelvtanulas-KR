@@ -14,7 +14,17 @@ public class FoablakControllerTest {
 
     @Test
     public void testEloFeldolgozas() {
-        assertEquals("Előfeldolgozás", ".",f.eloFeldolgozas(".........."));
+        // Splittelésben részt vevő karakter többször egymás után
+        assertEquals("Pontok: ", ".",f.eloFeldolgozas(".........."));
+        
+        // Sok felesleges szóköz egy szövegben
+        assertEquals("Szóközök: ", "those who get to sleep and wake up late have lower resting brain connectivity ",
+                f.eloFeldolgozas("those who      get to      sleep and      wake up     late have       lower    resting brain connectivity     "));
+        
+        // Szóközök és splittelős karakterek vegyesen
+        assertEquals("Vegyes: ", "We .? already.?!.!? know .that there ? ?are ! .? huge negative health consequences",
+                f.eloFeldolgozas("We ...????    already.??!.!? know ..that     there ??    ???are !!!  ..? huge negative health consequences"));
+        
     }
 
     @Test

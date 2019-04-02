@@ -13,7 +13,8 @@ import static panel.Panel.figyelmeztet;
 import static panel.Panel.tajekoztat;
 
 /**
- *
+ * A kikérdezés ablakot kezelő osztály. Az adott nyelv tanulandó szavai közül kikérdezi
+ * azokat, amiknek a tanulása éppen esedékes.
  * @author Kremmer Róbert
  */
 public class KikerdezesController implements Initializable {

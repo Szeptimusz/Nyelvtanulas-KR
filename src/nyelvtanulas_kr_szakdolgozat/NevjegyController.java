@@ -11,7 +11,9 @@ import javafx.scene.control.Label;
 import static panel.Panel.hiba;
 
 /**
- *
+ * A névjegy ablakot kezelő osztály. Információt ad a program készítőjéről, a program
+ * verziószámáról, valamint böngészőben megnyitható a fejlesztői dokumentáció osztályokat
+ * és metódusokat leíró részlete.
  * @author Kremmer Róbert
  */
 public class NevjegyController implements Initializable {

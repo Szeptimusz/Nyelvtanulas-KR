@@ -1,7 +1,8 @@
 package nyelvtanulas_kr_szakdolgozat;
 
 /**
- *
+ * A szavak és a hozzájuk tartozó adatok könnyebb kezelését elősegítő osztály.
+ * Felhasználástól függően kétféle konstruktorral rendelkezik.
  * @author Kremmer Róbert
  */
 public class Sor {

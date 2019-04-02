@@ -24,7 +24,9 @@ import static panel.Panel.igennem;
 import static panel.Panel.tajekoztat;
 
 /**
- *
+ * Az Anki ablakot kezelő osztály. Itt történik meg a kiválasztott nyelv
+ * tanulandó szavainak kiexportálása olyan fájlként, amit az Anki szókártya program be tud
+ * importálni.
  * @author Kremmer Róbert
  */
 public class AnkiController implements Initializable {
