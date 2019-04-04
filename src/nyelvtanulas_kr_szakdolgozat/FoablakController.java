@@ -268,7 +268,6 @@ public class FoablakController implements Initializable {
         while (szoveg.charAt(eleje) < 'A' 
                 || (szoveg.charAt(eleje) > 'z' && szoveg.charAt(eleje) < 193) 
                 || (szoveg.charAt(eleje) > 'Z' && szoveg.charAt(eleje) < 'a') 
-                || (szoveg.charAt(eleje) >= '0' && szoveg.charAt(eleje) <= '9') 
                 || szoveg.charAt(eleje) > 382) {
             if (eleje == szoveg.length()-1) {
                 break;
@@ -283,7 +282,6 @@ public class FoablakController implements Initializable {
             while (szoveg.charAt(vege) < 'A' 
                     || (szoveg.charAt(vege) > 'z' && szoveg.charAt(vege) < 193) 
                     || (szoveg.charAt(vege) > 'Z' && szoveg.charAt(vege) < 'a') 
-                    || (szoveg.charAt(vege) >= '0' && szoveg.charAt(vege) <= '9') 
                     || szoveg.charAt(vege) > 382) {
                 if (vege == 0) {
                     break;
@@ -291,7 +289,7 @@ public class FoablakController implements Initializable {
                 vege--;
             }
         }
-        
+
         szoveg = szoveg.substring(eleje, vege + 1);
         return szoveg;
     }
