@@ -28,7 +28,7 @@ public class FoablakControllerTest {
     }
 
     @Test
-    public void testSzotMegtisztit() {
+    public void testMegtisztit() {
         /* A szöveg megtisztítása az elején és végén az összes 
            (Windows 1250-es kódtáblában lévő) nem támogatott karaktertől,
            a támogatott karakterek ("szó") a String belsejében vannak.
@@ -57,5 +57,5 @@ public class FoablakControllerTest {
         f = new FoablakController();
     }
 
-    
+
 }
