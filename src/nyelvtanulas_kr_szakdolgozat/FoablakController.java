@@ -97,10 +97,10 @@ public class FoablakController implements Initializable {
      * a bevitt adatok feldolgozása, ha tallózással, vagy a szövegbeviteli mezót használva meg lett adva bemenő adat, illetve
      * ha lett kiválasztva forrás nyelv a legördülő listából. A feldolgozás előtt a szavakat tároló lista és a szavak indexét tároló
      * HashMap tartalmát törli, a mondatok szövegmezőt üresre állítja és a táblázathoz rendelt listenert eltávolítja. Beállítja az
-     * adott nyelvhez tartozó kódot, ami alapján az egyedi nevű táblákat létre is hozza. Lefut az előfeldolgozás, a feldolgozás, az
+     * adott nyelvhez tartozó kódot, ami alapján az egyedi nevű táblákat létre is hozza az adatbázisban. Lefut az előfeldolgozás, a feldolgozás, az
      * azonos szavak törlése - és így a szógyakoriság számlálása - majd az egyedi szavakat összeveti az adatbázis szavaival és 
      * törli a listából ami már szerepel az adatbázisban. A már szinkronizált lista tartalmát megjeleníti a táblázatban és hozzáadja
-     * a táblázathoz a listenert. A tallózásról tájékoztató label-t kiüríti.
+     * a táblázathoz a listenert. A tallózásról tájékoztató címkét kiüríti.
      */
     @FXML
     public void futtat() {
@@ -223,7 +223,7 @@ public class FoablakController implements Initializable {
    
     /**
      * A kapott szöveget "." "?" "!" és ezek szóközzel ellátott verziói alapján splitteli a mondatok tömbbe, majd a mondatok tömböt
-     * " " ", " és "," alapján splitteli a szavak tömbbe. Ha a szó legalább 2 karakter akkor megtisztítja elölről és hátulról, ha ezek után 
+     * " " ", " és "," alapján splitteli a szavak tömbbe. Ha a szó legalább 2 karakter akkor megtisztítja a nem megfelelő karakterektől elölről és hátulról, ha ezek után 
      * legalább 2 de maximum 30 karakter hosszú akkor kisbetűssé alakítva a szintén megtisztított mondattal együtt -Sor típusú objektumként-
      * hozzáadja a listához.
      * @param szoveg A feldolgozandó szöveg
@@ -298,7 +298,7 @@ public class FoablakController implements Initializable {
      * Beépített rendezéssel rendezi a Sor típusú elemekből álló listát a szavak alapján, így az azonos szavak egymás mellé kerülnek. Majd addig 
      * törli az azonos szavakat, amíg csak egyetlen példány marad, közben számolja a szavak gyakoriságát. A megmaradó szó gyakoriság 
      * mezőjének értékére beállítja a törlések során számolt gyakoriságot.
-     * Egy HashMap-ben tárolja az így már egyszer előforduló szóhoz tartozó lista-indexet, így keresés nélkül megállíptható, hogy 
+     * Egy HashMap-ben tárolja az így már egyszer előforduló szóhoz tartozó lista-indexet, így keresés nélkül megállapítható, hogy 
      * egy adott szó benne van-e a listában. Végül ha a lista nem üres, akkor az utolsó elemre is beállítja a HashMap-et.
      */
     public void azonosakTorlese() {
@@ -511,7 +511,7 @@ public class FoablakController implements Initializable {
 
     /**
      * A program indulásakor a DB osztály osztályváltozójára beállítja az adatbázis elérési útvonalát, ha nincsen 
-     * adatbázis, akkor előtte létrehozza a projekt mappájába. Beállítja a Főbablak legördülő listájának nyelveit.
+     * adatbázis, akkor előtte létrehozza a projekt mappájába. Beállítja a Főablak legördülő listájának nyelveit.
      * Megadja, hogy a táblázat egy adott oszlopának értéke a Sor osztály melyik mezőjéből legyen kiszedve. Az ismert-tanulandó-
      * ignorált gombok letiltásához és a táblázat feletti mondatkiíráshoz definiál egy listenert, amit még nem rendel hozzá semmihez.
      * 
@@ -566,7 +566,8 @@ public class FoablakController implements Initializable {
 
     /**
      * A menüből a Névjegy-et választva új ablakot nyit meg, ahol tájékoztat a program készítőjéről,
-     * a verziószámról és megnyitható böngészőben a fejlesztői dokumentáció.
+     * a verziószámról és megnyitható böngészőben a fejlesztői dokumentáció osztályokat, metódusokat és függvényeket 
+     * leíró része.
      * @throws java.lang.Exception Hiba esetén kivételt dob
      */
     @FXML

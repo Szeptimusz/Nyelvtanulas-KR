@@ -81,7 +81,7 @@ public class KikerdezesController implements Initializable {
     }
     
     /**
-     * Az Újra -gombra kattintva hozzáadja a kártyát a kikérdezi sor (a lista)
+     * Az Újra -gombra kattintva hozzáadja a kártyát a kikérdezési sor (a lista)
      * végéhez. Így addig kérdezi ki újra a kártyát, amíg nem lesz máshogyan értékelve.
      */
     @FXML

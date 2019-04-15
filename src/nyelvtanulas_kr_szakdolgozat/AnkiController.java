@@ -105,11 +105,11 @@ public class AnkiController implements Initializable {
     }
     
     /**
-     * A mondatban a szó előfordulásainak megkeresése, pontokkal helyessítése és így lyukas szöveg gyártása.
+     * A mondatban a szó előfordulásainak megkeresése, pontokkal helyettesítése és így lyukas szöveg gyártása.
      * A kapott mondaton végigmegy és ha talál keresett szót, akkor annyi ponttal helyettesíti, amennyi a szó hossza.
      * A mondaton való végighaladás során egy új String-ben szavanként felépíti a lyukasmondatot.
      * @param szo    A pontokkal helyettesítendő szó
-     * @param mondat A helyettesítendó szót tartalmazó mondat
+     * @param mondat A helyettesítendő szót tartalmazó mondat
      * @return       Visszaadja a készített lyukasmondatot
      */
     public String lyukasMondatotKeszit(String szo, String mondat) {
@@ -132,7 +132,7 @@ public class AnkiController implements Initializable {
     }
     
     /**
-     * A nyelv kiválaszthatóságához beállítja a legördülő lista nyelveit és tárolja azok kódját.
+     * A nyelv kiválasztásához beállítja a legördülő lista nyelveit és tárolja azok kódját.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {

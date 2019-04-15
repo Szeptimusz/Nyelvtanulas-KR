@@ -34,7 +34,7 @@ public class ForditasController {
     
     /**
      * A fordítás ablak megnyitásakor beállítja az adott szót és
-     * kiírja az ablak mgfelelő címkéjébe.
+     * kiírja az ablak megfelelő címkéjébe.
      * @param szo A FoablakController-ből átadott szó
      */
     public void setSzo(String szo) {
@@ -48,7 +48,7 @@ public class ForditasController {
 
     /**
      * A fordítás ablak megnyitásakor beállítja az adott mondatot és
-     * kiírja az ablak mgfelelő címkéjébe.
+     * kiírja az ablak megfelelő címkéjébe.
      * @param mondat A FoablakController-ből átadott mondat.
      */
     public void setMondat(String mondat) {
@@ -78,7 +78,7 @@ public class ForditasController {
     }
 
     /**
-     * Beállitja, hogy hozzá lettek-e adva az adatok az adatbázishoz vagy nem.
+     * Beállítja, hogy hozzá lettek-e adva az adatok az adatbázishoz vagy nem.
      * @param tanulandoElmentve Boolean típussal megadja, hogy el lett-e mentve vagy nem
      */
     public static void setTanulandoElmentve(boolean tanulandoElmentve) {

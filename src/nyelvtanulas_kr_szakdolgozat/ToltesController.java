@@ -5,8 +5,8 @@ import java.util.ResourceBundle;
 import javafx.fxml.Initializable;
 
 /**
- * A töltés ablakot kezelő osztály. Csupán tájékoztató jellege miatt jelenleg 
- * funkció nélküli.
+ * A töltés ablakot kezelő osztály. Az ablak tájékoztató jellege miatt a java
+ * osztály jelenleg funkció nélküli. 
  * @author Kremmer Róbert
  */
 public class ToltesController implements Initializable {

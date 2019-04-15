@@ -13,7 +13,7 @@ import static panel.Panel.hiba;
 
 /**
  * Az adatbázis kezelést végző osztály. A benne található statikus metódusok bármely más 
- * osztályból meghívhatóak. 
+ * osztályból meghívhatók. 
  * @author Kremmer Róbert
  */
 public class DB {
