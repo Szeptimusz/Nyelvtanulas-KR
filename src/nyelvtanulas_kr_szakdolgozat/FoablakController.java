@@ -1,11 +1,13 @@
 package nyelvtanulas_kr_szakdolgozat;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Collections;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.ListIterator;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -134,25 +136,27 @@ public class FoablakController implements Initializable {
                 txaMondat.setText("");
                 // A megadott forrásnyelv beállítása (pl: 'Német' -> 'de')
                 forrasNyelvKod = nyelvekKodja.get(cbxForras.getValue());
-                TablaNevEleje = forrasNyelvKod + "_";
+                TablaNevEleje = forrasNyelvKod + "_"; 
                 beolvasasFeldolgozas();
                 azonosakTorlese();
                 DB.tablakatKeszit(TablaNevEleje);
                 DB.adatbazistListavalOsszevet(TablaNevEleje + "szavak",data,szavak_indexe);
                 DB.adatbazistListavalOsszevet(TablaNevEleje + "tanulando",data,szavak_indexe);
                 listaTorlesek();
+                // A táblázatban már a gyakoriság szerint jelenjenek meg a szavak
+                data.sort((s1, s2) -> Integer.compare(s2.getGyak(), s1.getGyak()));
                 tblTablazat.setItems(data);
                 // Listener beállítása az adatok táblázatba betöltése után
                 tblTablazat.getSelectionModel().selectedItemProperty().addListener(listener);
                 lblTallozasEredmeny.setText("");
-
+                
                 ablak.hide();
                 
                 if (data.isEmpty()) {
                     figyelmeztet("Figyelem!", "A nem megfelelő karakterek eltávolítása és az adatbázis szinkronizálás után nem "
                             + "maradt megjeleníthető eredmény!");
                 } else {
-                    tajekoztat("Kész!", "Az adatok feldolgozása befejeződött!");
+                    tajekoztat("Kész!", "Az adatok feldolgozása befejeződött!");  
                 }
             } catch (IOException e) {
                 hiba("Hiba!",e.getMessage());
@@ -163,8 +167,8 @@ public class FoablakController implements Initializable {
     
     /**
      * Ha lett megadva tallózással fájlútvonal, akkor egyben beolvassa a fájlból az adatokat a Cp1250-es kódtábla alapján, majd
-     * beleteszi egy Stringbe. Eltávolítja belőle a tabulátorokat és az új sorokat, majd az eredménnyel meghívja az előfeldolgozást,
-     * aminek eredményével meghívja a feldolgozást. Végül azért, hogy a következő futtatás előtt is dönteni lehessen a tallózás-
+     * beleteszi egy Stringbe. Eltávolítja belőle a tabulátorokat az új sorokat és a felesleges szóközöket, majd az eredménnyel meghívja a feldolgozást.
+     * Végül azért, hogy a következő futtatás előtt is dönteni lehessen a tallózás-
      * szövegmező között, a fájlútvonalat null-ra állítja.
      * Ha nem lett megadva fájlútvonal akkor a szövegterületről olvassa ki a szöveget, eltávolítja a tabulátorokat és az új sorokat,
      * majd meghívja a kapott Stringgel az előfeldolgozást és a feldolgozást.
@@ -172,54 +176,19 @@ public class FoablakController implements Initializable {
     public void beolvasasFeldolgozas() {
         String eredetiSzoveg = "";
         if (fajlUtvonal != null) {
-            File f = new File(fajlUtvonal);
-            try (FileInputStream fis = new FileInputStream(f)){
-                byte[] adat = new byte[(int) f.length()];
-                fis.read(adat);
-                eredetiSzoveg = new String(adat, "Cp1250");
-                eredetiSzoveg = eredetiSzoveg.replaceAll("\t|\n|\r", "");
-                feldolgozas(eloFeldolgozas(eredetiSzoveg));
-                /* Ha egyszer lefuttatuk tallózott fájllal, kiszedjük a fájltnevet, hogy újra dönteni lehessen 
-                   a tallózás-szövegdoboz között különben a korábban tallózott fájlnév megmarad és így nem lehet
-                   használni a szövegmezőt.*/
+            try {
+                eredetiSzoveg = new String(Files.readAllBytes(Paths.get(fajlUtvonal)), "Cp1250").replaceAll("\t|\n|\r|\\  ", "");
+                feldolgozas(eredetiSzoveg);
                 fajlUtvonal = null;
             } catch (IOException e) {
                 hiba("Hiba!",e.getMessage());
             }
         } else {
             // A szövegdobozos szövegből kiszedjük a tabulátorokat és az új sorokat
-            eredetiSzoveg = txaBevitel.getText().replaceAll("\t|\n", "");
-            feldolgozas(eloFeldolgozas(eredetiSzoveg));
+            eredetiSzoveg = txaBevitel.getText().replaceAll("\t|\n|\\  ", "");
+            feldolgozas(eredetiSzoveg);
         }
     }
-    
-    /**
-     * Törli azokat a többször egymás után előforduló karaktereket, amik alapján majd a 
-     * splittelés történik ("." "?" "!"). Végigmegy a teljes szövegen karakterenként, ha a karakter "." "?" "!" vagy " " , akkor ha a következő karakter is
-     * ugyanolyan, addig törli a következőket amíg nem talál egy más karaktert. Mivel a kapott szöveg egy adott karakterét tudni kell törölni, ezért a
-     * feldolgozandó szövegből StringBuildert készít. Az előfeldolgozott szöveget visszaalakítja String-é és úgy adja vissza.
-     * Így a feldolgozas metódus splittelése után a feltöltött tömbök nem fognak feleslegesen üres String-eket tartalmazni.
-     * Továbbá eltünteti a nem megfelelő fájl-konvertálásból eredő felesleges szóközöket mind a szavakban, mind a mondatokban.
-     * @param szoveg A feldolgozandó szöveg
-     * @return Visszadja a feldolgozott szöveget
-     */
-    public String eloFeldolgozas(String szoveg) {
-        StringBuilder sb = new StringBuilder(szoveg);
-        for (int i = 0; i < sb.length()-1; i++) {
-            char c = sb.charAt(i);
-            if (c == '.' || c == '?' || c == '!' || c == ' ') {
-                while (c == sb.charAt(i + 1)) {
-                    sb.deleteCharAt(i + 1);
-                    // Ha az index kimenne a szövegből akkor megállítjuk
-                    if (i + 1 == sb.length()) {
-                        break;
-                    }
-                }
-            }
-        }
-        szoveg = sb.toString();
-        return szoveg;
-    } 
    
     /**
      * A kapott szöveget "." "?" "!" és ezek szóközzel ellátott verziói alapján splitteli a mondatok tömbbe, majd a mondatok tömböt
@@ -231,26 +200,22 @@ public class FoablakController implements Initializable {
     public void feldolgozas(String szoveg) {
         // A szöveg szétvágása "." "?" "!" szerint, plusz azok az esetek amikor szóköz van utánuk
         String mondatok [] = szoveg.split("\\. |\\.|\\? |\\?|\\! |\\!");
-        for (int i = 0; i < mondatok.length; i++) {
+        for (String mondat : mondatok) {
             // Mondat szétvágása szavakká szóköz vagy vessző szerint
-            String[] szok = mondatok[i].split(" |\\, |\\,");
-            for (int j = 0; j < szok.length; j++) {
+            String[] szok = mondat.split(" |\\, |\\,|\\; |\\;|\\—");
+            for (String szo : szok) {
                 // Mozaikszavaknál, rövidítéseknél sok pont lehet közel egymáshoz, ilyenkor mindegyiket külön mondatnak
                 // veszi és 0, 1 karakter hosszú töredékek keletkeznek mint szó. Ilyen esetekben a szót figyelmen kívül hagyjuk
-                if (szok[j].length() < 2) {
+                if (szo.length() < 2) { 
                     continue;
                 }
-
-                String szo = megtisztit(szok[j]);
-                
+                String megtisztitottSzo = megtisztit(szo);
                 // Ha még a megtisztítás után is több mint 30 karakter a szó, akkor valószínűleg a belsejében van sok nem megfelelő
                 // karakter, ezért nem dolgozzuk fel. Illetve ha 2-nél kevesebb karakterből áll.
-                if (szo.length() > 30 || szo.length() < 2) {
+                if (megtisztitottSzo.length() > 30 || megtisztitottSzo.length() < 2){
                     continue;
                 }
-                szo = szo.toLowerCase();
-                
-                data.add(new Sor(szo, megtisztit(mondatok[i]), 1));
+                data.add(new Sor(megtisztitottSzo.toLowerCase(), megtisztit(mondat), 1));
             }
         }
     }
@@ -270,28 +235,22 @@ public class FoablakController implements Initializable {
                 || (szoveg.charAt(eleje) > 'Z' && szoveg.charAt(eleje) < 'a') 
                 || szoveg.charAt(eleje) > 382) {
             if (eleje == szoveg.length()-1) {
-                break;
+                return "";
             }
             eleje++;
         }
-        // Ha teljesen elfogyott a szó a tisztítás során akkor üres Stringet ad vissza
-        if (eleje == szoveg.length()-1) {
-                return "";
-        } else {
+        
         // Különben ha nem fogyott el a szó, akkor a szó végéről indulva is megtisztítja
-            while (szoveg.charAt(vege) < 'A' 
-                    || (szoveg.charAt(vege) > 'z' && szoveg.charAt(vege) < 193) 
-                    || (szoveg.charAt(vege) > 'Z' && szoveg.charAt(vege) < 'a') 
-                    || szoveg.charAt(vege) > 382) {
-                if (vege == 0) {
-                    break;
-                }
-                vege--;
-            }
+        while (szoveg.charAt(vege) < 'A' 
+                || (szoveg.charAt(vege) > 'z' && szoveg.charAt(vege) < 193) 
+                || (szoveg.charAt(vege) > 'Z' && szoveg.charAt(vege) < 'a') 
+                || szoveg.charAt(vege) > 382) {
+            if (vege == 0) {
+                return "";
+            }    
+            vege--;
         }
-
-        szoveg = szoveg.substring(eleje, vege + 1);
-        return szoveg;
+        return szoveg.substring(eleje, vege + 1);
     }
     
     /**
@@ -299,45 +258,41 @@ public class FoablakController implements Initializable {
      * törli az azonos szavakat, amíg csak egyetlen példány marad, közben számolja a szavak gyakoriságát. A megmaradó szó gyakoriság 
      * mezőjének értékére beállítja a törlések során számolt gyakoriságot.
      * Egy HashMap-ben tárolja az így már egyszer előforduló szóhoz tartozó lista-indexet, így keresés nélkül megállapítható, hogy 
-     * egy adott szó benne van-e a listában. Végül ha a lista nem üres, akkor az utolsó elemre is beállítja a HashMap-et.
+     * egy adott szó benne van-e a listában.
      */
     public void azonosakTorlese() {
-        // Lista rendezése szavak szerint, majd addig törli az adott szót, amíg előfordul
-        Collections.sort(data,(Sor s1, Sor s2) -> s1.getSzo().compareTo(s2.getSzo()));
+        data.sort((s1, s2) -> s1.getSzo().compareTo(s2.getSzo()));
+        LinkedList<Sor> csatoltLista = new LinkedList<>(data);
+        ListIterator<Sor> it = csatoltLista.listIterator();
         int i = 0;
-        while (i < data.size() - 1) {
-            szavak_indexe.put(data.get(i).getSzo(), i);
+        while (it.hasNext()) {
+            Sor s = it.next();
+            szavak_indexe.put(s.getSzo(), i);
             int db = 1;
-            while (data.get(i).getSzo().equals(data.get(i + 1).getSzo())) {
-                data.remove(i + 1);
-                db++;
-                if (i + 1 == data.size()) {
-                    break;
+            if (it.hasNext()) {
+                Sor s2 = it.next();
+                while(it.hasNext() && s.getSzo().equals(s2.getSzo())) {
+                    it.remove();
+                    db++;
+                    s2 = it.next();
                 }
+                it.previous();
             }
-            data.get(i).setGyak(db);
+            csatoltLista.get(i).setGyak(db);
             i++;
         }
-        /* A lista utolsó szavánál is beállítja az indexes hashmap-et (az lista azonos szavainak törlésénél csak
-           az utolsó előtti elemig mentünk el) */
-        if (!data.isEmpty()) {
-            szavak_indexe.put(data.get(data.size()-1).getSzo(), data.size()-1);
-        }
+        data.clear();
+        data.addAll(csatoltLista);
     }
-    
     /**
      * Végigmegy a listán és ha a szó "torlendo", akkor törli onnan. Különben ha be volt jelölve az egyszer előforduló
      * szavak megjelenítésének tiltása és egyszer fordul elő a szó, akkor szintén törli a listából.
      */
-    public void listaTorlesek() {       
+    public void listaTorlesek() {
         for (int i = 0; i < data.size(); i++) {
             String szo = data.get(i).getSzo();
-            if (szo.equals("torlendo")) {
-                data.remove(i);
-                i--;
-            } else if (cxbEgyszer.isSelected() && data.get(i).getGyak() == 1) {
-                data.remove(i);
-                i--;
+            if (szo.equals("torlendo") || (cxbEgyszer.isSelected() && data.get(i).getGyak() == 1)) {
+                data.remove(i--);
             }
         }
     }

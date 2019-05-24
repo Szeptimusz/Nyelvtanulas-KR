@@ -13,21 +13,6 @@ public class FoablakControllerTest {
     FoablakController f;
 
     @Test
-    public void testEloFeldolgozas() {
-        // Splittelésben részt vevő karakter többször egymás után
-        assertEquals("Pontok: ", ".",f.eloFeldolgozas(".........."));
-        
-        // Sok felesleges szóköz egy szövegben
-        assertEquals("Szóközök: ", "who get to sleep and",
-            f.eloFeldolgozas("who      get to      sleep and"));
-        
-        // Szóközök és splittelős karakterek vegyesen
-        assertEquals("Vegyes: ", "We .? already.?! know",
-            f.eloFeldolgozas("We ...????    already.??!!!!  know"));
-        
-    }
-
-    @Test
     public void testMegtisztit() {
         /* A szöveg megtisztítása az elején és végén az összes 
            (Windows 1250-es kódtáblában lévő) nem támogatott karaktertől,

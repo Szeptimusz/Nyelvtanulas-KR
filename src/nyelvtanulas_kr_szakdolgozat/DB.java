@@ -175,7 +175,7 @@ public class DB {
      *                        az ehhez kapcsolódó 'szavak' vagy 'tanulandó' együtt alkotja a tábla teljes nevét. 
      */
     public static void tablakatKeszit(String TablaNevEleje) {
-        String createTable = "CREATE TABLE IF NOT EXISTS " + TablaNevEleje + "szavak" + " (szavak VARCHAR(100) NOT NULL PRIMARY KEY,"
+        String createTable = "CREATE TABLE IF NOT EXISTS " + TablaNevEleje + "szavak" + " (szavak VARCHAR(30) NOT NULL UNIQUE,"
                                                                   + "allapot VARCHAR(15) NOT NULL);";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
                 PreparedStatement ps = kapcs.prepareStatement(createTable)) {
@@ -193,7 +193,7 @@ public class DB {
         }
         
         
-        createTable = "CREATE TABLE IF NOT EXISTS " + TablaNevEleje + "tanulando" + " (szavak VARCHAR(100) NOT NULL PRIMARY KEY,"
+        createTable = "CREATE TABLE IF NOT EXISTS " + TablaNevEleje + "tanulando" + " (szavak VARCHAR(30) NOT NULL UNIQUE,"
                        + "mondatok TEXT NOT NULL, kikerdezes_ideje BIGINT NOT NULL, forditas VARCHAR(100) NOT NULL, ANKI INT NOT NULL);";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
                 PreparedStatement ps = kapcs.prepareStatement(createTable)) {
