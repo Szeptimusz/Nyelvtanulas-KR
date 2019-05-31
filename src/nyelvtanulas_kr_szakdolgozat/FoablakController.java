@@ -103,64 +103,60 @@ public class FoablakController implements Initializable {
      * azonos szavak törlése - és így a szógyakoriság számlálása - majd az egyedi szavakat összeveti az adatbázis szavaival és 
      * törli a listából ami már szerepel az adatbázisban. A már szinkronizált lista tartalmát megjeleníti a táblázatban és hozzáadja
      * a táblázathoz a listenert. A tallózásról tájékoztató címkét kiüríti.
+     * @throws java.io.IOException
      */
     @FXML
-    public void futtat() {
+    public void futtat() throws IOException{
         // Ha nem tallózott, és szöveget sem írt be, akkor nem futnak le a metódusok, csak figyelmeztető ablakot nyit meg
         if (txaBevitel.getText().equals("") && fajlUtvonal == null) {
-            figyelmeztet("Figyelem!", "Üres szövegmező! Kérem adjon meg szöveget, vagy használja "
-                + "a Tallózás gombot!");
+            figyelmeztet("Figyelem!", "Üres szövegmező! Kérem adjon meg szöveget,"
+                         + " vagy használja a Tallózás gombot!");
             
-        } else if (cbxForras.getValue() == null){
+        } else if (cbxForras.getValue() == null) {
             figyelmeztet("Figyelem!", "Kérem adja meg a forrásnyelvet is!");
             
         } else {
-            try {
-                // Töltés ablak a feldolgozás alatt
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("Toltes.fxml"));
-                Parent root = loader.load();
-                Scene scene = new Scene(root);
-                Stage ablak = new Stage();
-                ablak.setResizable(false);
-                ablak.initModality(Modality.APPLICATION_MODAL);
-                ablak.setScene(scene);
-                ablak.setTitle("Feldolgozás");
-                ablak.show();
+            // Töltés ablak a feldolgozás alatt
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("Toltes.fxml"));
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            Stage ablak = new Stage();
+            ablak.setResizable(false);
+            ablak.initModality(Modality.APPLICATION_MODAL);
+            ablak.setScene(scene);
+            ablak.setTitle("Feldolgozás");
+            ablak.show();
 
-                // Korábbi listener eltávolítása
-                tblTablazat.getSelectionModel().selectedItemProperty().removeListener(listener);
-                // Korábbi HashMap beállítások törlése.
-                szavak_indexe.clear();
-                // Korábbi lista törlése.
-                data.clear();
-                txaMondat.setText("");
-                // A megadott forrásnyelv beállítása (pl: 'Német' -> 'de')
-                forrasNyelvKod = nyelvekKodja.get(cbxForras.getValue());
-                TablaNevEleje = forrasNyelvKod + "_"; 
-                beolvasasFeldolgozas();
-                azonosakTorlese();
-                DB.tablakatKeszit(TablaNevEleje);
-                DB.adatbazistListavalOsszevet(TablaNevEleje + "szavak",data,szavak_indexe);
-                DB.adatbazistListavalOsszevet(TablaNevEleje + "tanulando",data,szavak_indexe);
-                listaTorlesek();
-                // A táblázatban már a gyakoriság szerint jelenjenek meg a szavak
-                data.sort((s1, s2) -> Integer.compare(s2.getGyak(), s1.getGyak()));
-                tblTablazat.setItems(data);
-                // Listener beállítása az adatok táblázatba betöltése után
-                tblTablazat.getSelectionModel().selectedItemProperty().addListener(listener);
-                lblTallozasEredmeny.setText("");
-                
-                ablak.hide();
-                
-                if (data.isEmpty()) {
-                    figyelmeztet("Figyelem!", "A nem megfelelő karakterek eltávolítása és az adatbázis szinkronizálás után nem "
-                            + "maradt megjeleníthető eredmény!");
-                } else {
-                    tajekoztat("Kész!", "Az adatok feldolgozása befejeződött!");  
-                }
-            } catch (IOException e) {
-                hiba("Hiba!",e.getMessage());
-            }
+            // Korábbi listener eltávolítása
+            tblTablazat.getSelectionModel().selectedItemProperty().removeListener(listener);
+            // Korábbi HashMap beállítások törlése.
+            szavak_indexe.clear();
+            // Korábbi lista törlése.
+            data.clear();
+            txaMondat.setText("");
+            // A megadott forrásnyelv beállítása (pl: 'Német' -> 'de')
+            forrasNyelvKod = nyelvekKodja.get(cbxForras.getValue());
+            TablaNevEleje = forrasNyelvKod + "_"; 
+            beolvasasFeldolgozas();
+            azonosakTorlese();
+            DB.tablakatKeszit(TablaNevEleje);
+            DB.adatbazistListavalOsszevet(TablaNevEleje + "szavak",data,szavak_indexe);
+            DB.adatbazistListavalOsszevet(TablaNevEleje + "tanulando",data,szavak_indexe);
+            listaTorlesek();
+            // A táblázatban már a gyakoriság szerint jelenjenek meg a szavak
+            data.sort((s1, s2) -> Integer.compare(s2.getGyak(), s1.getGyak()));
+            tblTablazat.setItems(data);
+            // Listener beállítása az adatok táblázatba betöltése után
+            tblTablazat.getSelectionModel().selectedItemProperty().addListener(listener);
+            lblTallozasEredmeny.setText("");
+
+            ablak.hide();
+
+            if (data.isEmpty())
+                figyelmeztet("Figyelem!", "A nem megfelelő karakterek eltávolítása és az adatbázis szinkronizálás után nem "
+                        + "maradt megjeleníthető eredmény!");
+            else
+                tajekoztat("Kész!", "Az adatok feldolgozása befejeződött!");  
         }
     }
 
@@ -172,49 +168,42 @@ public class FoablakController implements Initializable {
      * szövegmező között, a fájlútvonalat null-ra állítja.
      * Ha nem lett megadva fájlútvonal akkor a szövegterületről olvassa ki a szöveget, eltávolítja a tabulátorokat és az új sorokat,
      * majd meghívja a kapott Stringgel az előfeldolgozást és a feldolgozást.
+     * @throws java.io.IOException
      */
-    public void beolvasasFeldolgozas() {
-        String eredetiSzoveg = "";
+    public void beolvasasFeldolgozas() throws IOException{
         if (fajlUtvonal != null) {
-            try {
-                eredetiSzoveg = new String(Files.readAllBytes(Paths.get(fajlUtvonal)), "Cp1250").replaceAll("\t|\n|\r|\\  ", "");
-                feldolgozas(eredetiSzoveg);
-                fajlUtvonal = null;
-            } catch (IOException e) {
-                hiba("Hiba!",e.getMessage());
-            }
+            feldolgozas(new String(Files.readAllBytes(Paths.get(fajlUtvonal)),"Cp1250")
+                        .replaceAll("\t|\n|\r|\\  ", ""));
+            fajlUtvonal = null;
         } else {
-            // A szövegdobozos szövegből kiszedjük a tabulátorokat és az új sorokat
-            eredetiSzoveg = txaBevitel.getText().replaceAll("\t|\n|\\  ", "");
-            feldolgozas(eredetiSzoveg);
+            feldolgozas(txaBevitel.getText().replaceAll("\t|\n|\\  ", ""));
         }
     }
    
     /**
      * A kapott szöveget "." "?" "!" és ezek szóközzel ellátott verziói alapján splitteli a mondatok tömbbe, majd a mondatok tömböt
-     * " " ", " és "," alapján splitteli a szavak tömbbe. Ha a szó legalább 2 karakter akkor megtisztítja a nem megfelelő karakterektől elölről és hátulról, ha ezek után 
+     * " " ", " ";" "—" és "," alapján splitteli a szavak tömbbe. Ha a szó legalább 2 karakter akkor megtisztítja a nem megfelelő karakterektől elölről és hátulról, ha ezek után 
      * legalább 2 de maximum 30 karakter hosszú akkor kisbetűssé alakítva a szintén megtisztított mondattal együtt -Sor típusú objektumként-
      * hozzáadja a listához.
      * @param szoveg A feldolgozandó szöveg
      */
     public void feldolgozas(String szoveg) {
-        // A szöveg szétvágása "." "?" "!" szerint, plusz azok az esetek amikor szóköz van utánuk
+        // A szöveg szétvágása mondatokká
         String mondatok [] = szoveg.split("\\. |\\.|\\? |\\?|\\! |\\!");
         for (String mondat : mondatok) {
-            // Mondat szétvágása szavakká szóköz vagy vessző szerint
+            // Mondat szétvágása szavakká
             String[] szok = mondat.split(" |\\, |\\,|\\; |\\;|\\—");
             for (String szo : szok) {
                 // Mozaikszavaknál, rövidítéseknél sok pont lehet közel egymáshoz, ilyenkor mindegyiket külön mondatnak
                 // veszi és 0, 1 karakter hosszú töredékek keletkeznek mint szó. Ilyen esetekben a szót figyelmen kívül hagyjuk
-                if (szo.length() < 2) { 
-                    continue;
-                }
+                if (szo.length() < 2) continue;
+                
                 String megtisztitottSzo = megtisztit(szo);
                 // Ha még a megtisztítás után is több mint 30 karakter a szó, akkor valószínűleg a belsejében van sok nem megfelelő
                 // karakter, ezért nem dolgozzuk fel. Illetve ha 2-nél kevesebb karakterből áll.
-                if (megtisztitottSzo.length() > 30 || megtisztitottSzo.length() < 2){
-                    continue;
-                }
+                int szoHossza = megtisztitottSzo.length();
+                if (szoHossza > 30 || szoHossza < 2) continue;
+        
                 data.add(new Sor(megtisztitottSzo.toLowerCase(), megtisztit(mondat), 1));
             }
         }
@@ -227,28 +216,31 @@ public class FoablakController implements Initializable {
      * @return Visszadja a megtisztított szöveget
      */
     public String megtisztit(String szoveg) {
-        // Szó elejének megtisztítása az első szöveges karakterig
         int eleje = 0;
         int vege = szoveg.length()-1;
-        while (szoveg.charAt(eleje) < 'A' 
-                || (szoveg.charAt(eleje) > 'z' && szoveg.charAt(eleje) < 193) 
-                || (szoveg.charAt(eleje) > 'Z' && szoveg.charAt(eleje) < 'a') 
-                || szoveg.charAt(eleje) > 382) {
-            if (eleje == szoveg.length()-1) {
-                return "";
-            }
+        
+        // Szó elejének megtisztítása az első szöveges karakterig
+        char karakter = szoveg.charAt(eleje);
+        while (karakter < 'A' 
+                || (karakter > 'z' && karakter < 193) 
+                || (karakter > 'Z' && karakter < 'a') 
+                || karakter > 382) {
+            if (eleje == szoveg.length()-1) return "";
+            
             eleje++;
+            karakter = szoveg.charAt(eleje);
         }
         
         // Különben ha nem fogyott el a szó, akkor a szó végéről indulva is megtisztítja
-        while (szoveg.charAt(vege) < 'A' 
-                || (szoveg.charAt(vege) > 'z' && szoveg.charAt(vege) < 193) 
-                || (szoveg.charAt(vege) > 'Z' && szoveg.charAt(vege) < 'a') 
-                || szoveg.charAt(vege) > 382) {
-            if (vege == 0) {
-                return "";
-            }    
+        karakter = szoveg.charAt(vege);
+        while (karakter < 'A' 
+                || (karakter > 'z' && karakter < 193) 
+                || (karakter > 'Z' && karakter < 'a') 
+                || karakter > 382) {
+            if (vege == 0) return "";
+            
             vege--;
+            karakter = szoveg.charAt(vege);
         }
         return szoveg.substring(eleje, vege + 1);
     }
@@ -284,6 +276,7 @@ public class FoablakController implements Initializable {
         data.clear();
         data.addAll(csatoltLista);
     }
+    
     /**
      * Végigmegy a listán és ha a szó "torlendo", akkor törli onnan. Különben ha be volt jelölve az egyszer előforduló
      * szavak megjelenítésének tiltása és egyszer fordul elő a szó, akkor szintén törli a listából.
@@ -303,30 +296,29 @@ public class FoablakController implements Initializable {
      */
     @FXML
     public void ignoralMent() {
-        if (data.isEmpty()) {
-            figyelmeztet("Figyelem!", "Nem történt adatfeldolgozás, kérem adjon meg bemenő adatot"
-                    + " és válassza az 'Adatok feldolgozása' gombot!");
-        } else {
-            String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
-            DB.szotBeirAdatbazisba(TablaNevEleje + "szavak",szo, "ignoralt");
-            letiltLeptet(TablaNevEleje + "szavak");
+        if (!ellenoriz().isEmpty()) {
+            figyelmeztet("Figyelem!", ellenoriz());
+            return;
         }
-    }
+        String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
+        DB.szotBeirAdatbazisba(TablaNevEleje + "szavak",szo, "ignoralt");
+        letiltLeptet(TablaNevEleje + "szavak");
 
+    }
+   
     /**
      * Ha a feldolgozás után a lista nem üres, akkor a táblázatban kijelölt sor szavát a gomb megnyomása 
      * után elmenti a szavak táblába ismert állapottal, majd letiltja a sorhoz tartozó gombokat és léptet a táblázatban.
      */
     @FXML
     public void ismertMent() {
-        if (data.isEmpty()) {
-            figyelmeztet("Figyelem!", "Nem történt adatfeldolgozás, kérem adjon meg bemenő adatot"
-                    + " és válassza az 'Adatok feldolgozása' gombot!");
-        } else {
-            String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
-            DB.szotBeirAdatbazisba(TablaNevEleje + "szavak",szo, "ismert");
-            letiltLeptet(TablaNevEleje + "szavak");
+        if (!ellenoriz().isEmpty()) {
+            figyelmeztet("Figyelem!", ellenoriz());
+            return;
         }
+        String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
+        DB.szotBeirAdatbazisba(TablaNevEleje + "szavak",szo, "ismert");
+        letiltLeptet(TablaNevEleje + "szavak");
     }
 
     /**
@@ -337,20 +329,29 @@ public class FoablakController implements Initializable {
      */
     @FXML
     public void tanulandoMent() throws Exception{
-        if (data.isEmpty()) {
-            figyelmeztet("Figyelem!", "Nem történt adatfeldolgozás, kérem adjon meg bemenő adatot"
-                    + " és válassza az 'Adatok feldolgozása' gombot!");
-        } else {
-            String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
-            String mondat = tblTablazat.getSelectionModel().getSelectedItem().getMondat();
-            // Új ablakot nyit meg és átadja neki a kijelölt sor szavát, mondatát és a forrásnyelv kódját.
-            ablakotNyit("Forditas.fxml", "Fordítás hozzáadása, feltöltés adatbázisba", szo, mondat);
-            if (ForditasController.isTanulandoElmentve()) {
-                letiltLeptet(TablaNevEleje + "tanulando");
-                // Miután elmentette és léptetett a táblázatban, visszaállítja a ForditasController osztályban false-ra
-                ForditasController.setTanulandoElmentve(false);
-            }
+        if (!ellenoriz().isEmpty()) {
+            figyelmeztet("Figyelem!", ellenoriz());
+            return;
         }
+        
+        String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
+        String mondat = tblTablazat.getSelectionModel().getSelectedItem().getMondat();
+        
+        ablakotNyit("Forditas.fxml", "Fordítás hozzáadása, feltöltés adatbázisba", szo, mondat);
+        if (ForditasController.isTanulandoElmentve()) {
+            letiltLeptet(TablaNevEleje + "tanulando");
+            // Miután elmentette és léptetett a táblázatban, visszaállítja a ForditasController osztályban false-ra
+            ForditasController.setTanulandoElmentve(false);
+        }
+    }
+    
+    /**
+     * Ellenőrzi, hogy a listában vannak-e elemek
+     * @return Ha üres a lista, akkor üzenetet ad vissza, különben üres Stringet
+     */
+    public String ellenoriz() {
+        return data.isEmpty() ? "Nem történt adatfeldolgozás, kérem adjon meg bemenő adatot"
+                    + " és válassza az 'Adatok feldolgozása' gombot!" : "";
     }
     
     /**
@@ -361,8 +362,9 @@ public class FoablakController implements Initializable {
      * @param tabla A tábla, ahova az adatbázisban a szó el lett mentve
      */
     public void letiltLeptet(String tabla) {
-        tblTablazat.getSelectionModel().getSelectedItem().setTilt(true);
-        tblTablazat.getSelectionModel().getSelectedItem().setTabla(tabla);
+        Sor kivalasztottSor = tblTablazat.getSelectionModel().getSelectedItem();
+        kivalasztottSor.setTilt(true);
+        kivalasztottSor.setTabla(tabla);
         int i = tblTablazat.getSelectionModel().getSelectedIndex();
         if (i + 1 < data.size()) {
             tblTablazat.getSelectionModel().select(i+1);
@@ -378,21 +380,21 @@ public class FoablakController implements Initializable {
      */
     @FXML
     public void visszavon() {
-        if (data.isEmpty()) {
-            figyelmeztet("Figyelem!", "Nem történt adatfeldolgozás, kérem adjon meg bemenő adatot"
-                    + " és válassza a 'Adatok feldolgozása' gombot");
+        if (!ellenoriz().isEmpty()) {
+            figyelmeztet("Figyelem!", ellenoriz());
+            return;
+        }
+        String tabla = tblTablazat.getSelectionModel().getSelectedItem().getTabla();
+        if (tabla != null) {
+            Sor kivalasztottSor = tblTablazat.getSelectionModel().getSelectedItem();
+            kivalasztottSor.setTilt(false);
+            btnIsmert.setDisable(false);
+            btnIgnore.setDisable(false);
+            btnTanulando.setDisable(false);
+            DB.szotTorolAdatbazisbol(tabla, kivalasztottSor.getSzo());
+            kivalasztottSor.setTabla(null);
         } else {
-            String tabla = tblTablazat.getSelectionModel().getSelectedItem().getTabla();
-            if (tabla != null) {
-                tblTablazat.getSelectionModel().getSelectedItem().setTilt(false);
-                btnIsmert.setDisable(false);
-                btnIgnore.setDisable(false);
-                btnTanulando.setDisable(false);
-                DB.szotTorolAdatbazisbol(tabla, tblTablazat.getSelectionModel().getSelectedItem().getSzo());
-                tblTablazat.getSelectionModel().getSelectedItem().setTabla(null);
-            } else {
-                figyelmeztet("Figyelem!", "A kijelölt sornál nem történt változás amit vissza kéne vonni!");
-            }
+            figyelmeztet("Figyelem!", "A kijelölt sornál nem történt változás amit vissza kéne vonni!");
         }
     }
 
@@ -500,11 +502,10 @@ public class FoablakController implements Initializable {
             
             // Figyeli, hogy a sor mondata változott-e és azt írja ki a táblázat fölötti szövegterületre
             String mondat = uj.getMondat();
-            if (mondat != null) {
+            if (mondat != null)
                 txaMondat.setText(mondat);
-            } else {
+            else
                 txaMondat.setText("");
-            }
         };
     }
     

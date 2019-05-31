@@ -57,13 +57,11 @@ public class DB {
                     count++;
                     if (count == 1000) {
                         ps.executeBatch();
-                        System.out.println("Adatbázis módosítás sikeres!");
                         count = 0;
                     }
                 }
                 if (count != 0) {
                     ps.executeBatch();
-                    System.out.println("Adatbázis módosítás sikeres!");
                 }
                 kapcs.commit();
                 
@@ -85,8 +83,7 @@ public class DB {
             
                 ps.setString(1, szo);
                 ps.setString(2, allapot);
-                int sorok = ps.executeUpdate();
-                System.out.println(sorok + " sor hozzáadva.");
+                ps.executeUpdate();
                 
         } catch (SQLException e) {
                 hiba("Hiba!",e.getMessage());
@@ -112,8 +109,7 @@ public class DB {
                 ps.setLong(3, System.currentTimeMillis());
                 ps.setString(4, forditas);
                 ps.setInt(5, anki);
-                int sorok = ps.executeUpdate();
-                System.out.println(sorok + " sor hozzáadva.");
+                ps.executeUpdate();
                 
         } catch (SQLException e) {
             hiba("Hiba!",e.getMessage());
@@ -131,8 +127,7 @@ public class DB {
                 PreparedStatement ps = kapcs.prepareStatement(delete)) {
             
                 ps.setString(1, szo);
-                int sorok = ps.executeUpdate();
-                System.out.println(sorok + " sor törölve.");
+                ps.executeUpdate();
                 
         } catch (SQLException e) {
             hiba("Hiba!",e.getMessage());

@@ -54,15 +54,12 @@ public class AnkiController implements Initializable {
                         String szo = eredmeny.getString("szavak");
                         String mondat = eredmeny.getString("mondatok");
                         String forditas = eredmeny.getString("forditas");
-                        if (keszit(szo, mondat, forditas, forrasNyelvKod)) {
+                        if (keszit(szo, mondat, forditas, forrasNyelvKod))
                             szavak.add(szo);
-                        } else {
-                            System.out.println("Hiba történt a kártya készítése során!");
+                        else 
                             hiba("Hiba!","Hiba történt a kártya készítése során!");
-                        }
                     }
                 } catch (SQLException e) {
-                    System.out.println("Nem sikerült az adatbázis-lekérdezés!");
                     hiba("Hiba!",e.getMessage());
                 }
                 // Ha sikeres volt az ANKI kártya készítés, akkor a táblában átírja az ANKI mezőt 0-ról 1-re.
@@ -70,7 +67,6 @@ public class AnkiController implements Initializable {
                     DB.ankitModositAdatbazisban(forrasNyelvKod + "_tanulando",szavak);
                     tajekoztat("Kártya készítés eredmény", 
                         "A kártyák sikeresen elkészítve a(z):  " + forrasNyelvKod + " _ankiimport fájlba!");
-                    System.out.println("ANKI kártya készítés sikeres!");
                 } else {
                     figyelmeztet("Figyelem!", "Nincsen tanulandó szó amiből szókártya készíthető!");
                 }
@@ -92,7 +88,6 @@ public class AnkiController implements Initializable {
      * @return                 Ha sikerült a fájlba írás igazad ad vissza, ha nem akkor false-t.
      */
     public boolean keszit(String szo, String mondat, String forditas, String forrasNyelvKod) {
-        // Kiírás FileOutputStream-mel, mert így megadható az utf-8 kódolás (az ANKI program csak ezt tudja beimportálni)
         try (OutputStreamWriter writer =
              new OutputStreamWriter(new FileOutputStream(forrasNyelvKod + "_ankiimport.txt",true), StandardCharsets.UTF_8)) {
                 // A szó,mondat,lyukasmondat fájlba írása - az ANKI importálási szabályainak megfelelően
@@ -114,7 +109,7 @@ public class AnkiController implements Initializable {
      */
     public String lyukasMondatotKeszit(String szo, String mondat) {
         String lyukasMondat = "";
-        String [] szavak = mondat.toLowerCase().split(" |\\, |\\,");
+        String [] szavak = mondat.toLowerCase().split(" |\\, |\\,|\\; |\\;|\\—");
         for (int i = 0; i < szavak.length; i++) {
             if (szavak[i].equals(szo)) {
                 int szoHossza = szavak[i].length();

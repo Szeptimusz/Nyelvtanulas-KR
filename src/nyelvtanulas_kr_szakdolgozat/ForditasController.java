@@ -99,7 +99,7 @@ public class ForditasController {
         } else {
             // A mondatot a szövegterületről szedi ki, így lehetőség van a hozzáadás előtt szerkeszteni a példamondatot
             String mondat = txaMondat.getText();
-            DB.tanulandotBeirAdatbazisba(forrasNyelvKod + "_" + "tanulando",szo,mondat,forditas,0);
+            DB.tanulandotBeirAdatbazisba(forrasNyelvKod + "_tanulando",szo,mondat,forditas,0);
             tanulandoElmentve = true;
             Window ablak = lblSzo.getScene().getWindow();
             ablak.hide();
