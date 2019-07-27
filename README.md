@@ -1,5 +1,5 @@
 # Nyelvtanulas-KR
-Szakdolgozat - Kremmer Róbert
+Készítette: Kremmer Róbert
 
 Program működésének rövid leírása:
 ------------------------------
@@ -29,3 +29,5 @@ a szó fordítása és az alsó gombokkal értékelni lehet a szó nehézségét
 bizonyos idő után.
 
 A Statisztika menüpontnál meg lehet nézni az adott nyelvre vonatkozóan az adatbázisban tárolt különböző állapotú (ismert,figyelmen kívül hagyott, tanulandó) szavak számát.
+
+Részletesebb leírás a mellékelt Felhasználói dokumentációban olvasható

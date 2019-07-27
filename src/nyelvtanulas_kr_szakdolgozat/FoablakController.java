@@ -45,6 +45,7 @@ public class FoablakController implements Initializable {
     static String fajlUtvonal;
     static String TablaNevEleje;
     static String forrasNyelvKod;
+    static String mappaUtvonal = System.getProperty("user.dir");
     static HashMap<String, Integer> szavak_indexe = new HashMap<>();
     static HashMap<String, String> nyelvekKodja = new HashMap<>();
     private final ObservableList<Sor> data = FXCollections.observableArrayList();
@@ -78,17 +79,22 @@ public class FoablakController implements Initializable {
 
     /**
      * A Tallózás-gomb megnyomása után felugró ablakból kiválasztható a beolvasandó fájl.
+     * Alapesetben a program mappájából lehet tallózni, de utána már megjegyzi az utolsó használt mappát.
      * A művelet sikerességéről a gomb melletti címkében üzenet jelenik meg és a szövegbeviteli
      * mezőt üresre állítja.
      */
     @FXML
     public void talloz() {
         FileChooser fc = new FileChooser();
+        File hasznaltMappa = new File(mappaUtvonal);
+        fc.setInitialDirectory(hasznaltMappa);
         File selectedFile = fc.showOpenDialog(null);
+        
         if (selectedFile != null) {
             fajlUtvonal = selectedFile.getAbsolutePath();
             txaBevitel.setText("");
             lblTallozasEredmeny.setText("Tallózás sikeres!");
+            mappaUtvonal = fajlUtvonal.substring(0, fajlUtvonal.lastIndexOf('\\') + 1);
         } else {
             lblTallozasEredmeny.setText("Sikertelen tallózás!");
         }
@@ -254,6 +260,7 @@ public class FoablakController implements Initializable {
      */
     public void azonosakTorlese() {
         data.sort((s1, s2) -> s1.getSzo().compareTo(s2.getSzo()));
+        data.add(new Sor("", "", 1));
         LinkedList<Sor> csatoltLista = new LinkedList<>(data);
         ListIterator<Sor> it = csatoltLista.listIterator();
         int i = 0;
@@ -275,6 +282,7 @@ public class FoablakController implements Initializable {
         }
         data.clear();
         data.addAll(csatoltLista);
+        data.remove(data.size()-1);
     }
     
     /**

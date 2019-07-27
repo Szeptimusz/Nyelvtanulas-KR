@@ -30,6 +30,8 @@ public class DB {
         adatbazisUtvonal = "jdbc:sqlite:" + utvonal + adatbazisNeve;
  
         try (Connection conn = DriverManager.getConnection(adatbazisUtvonal)) {
+            // Ha nem létezik ilyen adatbázis, akkor a kapcsolódási kísérlet 
+            // automatikusan létrehozza
             
         } catch (SQLException e) {
             hiba("hiba",e.getMessage());
