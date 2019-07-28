@@ -9,7 +9,8 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 
 /**
- *
+ * A statisztika ablakot kezelő osztály. Megjeleníti az adott nyelv tábláiban 
+ * tárolt szavak számát különböző szempontok alapján.
  * @author Kremmer Róbert
  */
 public class StatisztikaController implements Initializable {
@@ -22,14 +23,21 @@ public class StatisztikaController implements Initializable {
     @FXML
     private Label lblIgnoraltakSzama;
     @FXML
-    private Label lblGorgetettekSzama;
-    @FXML
     private Label lblTanulandoOsszes;
     @FXML
     private Label lblImportaltTanulando;
     @FXML
     private Label lblNemImportaltTanulando;
+    @FXML
+    private Label lblOsszes;
    
+    /**
+     * Beállítja a legördülő lista nyelveit és tárolja azok kódját.
+     * A legördülő listához rendelt listener figyeli a kiválasztott nyelvet és mindig az aktuálisan
+     * kiválasztott nyelv tábláinak adatait jeleníti meg az ablak címkéiben. A címkékben megjelenített adatok:
+     * az összes szó mennyisége, az ismert szavak száma, a figyelmen kívül hagyott szavak száma, az összes tanulandó
+     * szó mennyisége, az importált tanulandó szavak száma és a nem importált tanulandó szavak száma.
+     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // Legördülő lista nyelveinek beállítása
@@ -39,13 +47,15 @@ public class StatisztikaController implements Initializable {
         cbxNyelvek.getSelectionModel().selectedItemProperty().addListener(
             (v, regi, uj) -> {
                 String nyelvKodja = nyelvekKodja.get(uj);
-                lblIsmertekSzama.setText("" + DB.statisztikatLekerdez(nyelvKodja + "_szavak","ismert"));
-                lblIgnoraltakSzama.setText("" + DB.statisztikatLekerdez(nyelvKodja + "_szavak","ignoralt"));
-                lblGorgetettekSzama.setText("" + DB.statisztikatLekerdez(nyelvKodja + "_szavak","gorgetett"));
-                
+
+                int ismert = DB.statisztikatLekerdez(nyelvKodja + "_szavak","ismert");
+                int ignoralt = DB.statisztikatLekerdez(nyelvKodja + "_szavak","ignoralt");
                 int importalt = DB.statisztikatTanulandobolLekerdez(nyelvKodja + "_tanulando",1);
                 int nemImportalt = DB.statisztikatTanulandobolLekerdez(nyelvKodja + "_tanulando",0);
                 
+                lblOsszes.setText((ismert + ignoralt + importalt + nemImportalt) + "");
+                lblIsmertekSzama.setText(ismert + "");
+                lblIgnoraltakSzama.setText(ignoralt + "");
                 lblTanulandoOsszes.setText((importalt + nemImportalt) + "");
                 lblImportaltTanulando.setText(importalt + "");
                 lblNemImportaltTanulando.setText(nemImportalt + "");

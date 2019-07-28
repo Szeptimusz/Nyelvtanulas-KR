@@ -1,12 +1,13 @@
 package nyelvtanulas_kr_szakdolgozat;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.ListIterator;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -30,25 +31,25 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import static panel.Panel.figyelmeztet;
 import static panel.Panel.hiba;
+import static panel.Panel.igennem;
 import static panel.Panel.tajekoztat;
 
 /**
- *
+ * A program indításakor megjelenő ablakot kezelő osztály. Itt történik meg az adatok bevitele, feldolgozása,
+ * táblázatban való megjelenítése, majd lehetőség szerint azok adatbázisba mentése. Ebből az
+ * ablakből lehet megnyitni a program többi ablakát (menüpontok vagy gomb által).
  * @author Kremmer Róbert
  */
 public class FoablakController implements Initializable {
 
-    static String adatbazisUtvonal = "jdbc:sqlite:";
-    static String minden = "";
     static String fajlUtvonal;
     static String TablaNevEleje;
     static String forrasNyelvKod;
+    static String mappaUtvonal = System.getProperty("user.dir");
     static HashMap<String, Integer> szavak_indexe = new HashMap<>();
     static HashMap<String, String> nyelvekKodja = new HashMap<>();
     private final ObservableList<Sor> data = FXCollections.observableArrayList();
     
-    @FXML
-    private Button btnChooser;
     @FXML
     private TextArea txaBevitel;
     @FXML
@@ -56,15 +57,11 @@ public class FoablakController implements Initializable {
     @FXML
     private CheckBox cxbEgyszer;
     @FXML
-    private Button btnFuttat;
-    @FXML
     private Button btnIsmert;
     @FXML
     private Button btnTanulando;
     @FXML
     private Button btnIgnore;
-    @FXML
-    private Button btnVisszavon;
     @FXML
     private Label lblTallozasEredmeny;
     @FXML
@@ -80,349 +77,366 @@ public class FoablakController implements Initializable {
     
     private ChangeListener<Sor> listener;
 
-    @FXML
-    void futtat() {
-        // Ha nem tallózott, és szöveget sem írt be, akkor nem futnak le a metódusok, csak figyelmeztető ablakot nyit meg
-        if (txaBevitel.getText().equals("") && fajlUtvonal == null) {
-            figyelmeztet("Figyelem!", "Üres szövegmező! Kérem adjon meg szöveget, vagy használja "
-                + "a Tallózás gombot!");
-            
-        } else if (cbxForras.getValue() == null){
-            figyelmeztet("Figyelem!", "Kérem adja meg a forrásnyelvet is!");
-            
-        } else {
-            try {
-                // Töltés ablak a feldolgozás alatt
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("Toltes.fxml"));
-                Parent root = loader.load();
-                Scene scene = new Scene(root);
-                Stage ablak = new Stage();
-                ablak.setResizable(false);
-                ablak.initModality(Modality.APPLICATION_MODAL);
-                ablak.setScene(scene);
-                ablak.setTitle("Feldolgozás");
-                ablak.show();
-
-                // Korábbi listener eltávolítása
-                tblTablazat.getSelectionModel().selectedItemProperty().removeListener(listener);
-                // Korábbi HashMap beállítások törlése.
-                szavak_indexe.clear();
-                // Korábbi lista törlése.
-                data.clear();
-                // A megadott forrásnyelv beállítása (pl: 'Német' -> 'de')
-                forrasNyelvKod = nyelvekKodja.get(cbxForras.getValue());
-                TablaNevEleje = forrasNyelvKod + "_";
-                beolvasas();
-                eloFeldolgozas();
-                feldolgozas();
-                azonosakTorlese();
-                DB.tablakatKeszit(TablaNevEleje);
-                DB.adatbazistListavalOsszevet(TablaNevEleje + "szavak",data,szavak_indexe, "ismertignoralt");
-                DB.adatbazistListavalOsszevet(TablaNevEleje + "tanulando",data,szavak_indexe, "tanulando");
-                // Ha be lett pipálva a checkbox
-                if (cxbEgyszer.isSelected()) {
-                    DB.adatbazistListavalOsszevet(TablaNevEleje + "szavak",data,szavak_indexe, "gorgetett");
-                }
-                listaTorlesek();
-                tblTablazat.setItems(data);
-                // Listener beállítása az adatok táblázatba betöltése után
-                tblTablazat.getSelectionModel().selectedItemProperty().addListener(listener);
-                lblTallozasEredmeny.setText("");
-
-                ablak.hide();
-                tajekoztat("Kész!", "Az adatok feldolgozása befejeződött!");
-            } catch (IOException e) {
-                hiba("Hiba!",e.getMessage());
-            }
-        }
-    }
-
     /**
      * A Tallózás-gomb megnyomása után felugró ablakból kiválasztható a beolvasandó fájl.
+     * Alapesetben a program mappájából lehet tallózni, de utána már megjegyzi az utolsó használt mappát.
+     * A művelet sikerességéről a gomb melletti címkében üzenet jelenik meg és a szövegbeviteli
+     * mezőt üresre állítja.
      */
     @FXML
-    void talloz() {
+    public void talloz() {
         FileChooser fc = new FileChooser();
+        File hasznaltMappa = new File(mappaUtvonal);
+        fc.setInitialDirectory(hasznaltMappa);
         File selectedFile = fc.showOpenDialog(null);
+        
         if (selectedFile != null) {
             fajlUtvonal = selectedFile.getAbsolutePath();
             txaBevitel.setText("");
             lblTallozasEredmeny.setText("Tallózás sikeres!");
+            mappaUtvonal = fajlUtvonal.substring(0, fajlUtvonal.lastIndexOf('\\') + 1);
         } else {
             lblTallozasEredmeny.setText("Sikertelen tallózás!");
         }
     }
     
     /**
-     * Adatok beolvasása a betallózott fájlból vagy a szövegterületből. Az egész szöveget egyszerre olvassa be.
+     * Az 'Adatok feldolgozása'-gomb megnyomásakor lefutó metódus. Csak akkor kezdődik meg
+     * a bevitt adatok feldolgozása, ha tallózással, vagy a szövegbeviteli mezót használva meg lett adva bemenő adat, illetve
+     * ha lett kiválasztva forrás nyelv a legördülő listából. A feldolgozás előtt a szavakat tároló lista és a szavak indexét tároló
+     * HashMap tartalmát törli, a mondatok szövegmezőt üresre állítja és a táblázathoz rendelt listenert eltávolítja. Beállítja az
+     * adott nyelvhez tartozó kódot, ami alapján az egyedi nevű táblákat létre is hozza az adatbázisban. Lefut az előfeldolgozás, a feldolgozás, az
+     * azonos szavak törlése - és így a szógyakoriság számlálása - majd az egyedi szavakat összeveti az adatbázis szavaival és 
+     * törli a listából ami már szerepel az adatbázisban. A már szinkronizált lista tartalmát megjeleníti a táblázatban és hozzáadja
+     * a táblázathoz a listenert. A tallózásról tájékoztató címkét kiüríti.
+     * @throws java.io.IOException
      */
-    public void beolvasas() {
-        if (fajlUtvonal != null) {
-            File f = new File(fajlUtvonal);
-            try (FileInputStream fis = new FileInputStream(f);){
-                byte[] adat = new byte[(int) f.length()];
-                fis.read(adat);
-                minden = new String(adat, "Cp1250");
-                minden = minden.replaceAll("\t|\n|\r", "");
-                /* Ha egyszer lefuttatuk tallózott fájllal, kiszedjük a fájltnevet, hogy újra dönteni lehessen 
-                   a tallózás-szövegdoboz között különben a korábban tallózott fájlnév megmarad és így nem lehet
-                   használni a szövegmezőt.*/
-                fajlUtvonal = null;
-            } catch (IOException e) {
-                hiba("Hiba!",e.getMessage());
-            }
+    @FXML
+    public void futtat() throws IOException{
+        // Ha nem tallózott, és szöveget sem írt be, akkor nem futnak le a metódusok, csak figyelmeztető ablakot nyit meg
+        if (txaBevitel.getText().equals("") && fajlUtvonal == null) {
+            figyelmeztet("Figyelem!", "Üres szövegmező! Kérem adjon meg szöveget,"
+                         + " vagy használja a Tallózás gombot!");
+            
+        } else if (cbxForras.getValue() == null) {
+            figyelmeztet("Figyelem!", "Kérem adja meg a forrásnyelvet is!");
+            
         } else {
-            // A szövegdobozos szövegből kiszedjük a tabulátorokat és az új sorokat
-            minden = txaBevitel.getText().replaceAll("\t|\n", "");
+            // Töltés ablak a feldolgozás alatt
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("Toltes.fxml"));
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            Stage ablak = new Stage();
+            ablak.setResizable(false);
+            ablak.initModality(Modality.APPLICATION_MODAL);
+            ablak.setScene(scene);
+            ablak.setTitle("Feldolgozás");
+            ablak.show();
+
+            // Korábbi listener eltávolítása
+            tblTablazat.getSelectionModel().selectedItemProperty().removeListener(listener);
+            // Korábbi HashMap beállítások törlése.
+            szavak_indexe.clear();
+            // Korábbi lista törlése.
+            data.clear();
+            txaMondat.setText("");
+            // A megadott forrásnyelv beállítása (pl: 'Német' -> 'de')
+            forrasNyelvKod = nyelvekKodja.get(cbxForras.getValue());
+            TablaNevEleje = forrasNyelvKod + "_"; 
+            beolvasasFeldolgozas();
+            azonosakTorlese();
+            DB.tablakatKeszit(TablaNevEleje);
+            DB.adatbazistListavalOsszevet(TablaNevEleje + "szavak",data,szavak_indexe);
+            DB.adatbazistListavalOsszevet(TablaNevEleje + "tanulando",data,szavak_indexe);
+            listaTorlesek();
+            // A táblázatban már a gyakoriság szerint jelenjenek meg a szavak
+            data.sort((s1, s2) -> Integer.compare(s2.getGyak(), s1.getGyak()));
+            tblTablazat.setItems(data);
+            // Listener beállítása az adatok táblázatba betöltése után
+            tblTablazat.getSelectionModel().selectedItemProperty().addListener(listener);
+            lblTallozasEredmeny.setText("");
+
+            ablak.hide();
+
+            if (data.isEmpty())
+                figyelmeztet("Figyelem!", "A nem megfelelő karakterek eltávolítása és az adatbázis szinkronizálás után nem "
+                        + "maradt megjeleníthető eredmény!");
+            else
+                tajekoztat("Kész!", "Az adatok feldolgozása befejeződött!");  
         }
     }
 
-    /**
-     * A feldolgozás() metódus előtt szükséges azokat az egymás után többször előforduló karaktereket törölni, amik alapján majd a 
-    splittelés történik ("." "?" "!").
-    Végigmegy a teljes szövegen karakterenként, ha a karakter ".?!" , akkor ha a következő karakter is
-    ugyanolyan, addig törli a következőket amíg nem talál egy más karaktert. Azzal, hogy csak ezt a 3 karaktert nézi
-     a példamondatok jobban hasonlítanak az eredeti szövegben lévő mondatra.
-     */
-    public void eloFeldolgozas() {
-        StringBuilder sb = new StringBuilder(minden);
-        for (int i = 0; i < sb.length()-1; i++) {
-            char c = sb.charAt(i);
-            if (c == '.' || c == '?' || c == '!' || c == ' ') {
-                while (c == sb.charAt(i + 1)) {
-                    sb.deleteCharAt(i + 1);
-                    // Ha az index kimenne a szövegből akkor megállítjuk
-                    if (i + 1 == sb.length()) {
-                        break;
-                    }
-                }
-            }
-        }
-        minden = sb.toString();
-    } 
     
     /**
-     * A beolvasott sorokat .?!-szerint mondatokká, azokat szóköz és vessző szerint szavakká vágva tárolja tömbben. A karakterkezelések 
-     * után Sor típusú objektumként hozzáadja a megfigyelhető listához.
+     * Ha lett megadva tallózással fájlútvonal, akkor egyben beolvassa a fájlból az adatokat a Cp1250-es kódtábla alapján, majd
+     * beleteszi egy Stringbe. Eltávolítja belőle a tabulátorokat az új sorokat és a felesleges szóközöket, majd az eredménnyel meghívja a feldolgozást.
+     * Végül azért, hogy a következő futtatás előtt is dönteni lehessen a tallózás-
+     * szövegmező között, a fájlútvonalat null-ra állítja.
+     * Ha nem lett megadva fájlútvonal akkor a szövegterületről olvassa ki a szöveget, eltávolítja a tabulátorokat és az új sorokat,
+     * majd meghívja a kapott Stringgel az előfeldolgozást és a feldolgozást.
+     * @throws java.io.IOException
      */
-    public void feldolgozas() {
-        // A szöveg szétvágása "." "?" "!" szerint, plusz azok az esetek amikor szóköz van utánuk
-        String mondatok [] = minden.split("\\. |\\.|\\? |\\?|\\! |\\!");
-        for (int i = 0; i < mondatok.length; i++) {
-            // Mondat szétvágása szavakká szóköz vagy vessző szerint
-            String[] szok = mondatok[i].split(" |\\, |\\,");
-            for (int j = 0; j < szok.length; j++) {
+    public void beolvasasFeldolgozas() throws IOException{
+        if (fajlUtvonal != null) {
+            feldolgozas(new String(Files.readAllBytes(Paths.get(fajlUtvonal)),"Cp1250")
+                        .replaceAll("\t|\n|\r|\\  ", ""));
+            fajlUtvonal = null;
+        } else {
+            feldolgozas(txaBevitel.getText().replaceAll("\t|\n|\\  ", ""));
+        }
+    }
+   
+    /**
+     * A kapott szöveget "." "?" "!" és ezek szóközzel ellátott verziói alapján splitteli a mondatok tömbbe, majd a mondatok tömböt
+     * " " ", " ";" "—" és "," alapján splitteli a szavak tömbbe. Ha a szó legalább 2 karakter akkor megtisztítja a nem megfelelő karakterektől elölről és hátulról, ha ezek után 
+     * legalább 2 de maximum 30 karakter hosszú akkor kisbetűssé alakítva a szintén megtisztított mondattal együtt -Sor típusú objektumként-
+     * hozzáadja a listához.
+     * @param szoveg A feldolgozandó szöveg
+     */
+    public void feldolgozas(String szoveg) {
+        // A szöveg szétvágása mondatokká
+        String mondatok [] = szoveg.split("\\. |\\.|\\? |\\?|\\! |\\!");
+        for (String mondat : mondatok) {
+            // Mondat szétvágása szavakká
+            String[] szok = mondat.split(" |\\, |\\,|\\; |\\;|\\—");
+            for (String szo : szok) {
                 // Mozaikszavaknál, rövidítéseknél sok pont lehet közel egymáshoz, ilyenkor mindegyiket külön mondatnak
                 // veszi és 0, 1 karakter hosszú töredékek keletkeznek mint szó. Ilyen esetekben a szót figyelmen kívül hagyjuk
-                if (szok[j].length() < 2) {
-                    continue;
-                }
+                if (szo.length() < 2) continue;
                 
-                // Szó elejének megtisztítása az első szöveges karakterig
-                int eleje = 0;
-                int vege = szok[j].length()-1;
-                while (szok[j].charAt(eleje) < 'A' 
-                        || (szok[j].charAt(eleje) > 'z' && szok[j].charAt(eleje) < 193) 
-                        || (szok[j].charAt(eleje) > 'Z' && szok[j].charAt(eleje) < 'a') 
-                        || (szok[j].charAt(eleje) >= '0' && szok[j].charAt(eleje) <= '9') 
-                        || szok[j].charAt(eleje) > 382) {
-                    if (eleje == szok[j].length()-1) {
-                        break;
-                    }
-                    eleje++;
-                }
-                // Ha teljesen elfogyott a szó a tisztítás során akkor nem dolgozza fel
-                if (eleje == szok[j].length()-1) {
-                        continue;
-                } else {
-                // Különben ha nem fogyott el a szó, akkor a szó végéről indulva is megtisztítja
-                    while (szok[j].charAt(vege) < 'A' 
-                            || (szok[j].charAt(vege) > 'z' && szok[j].charAt(vege) < 193) 
-                            || (szok[j].charAt(vege) > 'Z' && szok[j].charAt(vege) < 'a') 
-                            || (szok[j].charAt(vege) >= '0' && szok[j].charAt(vege) <= '9') 
-                            || szok[j].charAt(vege) > 382) {
-                        if (vege == 0) {
-                            break;
-                        }
-                        vege--;
-                    }
-                }
-                // Ha még a levágás után is több mint 30 karakter a szó, akkor valószínűleg a belsejében van sok nem megfelelő
+                String megtisztitottSzo = megtisztit(szo);
+                // Ha még a megtisztítás után is több mint 30 karakter a szó, akkor valószínűleg a belsejében van sok nem megfelelő
                 // karakter, ezért nem dolgozzuk fel. Illetve ha 2-nél kevesebb karakterből áll.
-                szok[j] = szok[j].substring(eleje, vege + 1);
-                if (szok[j].length() > 30 || szok[j].length() < 2) {
-                    continue;
-                }
-                szok[j] = szok[j].toLowerCase();
-                
-                data.add(new Sor(szok[j], mondatok[i], 1));
+                int szoHossza = megtisztitottSzo.length();
+                if (szoHossza > 30 || szoHossza < 2) continue;
+        
+                data.add(new Sor(megtisztitottSzo.toLowerCase(), megtisztit(mondat), 1));
             }
         }
-        // A minden String kiürítése a feldolgozás után, hogy ne foglalja tovább a memóriát
-        minden = "";
     }
 
     /**
-     * Azonos szavak törlése a listából, az így megmaradó egyedi szavak lista-indexének tárolása valamint szógyakoriság számolása.
+     * A kapott szöveg elejét és végét megtisztítja azoktól a karakterektől amik nem a támogatott idegen nyelvek részei.
+     * Ha a tisztítás során minden karakter elfogy, akkor üres String-et ad vissza.
+     * @param szoveg  A megtisztítandó szöveg
+     * @return Visszadja a megtisztított szöveget
+     */
+    public String megtisztit(String szoveg) {
+        int eleje = 0;
+        int vege = szoveg.length()-1;
+        
+        // Szó elejének megtisztítása az első szöveges karakterig
+        char karakter = szoveg.charAt(eleje);
+        while (karakter < 'A' 
+                || (karakter > 'z' && karakter < 193) 
+                || (karakter > 'Z' && karakter < 'a') 
+                || karakter > 382) {
+            if (eleje == szoveg.length()-1) return "";
+            
+            eleje++;
+            karakter = szoveg.charAt(eleje);
+        }
+        
+        // Különben ha nem fogyott el a szó, akkor a szó végéről indulva is megtisztítja
+        karakter = szoveg.charAt(vege);
+        while (karakter < 'A' 
+                || (karakter > 'z' && karakter < 193) 
+                || (karakter > 'Z' && karakter < 'a') 
+                || karakter > 382) {
+            if (vege == 0) return "";
+            
+            vege--;
+            karakter = szoveg.charAt(vege);
+        }
+        return szoveg.substring(eleje, vege + 1);
+    }
+    
+    /**
+     * Beépített rendezéssel rendezi a Sor típusú elemekből álló listát a szavak alapján, így az azonos szavak egymás mellé kerülnek. Majd addig 
+     * törli az azonos szavakat, amíg csak egyetlen példány marad, közben számolja a szavak gyakoriságát. A megmaradó szó gyakoriság 
+     * mezőjének értékére beállítja a törlések során számolt gyakoriságot.
+     * Egy HashMap-ben tárolja az így már egyszer előforduló szóhoz tartozó lista-indexet, így keresés nélkül megállapítható, hogy 
+     * egy adott szó benne van-e a listában.
      */
     public void azonosakTorlese() {
-        // Lista rendezése szavak szerint, majd addig törli az adott szót, amíg előfordul
-        Collections.sort(data,(Sor s1, Sor s2) -> s1.getSzo().compareTo(s2.getSzo()));
+        data.sort((s1, s2) -> s1.getSzo().compareTo(s2.getSzo()));
+        data.add(new Sor("", "", 1));
+        LinkedList<Sor> csatoltLista = new LinkedList<>(data);
+        ListIterator<Sor> it = csatoltLista.listIterator();
         int i = 0;
-        while (i < data.size() - 1) {
-            szavak_indexe.put(data.get(i).getSzo(), i);
+        while (it.hasNext()) {
+            Sor s = it.next();
+            szavak_indexe.put(s.getSzo(), i);
             int db = 1;
-            while (data.get(i).getSzo().equals(data.get(i + 1).getSzo())) {
-                data.remove(i + 1);
-                db++;
-                if (i + 1 == data.size()) {
-                    break;
+            if (it.hasNext()) {
+                Sor s2 = it.next();
+                while(it.hasNext() && s.getSzo().equals(s2.getSzo())) {
+                    it.remove();
+                    db++;
+                    s2 = it.next();
                 }
+                it.previous();
             }
-            data.get(i).setGyak(db);
+            csatoltLista.get(i).setGyak(db);
             i++;
         }
-        /* A lista utolsó szavánál is beállítja az indexes hashmap-et (az lista azonos szavainak törlésénél csak
-           az utolsó előtti elemig mentünk el) */
-        szavak_indexe.put(data.get(data.size()-1).getSzo(), data.size()-1);
+        data.clear();
+        data.addAll(csatoltLista);
+        data.remove(data.size()-1);
     }
     
     /**
      * Végigmegy a listán és ha a szó "torlendo", akkor törli onnan. Különben ha be volt jelölve az egyszer előforduló
-       szavak megjelenítésének tiltása (és így a szavak görgetése) és a szó, csak egyszer fordul elő globálisan,
-       akkor törli a listából és hozzáadja a szavak táblához görgetett állapottal.
+     * szavak megjelenítésének tiltása és egyszer fordul elő a szó, akkor szintén törli a listából.
      */
     public void listaTorlesek() {
-        ArrayList<String> szavak = new ArrayList();
         for (int i = 0; i < data.size(); i++) {
             String szo = data.get(i).getSzo();
-            if (szo.equals("torlendo")) {
-                data.remove(i);
-                i--;
-            } else if (cxbEgyszer.isSelected() && data.get(i).getGyak() == 1) {
-                data.remove(i);
-                i--;
-                szavak.add(szo);
+            if (szo.equals("torlendo") || (cxbEgyszer.isSelected() && data.get(i).getGyak() == 1)) {
+                data.remove(i--);
             }
         }
-        // Egyszer előforduló szavak táblába írása görgetett állapottal
-        if (!szavak.isEmpty()) {
-            DB.gorgetettSzavakatBeirAdatbazisba(szavak,TablaNevEleje + "szavak");
-        }
     }
 
     /**
      * Ha a feldolgozás után a lista nem üres, akkor a táblázatban kijelölt sor szavát a gomb megnyomása 
-     * után elmenti a szavak táblába ignoralt állapottal.
+     * után elmenti a szavak táblába ignoralt állapottal, majd letiltja a sorhoz tartozó gombokat és léptet a táblázatban.
      */
     @FXML
-    void ignoralMent() {
-        if (data.isEmpty()) {
-            figyelmeztet("Figyelem!", "Nem történt adatfeldolgozás, kérem adjon meg bemenő adatot"
-                    + " és válassza az 'Adatok feldolgozása' gombot!");
-        } else {
-            String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
-            DB.szotBeirAdatbazisba(TablaNevEleje + "szavak",szo, "ignoralt");
-            letiltLeptet(TablaNevEleje + "szavak");
+    public void ignoralMent() {
+        if (!ellenoriz().isEmpty()) {
+            figyelmeztet("Figyelem!", ellenoriz());
+            return;
         }
-    }
+        String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
+        DB.szotBeirAdatbazisba(TablaNevEleje + "szavak",szo, "ignoralt");
+        letiltLeptet(TablaNevEleje + "szavak");
 
+    }
+   
     /**
      * Ha a feldolgozás után a lista nem üres, akkor a táblázatban kijelölt sor szavát a gomb megnyomása 
-     * után elmenti a szavak táblába ismert állapottal.
+     * után elmenti a szavak táblába ismert állapottal, majd letiltja a sorhoz tartozó gombokat és léptet a táblázatban.
      */
     @FXML
-    void ismertMent() {
-        if (data.isEmpty()) {
-            figyelmeztet("Figyelem!", "Nem történt adatfeldolgozás, kérem adjon meg bemenő adatot"
-                    + " és válassza az 'Adatok feldolgozása' gombot!");
-        } else {
-            String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
-            DB.szotBeirAdatbazisba(TablaNevEleje + "szavak",szo, "ismert");
-            letiltLeptet(TablaNevEleje + "szavak");
+    public void ismertMent() {
+        if (!ellenoriz().isEmpty()) {
+            figyelmeztet("Figyelem!", ellenoriz());
+            return;
         }
+        String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
+        DB.szotBeirAdatbazisba(TablaNevEleje + "szavak",szo, "ismert");
+        letiltLeptet(TablaNevEleje + "szavak");
     }
 
     /**
      * Ha a feldolgozás után a lista nem üres, akkor a gomb megnyomása után megnyit egy új ablakot és 
-     * átadja neki a szo és mondat String tartalmát.
-     * @throws Exception 
+     * átadja neki a szo és mondat String tartalmát. Ha az új ablakban a tanulandó szó sikeresen el lett mentve,
+     * akkor letiltja a sorhoz tartozó gombokat és léptet a táblázatban.
+     * @throws Exception Hiba esetén kivételt dob
      */
     @FXML
-    void tanulandoMent() throws Exception{
-        if (data.isEmpty()) {
-            figyelmeztet("Figyelem!", "Nem történt adatfeldolgozás, kérem adjon meg bemenő adatot"
-                    + " és válassza az 'Adatok feldolgozása' gombot!");
-        } else {
-            String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
-            String mondat = tblTablazat.getSelectionModel().getSelectedItem().getMondat();
-            // Új ablakot nyit meg és átadja neki a kijelölt sor szavát, mondatát és a forrásnyelv kódját.
-            ablakotNyit("Forditas.fxml", "Fordítás hozzáadása, feltöltés adatbázisba", szo, mondat);
-            if (ForditasController.isTanulandoElmentve()) {
-                letiltLeptet(TablaNevEleje + "tanulando");
-                // Miután elmentette és léptetett a táblázatban, visszaállítja a ForditasController osztályban false-ra
-                ForditasController.setTanulandoElmentve(false);
-            }
+    public void tanulandoMent() throws Exception{
+        if (!ellenoriz().isEmpty()) {
+            figyelmeztet("Figyelem!", ellenoriz());
+            return;
+        }
+        
+        String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
+        String mondat = tblTablazat.getSelectionModel().getSelectedItem().getMondat();
+        
+        ablakotNyit("Forditas.fxml", "Fordítás hozzáadása, feltöltés adatbázisba", szo, mondat);
+        if (ForditasController.isTanulandoElmentve()) {
+            letiltLeptet(TablaNevEleje + "tanulando");
+            // Miután elmentette és léptetett a táblázatban, visszaállítja a ForditasController osztályban false-ra
+            ForditasController.setTanulandoElmentve(false);
         }
     }
     
     /**
-     * Letiltja az adott táblázatbeli sor gombjainak a használatát, tárolja
-     * a tábla nevét ahova a beírás történt és kijelöli a táblázat következő elemét.
-     * @param tabla: A kapott tábla, ahova az adatbázisban a szó el lett mentve
+     * Ellenőrzi, hogy a listában vannak-e elemek
+     * @return Ha üres a lista, akkor üzenetet ad vissza, különben üres Stringet
+     */
+    public String ellenoriz() {
+        return data.isEmpty() ? "Nem történt adatfeldolgozás, kérem adjon meg bemenő adatot"
+                    + " és válassza az 'Adatok feldolgozása' gombot!" : "";
+    }
+    
+    /**
+     * Letiltja az adott táblázatbeli sor 3 gombjának (ismert, tanulandó, ignorált) használatát, tárolja
+     * a tábla nevét ahova a beírás történt és kijelöli a táblázat következő elemét. Ha a táblázat utolsó
+     * eleménél tart, akkor a léptetés visszafelé történik, így az utolsó sor 3 gombja letiltottnak 
+     * fog látszódni kijelöléskor.
+     * @param tabla A tábla, ahova az adatbázisban a szó el lett mentve
      */
     public void letiltLeptet(String tabla) {
-        tblTablazat.getSelectionModel().getSelectedItem().setTilt(true);
-        tblTablazat.getSelectionModel().getSelectedItem().setTabla(tabla);
+        Sor kivalasztottSor = tblTablazat.getSelectionModel().getSelectedItem();
+        kivalasztottSor.setTilt(true);
+        kivalasztottSor.setTabla(tabla);
         int i = tblTablazat.getSelectionModel().getSelectedIndex();
         if (i + 1 < data.size()) {
             tblTablazat.getSelectionModel().select(i+1);
+        } else {
+            tblTablazat.getSelectionModel().select(i-1);
         }
     }
     
     /**
      * A Visszavonás -gombra kattintva (ha a feldolgozás után a lista nem üres és ha volt adatbázisba mentés a 3 gombbal), 
      * a 3 gomb tiltását feloldja, törli a korábban adatbázisba írt szót és visszaállítja a tabla változót null-ra, 
-     * hogy egy sort többször is lehessen módosítani.
+     * hogy később is ellenőrizni lehessen történt-e változás.
      */
     @FXML
-    void visszavon() {
-        if (data.isEmpty()) {
-            figyelmeztet("Figyelem!", "Nem történt adatfeldolgozás, kérem adjon meg bemenő adatot"
-                    + " és válassza a 'Adatok feldolgozása' gombot");
+    public void visszavon() {
+        if (!ellenoriz().isEmpty()) {
+            figyelmeztet("Figyelem!", ellenoriz());
+            return;
+        }
+        String tabla = tblTablazat.getSelectionModel().getSelectedItem().getTabla();
+        if (tabla != null) {
+            Sor kivalasztottSor = tblTablazat.getSelectionModel().getSelectedItem();
+            kivalasztottSor.setTilt(false);
+            btnIsmert.setDisable(false);
+            btnIgnore.setDisable(false);
+            btnTanulando.setDisable(false);
+            DB.szotTorolAdatbazisbol(tabla, kivalasztottSor.getSzo());
+            kivalasztottSor.setTabla(null);
         } else {
-            String tabla = tblTablazat.getSelectionModel().getSelectedItem().getTabla();
-            if (tabla != null) {
-                tblTablazat.getSelectionModel().getSelectedItem().setTilt(false);
-                btnIsmert.setDisable(false);
-                btnIgnore.setDisable(false);
-                btnTanulando.setDisable(false);
-                DB.szotTorolAdatbazisbol(tabla, tblTablazat.getSelectionModel().getSelectedItem().getSzo());
-                tblTablazat.getSelectionModel().getSelectedItem().setTabla(null);
-            } else {
-                figyelmeztet("Figyelem!", "A kijelölt sornál nem történt változás amit vissza kéne vonni!");
-            }
+            figyelmeztet("Figyelem!", "A kijelölt sornál nem történt változás amit vissza kéne vonni!");
         }
     }
 
-    // Új ablakot nyit meg, ahol a nyelv megadása után ANKI-import fájl készíthető.
+    /**
+     * Új ablakot nyit meg, ahol ANKI-import fájl készíthető.
+     */
     @FXML
-    void ankiImportAblak() {
+    public void ankiImportAblak() {
         ablakotNyit("Anki.fxml", "ANKI-import elkészítése", "", "");
     }
     
-    // Külön ablakban megjeleníti az adott nyelvhez tartozó statisztikát
+    /**
+     * Új ablakban megjeleníti az adott nyelvhez tartozó statisztikát
+     */
     @FXML
-    void statisztikaAblak() {
+    public void statisztikaAblak() {
         ablakotNyit("Statisztika.fxml", "Adatbázis-statisztika", "", "");
     }
     
     /**
-     * A kapott fxml fájl alapján új ablakot nyit meg.
-     * @param fxmlFajl:     A kapott fxml fájl
-     * @param ablakCim:     A megnyitott ablak címe
-     * @param szo:          Fordítás ablak esetében a kapott szó
-     * @param mondat        Fordítás ablak esetében a kapott mondat
+     * Új ablakban megjeleníti a szókártya-kikérdezés felületet
+     */
+    @FXML
+    public void kikerdezesAblak() {
+        ablakotNyit("Kikerdezes.fxml","Szavak kikérdezése szókártyákkal","","");
+    }
+    
+    /**
+     * A kapott fxml fájlnév alapján új ablakot nyit meg. Ha a szó paraméter nem üres, akkor a fordítás ablakot
+     * nyitja meg, ekkor az új ablakhoz tartozó controller osztályban beállítja a szó, mondat és forrás nyelv kód mezők értékeit.
+     * @param fxmlFajl     Az fxml fájl neve
+     * @param ablakCim     A megnyitott ablak címe
+     * @param szo          Fordítás ablak esetében a kapott szó
+     * @param mondat       Fordítás ablak esetében a kapott mondat
      */
     private void ablakotNyit(String fxmlFajl, String ablakCim, String szo, String mondat) {
         try {
@@ -448,8 +462,8 @@ public class FoablakController implements Initializable {
     
     /**
      * A kapott comboboxba beállítja a nyelvek teljes nevét, majd hashmap-ben tárolja a hozzá tartozó rövidítést.
-     * @param combobox  A kapott legördülő lista
-     * @param hashmap   A kapott hashmap a teljesnév-rövidítettnév tárolására
+     * @param combobox  A legördülő lista neve
+     * @param hashmap   Hashmap neve
      */
     public static void nyelvekBeallitasa(ComboBox<String> combobox, HashMap<String, String> hashmap) {
         String roviditettNyelv [] = {"en","es","fr","de","it","pt","nl","pl","da","cs","sk","sl"};
@@ -460,12 +474,18 @@ public class FoablakController implements Initializable {
         }
     } 
 
+    /**
+     * A program indulásakor a DB osztály osztályváltozójára beállítja az adatbázis elérési útvonalát, ha nincsen 
+     * adatbázis, akkor előtte létrehozza a projekt mappájába. Beállítja a Főablak legördülő listájának nyelveit.
+     * Megadja, hogy a táblázat egy adott oszlopának értéke a Sor osztály melyik mezőjéből legyen kiszedve. Az ismert-tanulandó-
+     * ignorált gombok letiltásához és a táblázat feletti mondatkiíráshoz definiál egy listenert, amit még nem rendel hozzá semmihez.
+     * 
+     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Adatbázis helye relatív módon megadva
-        String utvonal = new File("").getAbsolutePath();
-        adatbazisUtvonal += utvonal + ("\\nyelvtanulas.db");
-        
+        // Adatbázis elérési útvonalát beállítja, ha nincs adatbázis akkor létrehozza
+        DB.adatbazistKeszit("\\nyelvtanulas.db");
+
         // Legördülő lista nyelveinek beállítása
         nyelvekBeallitasa(cbxForras, nyelvekKodja);
         
@@ -490,27 +510,32 @@ public class FoablakController implements Initializable {
             
             // Figyeli, hogy a sor mondata változott-e és azt írja ki a táblázat fölötti szövegterületre
             String mondat = uj.getMondat();
-            if (mondat != null) {
+            if (mondat != null)
                 txaMondat.setText(mondat);
-            } else {
+            else
                 txaMondat.setText("");
-            }
         };
     }
     
     /**
-     * A menüből a Kilépés-t választva bezárja a programot.
+     * A menüből a Kilépés-t választva megerősítést vár a kilépésre, igen válasz
+     * esetén bezárja a programot.
      */
     @FXML
-    void kilep() {
-        Platform.exit();
+    public void kilep() {
+        if (igennem("Kilépés megerősítés", "Valóban be szeretné zárni a programot?")) {
+            Platform.exit();
+        }
     }
 
     /**
-     * A menüből a Névjegy-et választva információt ad a programról és készítőjéről.
+     * A menüből a Névjegy-et választva új ablakot nyit meg, ahol tájékoztat a program készítőjéről,
+     * a verziószámról és megnyitható böngészőben a fejlesztői dokumentáció osztályokat, metódusokat és függvényeket 
+     * leíró része.
+     * @throws java.lang.Exception Hiba esetén kivételt dob
      */
     @FXML
-    void nevjegy() {
-        tajekoztat("Nyelvtanulás program", "Készítette: Kremmer Róbert");
+    public void nevjegy() throws Exception {
+        ablakotNyit("Nevjegy.fxml", "Nyelvtanulás program","","");
     }
 }

@@ -1,7 +1,8 @@
 package nyelvtanulas_kr_szakdolgozat;
 
 /**
- *
+ * A szavak és a hozzájuk tartozó adatok könnyebb kezelését elősegítő osztály.
+ * Felhasználástól függően kétféle konstruktorral rendelkezik.
  * @author Kremmer Róbert
  */
 public class Sor {
@@ -11,13 +12,15 @@ public class Sor {
     private int gyak;
     private boolean tilt = false;
     private String tabla;
-    
+    private String forditas;
+  
     /**
-     * Az osztály konstruktora, ami meghíváskor beállítja a szót, a mondatot,
+     * A Főablakban a lista feltöltésekor használt konstruktor.
+     * Meghívásakor beállítja a szót, a mondatot,
      * és a szó gyakoriságát.
-     * @param szo:    A kapott szó
-     * @param mondat: A szóhoz tartozó példamondat
-     * @param gyak:   A szó gyakorisága
+     * @param szo    A szó
+     * @param mondat A szóhoz tartozó példamondat
+     * @param gyak   A szó gyakorisága
      */
     public Sor(String szo, String mondat, int gyak) {
         this.szo = szo;
@@ -25,6 +28,20 @@ public class Sor {
         this.gyak = gyak;
     }
 
+    /**
+     * A szavak kikérdezésekor a lekérdezett rekordok feldolgozása során
+     * használt konstruktor. Beállítja a szót, a mondatot és a hozzá tartozó 
+     * fordítást.
+     * @param szo      A szó
+     * @param mondat   A szóhoz tartozó példamondat
+     * @param forditas A szó fordítása
+     */
+    public Sor(String szo, String mondat, String forditas) {
+        this.szo = szo;
+        this.mondat = mondat;
+        this.forditas = forditas;
+    }
+    
     public String getSzo() {
         return szo;
     }
@@ -64,5 +81,13 @@ public class Sor {
     public void setTabla(String tabla) {
         this.tabla = tabla;
     }
-    
+
+    public String getForditas() {
+        return forditas;
+    }
+
+    public void setForditas(String forditas) {
+        this.forditas = forditas;
+    }
+
 }
