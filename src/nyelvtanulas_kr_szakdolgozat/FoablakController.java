@@ -1,5 +1,6 @@
 package nyelvtanulas_kr_szakdolgozat;
 
+import eu.crydee.syllablecounter.SyllableCounter;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -45,6 +46,8 @@ public class FoablakController implements Initializable {
     static String fajlUtvonal;
     static String TablaNevEleje;
     static String forrasNyelvKod;
+    static int eredetiOsszesSzo;
+    static int toroltSzavak;
     static String mappaUtvonal = System.getProperty("user.dir");
     static HashMap<String, Integer> szavak_indexe = new HashMap<>();
     static HashMap<String, String> nyelvekKodja = new HashMap<>();
@@ -64,6 +67,10 @@ public class FoablakController implements Initializable {
     private Button btnIgnore;
     @FXML
     private Label lblTallozasEredmeny;
+    @FXML
+    private Label lblSzazalekIsmert;
+    @FXML
+    private Label lblOlvashatosag;
     @FXML
     private TableView<Sor> tblTablazat;
     @FXML
@@ -108,7 +115,7 @@ public class FoablakController implements Initializable {
      * adott nyelvhez tartozó kódot, ami alapján az egyedi nevű táblákat létre is hozza az adatbázisban. Lefut az előfeldolgozás, a feldolgozás, az
      * azonos szavak törlése - és így a szógyakoriság számlálása - majd az egyedi szavakat összeveti az adatbázis szavaival és 
      * törli a listából ami már szerepel az adatbázisban. A már szinkronizált lista tartalmát megjeleníti a táblázatban és hozzáadja
-     * a táblázathoz a listenert. A tallózásról tájékoztató címkét kiüríti.
+     * a táblázathoz a listenert. A tallózásról tájékoztató címkét kiüríti. Megjeleníti, hogy a szöveg hány százaléka ismert + tanulando + ignoralt szó.
      * @throws java.io.IOException
      */
     @FXML
@@ -140,6 +147,7 @@ public class FoablakController implements Initializable {
             // Korábbi lista törlése.
             data.clear();
             txaMondat.setText("");
+            lblSzazalekIsmert.setText("");
             // A megadott forrásnyelv beállítása (pl: 'Német' -> 'de')
             forrasNyelvKod = nyelvekKodja.get(cbxForras.getValue());
             TablaNevEleje = forrasNyelvKod + "_"; 
@@ -155,6 +163,7 @@ public class FoablakController implements Initializable {
             // Listener beállítása az adatok táblázatba betöltése után
             tblTablazat.getSelectionModel().selectedItemProperty().addListener(listener);
             lblTallozasEredmeny.setText("");
+            lblSzazalekIsmert.setText((int)((double)toroltSzavak / eredetiOsszesSzo * 10000) / 100.0 + " %");
 
             ablak.hide();
 
@@ -190,12 +199,14 @@ public class FoablakController implements Initializable {
      * A kapott szöveget "." "?" "!" és ezek szóközzel ellátott verziói alapján splitteli a mondatok tömbbe, majd a mondatok tömböt
      * " " ", " ";" "—" és "," alapján splitteli a szavak tömbbe. Ha a szó legalább 2 karakter akkor megtisztítja a nem megfelelő karakterektől elölről és hátulról, ha ezek után 
      * legalább 2 de maximum 30 karakter hosszú akkor kisbetűssé alakítva a szintén megtisztított mondattal együtt -Sor típusú objektumként-
-     * hozzáadja a listához.
+     * hozzáadja a listához. A Flesch-Kincaid képlet alapján kiszámítja a szöveg olvahatósági indexét és kiírja címkébe.
      * @param szoveg A feldolgozandó szöveg
      */
     public void feldolgozas(String szoveg) {
+        int szotagokSzama = 0;
         // A szöveg szétvágása mondatokká
         String mondatok [] = szoveg.split("\\. |\\.|\\? |\\?|\\! |\\!");
+        SyllableCounter sc = new SyllableCounter();
         for (String mondat : mondatok) {
             // Mondat szétvágása szavakká
             String[] szok = mondat.split(" |\\, |\\,|\\; |\\;|\\—");
@@ -203,6 +214,8 @@ public class FoablakController implements Initializable {
                 // Mozaikszavaknál, rövidítéseknél sok pont lehet közel egymáshoz, ilyenkor mindegyiket külön mondatnak
                 // veszi és 0, 1 karakter hosszú töredékek keletkeznek mint szó. Ilyen esetekben a szót figyelmen kívül hagyjuk
                 if (szo.length() < 2) continue;
+
+                szotagokSzama += sc.count(szo);
                 
                 String megtisztitottSzo = megtisztit(szo);
                 // Ha még a megtisztítás után is több mint 30 karakter a szó, akkor valószínűleg a belsejében van sok nem megfelelő
@@ -213,6 +226,17 @@ public class FoablakController implements Initializable {
                 data.add(new Sor(megtisztitottSzo.toLowerCase(), megtisztit(mondat), 1));
             }
         }
+        eredetiOsszesSzo = data.size();
+        double fleschScore = 206.835 - 1.015 * ((double)eredetiOsszesSzo / mondatok.length)
+                - 84.6 * ((double)szotagokSzama / eredetiOsszesSzo);
+        
+        if (fleschScore > 90) lblOlvashatosag.setText((int)fleschScore + "  (Very easy to read)");
+        else if (fleschScore > 80) lblOlvashatosag.setText((int)fleschScore + "  (Easy to read)");
+        else if (fleschScore > 70) lblOlvashatosag.setText((int)fleschScore + "  (Fairly easy to read)");
+        else if (fleschScore > 60) lblOlvashatosag.setText((int)fleschScore + "  (Plain English)");
+        else if (fleschScore > 50) lblOlvashatosag.setText((int)fleschScore + "  (Fairly difficult to read)");
+        else if (fleschScore > 30) lblOlvashatosag.setText((int)fleschScore + "  (Difficult to read)");
+        else lblOlvashatosag.setText((int)fleschScore + "  (Very difficult to read)");
     }
 
     /**
@@ -287,12 +311,14 @@ public class FoablakController implements Initializable {
     
     /**
      * Végigmegy a listán és ha a szó "torlendo", akkor törli onnan. Különben ha be volt jelölve az egyszer előforduló
-     * szavak megjelenítésének tiltása és egyszer fordul elő a szó, akkor szintén törli a listából.
+     * szavak megjelenítésének tiltása és egyszer fordul elő a szó, akkor szintén törli a listából. Számolja a törölt szavak gyakoriságát.
      */
     public void listaTorlesek() {
+        toroltSzavak = 0;
         for (int i = 0; i < data.size(); i++) {
             String szo = data.get(i).getSzo();
             if (szo.equals("torlendo") || (cxbEgyszer.isSelected() && data.get(i).getGyak() == 1)) {
+                toroltSzavak += data.get(i).getGyak();
                 data.remove(i--);
             }
         }
