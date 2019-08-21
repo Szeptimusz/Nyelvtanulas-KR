@@ -30,4 +30,6 @@ bizonyos idő után.
 
 A Statisztika menüpontnál meg lehet nézni az adott nyelvre vonatkozóan az adatbázisban tárolt különböző állapotú (ismert,figyelmen kívül hagyott, tanulandó) szavak számát.
 
-Részletesebb leírás a mellékelt Felhasználói dokumentációban olvasható
+**Részletesebb leírás a mellékelt Felhasználói dokumentációban olvasható**
+
+**A fejlesztői dokumentáció megtekinthető a javadoc/index.html-t megnyitva a böngészőben**
