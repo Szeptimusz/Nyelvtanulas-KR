@@ -5,6 +5,7 @@ import java.net.URI;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -26,6 +27,8 @@ public class ForditasController {
     private TextArea txaMondat;
     @FXML
     private TextField txtForditas;
+    @FXML
+    private CheckBox cbxNagybetu;
 
     private String szo;
     private String eredetiMondat;
@@ -91,6 +94,8 @@ public class ForditasController {
      */
     @FXML
     public void hozzaad() {
+        if (cbxNagybetu.isSelected()) szo = szo.substring(0, 1).toUpperCase() + szo.substring(1);
+        
         String forditas = txtForditas.getText();
         if (forditas.equals("")) {
             figyelmeztet("Figyelem!", "Kérem írjon be fordítást a szóhoz!");

@@ -111,7 +111,7 @@ public class AnkiController implements Initializable {
         String lyukasMondat = "";
         String [] szavak = mondat.toLowerCase().split(" |\\, |\\,|\\; |\\;|\\—");
         for (int i = 0; i < szavak.length; i++) {
-            if (szavak[i].equals(szo)) {
+            if (szavak[i].equals(szo.toLowerCase())) {
                 int szoHossza = szavak[i].length();
                 String lyuk = "";
                 for (int j = 0; j < szoHossza; j++) {

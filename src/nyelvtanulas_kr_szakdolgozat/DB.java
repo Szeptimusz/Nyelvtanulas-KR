@@ -52,7 +52,7 @@ public class DB {
             
                 kapcs.setAutoCommit(false);  
                 int count = 0;
-                for (String szo: szavak) {
+                for (String szo : szavak) {
                     ps.setInt(1, 1);
                     ps.setString(2, szo);
                     ps.addBatch();
@@ -76,7 +76,7 @@ public class DB {
      * A kapott táblához hozzáadja a kapott szót és annak állapotát.
      * @param tabla   A tábla neve
      * @param szo     A kiírandó szó
-     * @param allapot A kiírandó szó állapota (ismert,ignoralt,tanulando)
+     * @param allapot A kiírandó szó állapota (ismert,ignoralt)
      */
     public static void szotBeirAdatbazisba(String tabla, String szo, String allapot) {
         String into = "INSERT INTO " + tabla + " VALUES (?,?)";
@@ -124,7 +124,7 @@ public class DB {
      * @param szo   A törlendő szó.
      */
     public static void szotTorolAdatbazisbol(String tabla, String szo) {
-        String delete = "DELETE FROM " + tabla + " WHERE szavak= ?;";
+        String delete = "DELETE FROM " + tabla + " WHERE LOWER(szavak) = ?;";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
                 PreparedStatement ps = kapcs.prepareStatement(delete)) {
             
@@ -152,7 +152,7 @@ public class DB {
             ResultSet eredmeny = ps.executeQuery();
             
             while (eredmeny.next()) {
-                String szo = eredmeny.getString("szavak");
+                String szo = eredmeny.getString("szavak").toLowerCase();
                 if (szavak_indexe.get(szo) != null) {
                     data.get(szavak_indexe.get(szo)).setSzo("torlendo");
                     szavak_indexe.put(szo, null);
@@ -173,7 +173,7 @@ public class DB {
      */
     public static void tablakatKeszit(String TablaNevEleje) {
         String createTable = "CREATE TABLE IF NOT EXISTS " + TablaNevEleje + "szavak" + " (szavak VARCHAR(30) NOT NULL UNIQUE,"
-                                                                  + "allapot VARCHAR(15) NOT NULL);";
+                                                                                        + "allapot VARCHAR(15) NOT NULL);";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
                 PreparedStatement ps = kapcs.prepareStatement(createTable)) {
                 ps.executeUpdate();
@@ -191,7 +191,10 @@ public class DB {
         
         
         createTable = "CREATE TABLE IF NOT EXISTS " + TablaNevEleje + "tanulando" + " (szavak VARCHAR(30) NOT NULL UNIQUE,"
-                       + "mondatok TEXT NOT NULL, kikerdezes_ideje BIGINT NOT NULL, forditas VARCHAR(100) NOT NULL, ANKI INT NOT NULL);";
+                                                                                    + "mondatok TEXT NOT NULL, "
+                                                                                    + "kikerdezes_ideje BIGINT NOT NULL, "
+                                                                                    + "forditas VARCHAR(100) NOT NULL, "
+                                                                                    + "ANKI INT NOT NULL);";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
                 PreparedStatement ps = kapcs.prepareStatement(createTable)) {
                 ps.executeUpdate();
