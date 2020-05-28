@@ -1,0 +1,86 @@
+/* 
+    Author     : Kremmer Róbert
+*/
+
+#anchor {
+	-fx-background-image: url("background.jpg");
+}
+
+.button {
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-background-color: linear-gradient(#61a2b1, #2a5058);
+}
+
+.button:hover {
+    -fx-background-color: linear-gradient(#2a5058, #61a2b1);
+}
+
+#btnFeldolgoz {
+    -fx-text-fill: orange;
+}
+
+
+.label {
+	-fx-text-fill: white;
+}
+
+
+#txaBevitel, #txaMondat{
+	-fx-control-inner-background: #DCDCDC;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
+}
+
+.table-view .table-cell{
+    -fx-text-fill: black;
+    //-fx-font-weight: bold;
+}
+
+.menu-bar {
+	-fx-background-color: black;
+}
+
+.root {
+	-fx-background-image: url("background.jpg");
+}
+
+.menu-item{
+    -fx-font-size: 14.0 pt;
+    -fx-text-fill: white;
+	-fx-background-color: black;
+}
+
+.menu-item:hover{
+    -fx-font-size: 14.0 pt;
+    -fx-background-color: gray ;
+    
+}
+
+#tblTablazat {
+	-fx-control-inner-background: #C0C0C0;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #808080;
+}
+
+#txtForditas {
+		-fx-control-inner-background: #FAFAD2;
+}
+
+#lblIsmertseg, #lblOlvashato {
+	-fx-text-fill: #FFEFD5;
+}
+
+#lblSzazalekIsmert, #lblOlvashatosag {
+	-fx-text-fill: gold;
+}
+
+#lblSzo {
+	-fx-text-fill: gold;
+	-fx-font-weight: bold;
+}

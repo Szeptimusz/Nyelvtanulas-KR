@@ -70,7 +70,11 @@ public class FoablakController implements Initializable {
     @FXML
     private Label lblSzazalekIsmert;
     @FXML
+    private Label lblIsmertseg;
+    @FXML
     private Label lblOlvashatosag;
+    @FXML
+    private Label lblOlvashato;
     @FXML
     private TableView<Sor> tblTablazat;
     @FXML

@@ -20,7 +20,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="0.0" minWidth="0.0" prefHeight="800.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="nyelvtanulas_kr_szakdolgozat.FoablakController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="0.0" minWidth="0.0" prefHeight="800.0" prefWidth="900.0" stylesheets="@stilus.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="nyelvtanulas_kr_szakdolgozat.FoablakController">
    <children>
       <MenuBar prefHeight="0.0">
         <menus>
@@ -39,7 +39,7 @@
           </Menu>
         </menus>
       </MenuBar>
-      <SplitPane dividerPositions="0.35" layoutY="25.0" maxWidth="1000.0" prefHeight="375.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
+      <SplitPane fx:id="anchor" dividerPositions="0.35" layoutY="25.0" maxWidth="1000.0" prefHeight="375.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
         <items>
           <AnchorPane minHeight="0.0" minWidth="10.0" prefHeight="160.0" prefWidth="100.0">
                <children>
@@ -86,7 +86,7 @@
                               <Font size="14.0" />
                            </font>
                         </Label>
-                        <Button mnemonicParsing="false" onAction="#futtat" text="Adatok feldolgozása" GridPane.columnSpan="2" GridPane.rowIndex="7">
+                        <Button fx:id="btnFeldolgoz" mnemonicParsing="false" onAction="#futtat" text="Adatok feldolgozása" GridPane.columnSpan="2" GridPane.rowIndex="7">
                            <font>
                               <Font size="13.0" />
                            </font>
@@ -149,7 +149,7 @@
                         <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
                      </rowConstraints>
                      <children>
-                        <Label text="Szöveg ismertsége:" wrapText="true">
+                        <Label fx:id="lblIsmertseg" text="Szöveg ismertsége:" wrapText="true">
                            <font>
                               <Font size="14.0" />
                            </font>
@@ -162,7 +162,7 @@
                               <Insets left="130.0" />
                            </GridPane.margin>
                         </Label>
-                        <Label text="Olvashatósági index:" wrapText="true" GridPane.rowIndex="1">
+                        <Label fx:id="lblOlvashato" text="Olvashatósági index:" wrapText="true" GridPane.rowIndex="1">
                            <font>
                               <Font size="14.0" />
                            </font>
