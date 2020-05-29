@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
@@ -294,11 +295,13 @@ public class FoablakController implements Initializable {
         int i = 0;
         while (it.hasNext()) {
             Sor s = it.next();
+            s.mondatotHozzaad(s.getMondat());
             szavak_indexe.put(s.getSzo(), i);
             int db = 1;
             if (it.hasNext()) {
                 Sor s2 = it.next();
                 while(it.hasNext() && s.getSzo().equals(s2.getSzo())) {
+                    s.mondatotHozzaad(s2.getMondat());
                     it.remove();
                     db++;
                     s2 = it.next();
@@ -307,6 +310,7 @@ public class FoablakController implements Initializable {
             }
             csatoltLista.get(i).setGyak(db);
             i++;
+            s.azonosakTorleseListabol();
         }
         data.clear();
         data.addAll(csatoltLista);
@@ -373,9 +377,9 @@ public class FoablakController implements Initializable {
         }
         
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
-        String mondat = tblTablazat.getSelectionModel().getSelectedItem().getMondat();
+        List<String> mondatok = tblTablazat.getSelectionModel().getSelectedItem().getMondatok();
         
-        ablakotNyit("Forditas.fxml", "Fordítás hozzáadása, feltöltés adatbázisba", szo, mondat);
+        ablakotNyit("Forditas.fxml", "Fordítás hozzáadása, feltöltés adatbázisba", szo, mondatok);
         if (ForditasController.isTanulandoElmentve()) {
             letiltLeptet(TablaNevEleje + "tanulando");
             // Miután elmentette és léptetett a táblázatban, visszaállítja a ForditasController osztályban false-ra
@@ -441,7 +445,7 @@ public class FoablakController implements Initializable {
      */
     @FXML
     public void ankiImportAblak() {
-        ablakotNyit("Anki.fxml", "ANKI-import elkészítése", "", "");
+        ablakotNyit("Anki.fxml", "ANKI-import elkészítése", "", null);
     }
     
     /**
@@ -449,7 +453,7 @@ public class FoablakController implements Initializable {
      */
     @FXML
     public void statisztikaAblak() {
-        ablakotNyit("Statisztika.fxml", "Adatbázis-statisztika", "", "");
+        ablakotNyit("Statisztika.fxml", "Adatbázis-statisztika", "", null);
     }
     
     /**
@@ -457,7 +461,7 @@ public class FoablakController implements Initializable {
      */
     @FXML
     public void kikerdezesAblak() {
-        ablakotNyit("Kikerdezes.fxml","Szavak kikérdezése szókártyákkal","","");
+        ablakotNyit("Kikerdezes.fxml","Szavak kikérdezése szókártyákkal","",null);
     }
     
     /**
@@ -468,14 +472,14 @@ public class FoablakController implements Initializable {
      * @param szo          Fordítás ablak esetében a kapott szó
      * @param mondat       Fordítás ablak esetében a kapott mondat
      */
-    private void ablakotNyit(String fxmlFajl, String ablakCim, String szo, String mondat) {
+    private void ablakotNyit(String fxmlFajl, String ablakCim, String szo, List<String> mondatok) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFajl));
             Parent root = loader.load();
             if (!szo.isEmpty()) {
                 ForditasController fc = loader.getController();
                 fc.setSzo(szo);
-                fc.setMondat(mondat);
+                fc.setMondatok(mondatok);
                 fc.setForrasNyelvKod(forrasNyelvKod);
             }
             Scene scene = new Scene(root);
@@ -566,6 +570,6 @@ public class FoablakController implements Initializable {
      */
     @FXML
     public void nevjegy() throws Exception {
-        ablakotNyit("Nevjegy.fxml", "Nyelvtanulás program","","");
+        ablakotNyit("Nevjegy.fxml", "Nyelvtanulás program","",null);
     }
 }

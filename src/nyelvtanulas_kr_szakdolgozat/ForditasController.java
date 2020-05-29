@@ -4,6 +4,9 @@ import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.List;
+import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -26,6 +29,10 @@ public class ForditasController {
     @FXML
     private Button btnDuden;
     @FXML
+    private Button btnElozo;
+    @FXML
+    private Button btnKovetkezo;
+    @FXML
     private Label lblSzo;
     @FXML
     private TextArea txaMondat;
@@ -37,6 +44,8 @@ public class ForditasController {
     private CheckBox cbxNagybetu;
 
     private String szo;
+    private List<String> mondatok;
+    private int mondatIndex = 0;
     private String eredetiMondat;
     private String forrasNyelvKod;
     private static boolean tanulandoElmentve = false;
@@ -60,11 +69,20 @@ public class ForditasController {
      * kiírja az ablak megfelelő címkéjébe.
      * @param mondat A FoablakController-ből átadott mondat.
      */
+    /*
     public void setMondat(String mondat) {
         eredetiMondat = mondat;
         txaMondat.setText(eredetiMondat);
     }
+    */
 
+    public void setMondatok(List<String> mondatok) {
+        this.mondatok = mondatok;
+        if (!mondatok.isEmpty()) txaMondat.setText(mondatok.get(0));
+        btnElozo.setDisable(true);
+        if (mondatok.size() < 2) btnKovetkezo.setDisable(true);
+    }
+    
     /**
      * A Google Translate kereséshez beállítja a forrásnyelvet. Ha az adott nyelv nem
      * angol, akkor a Cambridge gombot letiltja.
@@ -95,6 +113,24 @@ public class ForditasController {
      */
     public static void setTanulandoElmentve(boolean tanulandoElmentve) {
         ForditasController.tanulandoElmentve = tanulandoElmentve;
+    }
+    
+    @FXML
+    void elozoMondat() {
+        mondatIndex--;
+        eredetiMondat = mondatok.get(mondatIndex);
+        txaMondat.setText(eredetiMondat);
+        if (mondatIndex == 0) btnElozo.setDisable(true);
+        if (mondatIndex < mondatok.size()-1) btnKovetkezo.setDisable(false);
+    }
+    
+    @FXML
+    void kovetkezoMondat() {
+        mondatIndex++;
+        eredetiMondat = mondatok.get(mondatIndex);
+        txaMondat.setText(eredetiMondat);
+        if (mondatIndex == mondatok.size()-1) btnKovetkezo.setDisable(true);
+        if (mondatIndex > 0) btnElozo.setDisable(false);
     }
     
     /**

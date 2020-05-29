@@ -83,3 +83,9 @@
 	-fx-text-fill: gold;
 	-fx-font-weight: bold;
 }
+
+#btnElozo, #btnKovetkezo {
+	-fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-background-color: #239023;
+}

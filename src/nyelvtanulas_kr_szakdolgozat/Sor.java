@@ -1,5 +1,10 @@
 package nyelvtanulas_kr_szakdolgozat;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
  * A szavak és a hozzájuk tartozó adatok könnyebb kezelését elősegítő osztály.
  * Felhasználástól függően kétféle konstruktorral rendelkezik.
@@ -14,6 +19,7 @@ public class Sor {
     private boolean tilt = false;
     private String tabla;
     private String forditas;
+    private List<String> mondatok;
   
     /**
      * A Főablakban a lista feltöltésekor használt konstruktor.
@@ -27,6 +33,7 @@ public class Sor {
         this.szo = szo;
         this.mondat = mondat;
         this.gyak = gyak;
+        mondatok = new ArrayList<>();
     }
 
     /**
@@ -43,6 +50,35 @@ public class Sor {
         this.szo = szo;
         this.mondat = mondat;
         this.forditas = forditas;
+    }
+    
+    public void mondatotHozzaad(String mondat) {
+        mondatok.add(mondat);
+    }
+    
+    public void azonosakTorleseListabol() {
+        
+        /*
+        Mondatok abc sorrendben rendezve lesznek a fordítás ablaknál
+        
+        Collections.sort(mondatok);
+        for (int i = 0; i < mondatok.size()-1; i++) {
+            if (mondatok.get(i) == mondatok.get(i+1)) {
+                mondatok.remove(i+1);
+                i--;
+            }
+        }
+        */
+        
+        
+        // Mondatok eredeti megjelenési sorrendjének megtartása
+        Set<String> set = new HashSet<>();
+        for (int i = 0; i < mondatok.size(); i++) {
+            if (!set.add(mondatok.get(i))) {
+                mondatok.remove(i);
+                i--;
+            }
+        }
     }
     
     public String getSzo() {
@@ -99,6 +135,14 @@ public class Sor {
 
     public void setNevelo(String nevelo) {
         this.nevelo = nevelo;
+    }
+
+    public List<String> getMondatok() {
+        return mondatok;
+    }
+
+    public void setMondatok(List<String> mondatok) {
+        this.mondatok = mondatok;
     }
 
 }
