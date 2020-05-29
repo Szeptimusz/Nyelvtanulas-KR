@@ -1,7 +1,9 @@
 package nyelvtanulas_kr_szakdolgozat;
 
 import java.awt.Desktop;
+import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -21,6 +23,8 @@ public class ForditasController {
     
     @FXML
     private Button btnCambridge;
+    @FXML
+    private Button btnDuden;
     @FXML
     private Label lblSzo;
     @FXML
@@ -71,6 +75,9 @@ public class ForditasController {
         // Ha nem angol a forrásnyelv, akkor a Cambridge gombot letiltja
         if (!forrasNyelvKod.equals("en")) {
             btnCambridge.setDisable(true); 
+        }
+        if (!forrasNyelvKod.equals("de")) {
+            btnDuden.setDisable(true);
         }
     }
 
@@ -141,5 +148,11 @@ public class ForditasController {
     @FXML
     public void megnyitCambridge() throws Exception{
             Desktop.getDesktop().browse(new URI("https://dictionary.cambridge.org/dictionary/english/" + szo));
+    }
+    
+    @FXML
+    void megnyitDuden() throws URISyntaxException, IOException {
+        if (cbxNagybetu.isSelected()) szo = szo.substring(0, 1).toUpperCase() + szo.substring(1);
+        Desktop.getDesktop().browse(new URI("https://www.duden.de/suchen/dudenonline/" + szo));
     }
 }
