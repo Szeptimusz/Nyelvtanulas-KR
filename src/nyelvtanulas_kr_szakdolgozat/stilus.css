@@ -37,7 +37,6 @@
 
 .table-view .table-cell{
     -fx-text-fill: black;
-    //-fx-font-weight: bold;
 }
 
 .menu-bar {

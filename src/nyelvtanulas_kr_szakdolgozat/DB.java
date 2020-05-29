@@ -96,21 +96,23 @@ public class DB {
      * A kapott táblához hozzáadja a kapott szót, mondatot, fordítást, a kikérdezés idejét és az 
      * ANKI oszlop értékét (0 vagy 1). A kikérdezés ideje a függvény hívásakor az 1970-óta eltelt milliszekundumok számával egyenlő.
      * @param tabla    A tábla neve.
+     * @param nevelo   A szó névelője (ha meg lett adva)
      * @param szo      A kiírandó szó
      * @param mondat   A kiírandó mondat
      * @param forditas A szó általunk megadott fordítása
      * @param anki     A kiírandó anki állapot (0 vagy 1)
      */
-    public static void tanulandotBeirAdatbazisba(String tabla, String szo, String mondat, String forditas, int anki) {
-        String into = "INSERT INTO " + tabla + " (szavak, mondatok, kikerdezes_ideje, forditas, ANKI) VALUES (?,?,?,?,?)";
+    public static void tanulandotBeirAdatbazisba(String tabla, String nevelo, String szo, String mondat, String forditas, int anki) {
+        String into = "INSERT INTO " + tabla + " (nevelo, szavak, mondatok, kikerdezes_ideje, forditas, ANKI) VALUES (?,?,?,?,?,?)";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
                 PreparedStatement ps = kapcs.prepareStatement(into)) {
             
-                ps.setString(1, szo);
-                ps.setString(2, mondat);
-                ps.setLong(3, System.currentTimeMillis());
-                ps.setString(4, forditas);
-                ps.setInt(5, anki);
+                ps.setString(1, nevelo);
+                ps.setString(2, szo);
+                ps.setString(3, mondat);
+                ps.setLong(4, System.currentTimeMillis());
+                ps.setString(5, forditas);
+                ps.setInt(6, anki);
                 ps.executeUpdate();
                 
         } catch (SQLException e) {
@@ -190,7 +192,8 @@ public class DB {
         }
         
         
-        createTable = "CREATE TABLE IF NOT EXISTS " + TablaNevEleje + "tanulando" + " (szavak VARCHAR(30) NOT NULL UNIQUE,"
+        createTable = "CREATE TABLE IF NOT EXISTS " + TablaNevEleje + "tanulando" + " (nevelo VARCHAR(10) NOT NULL, "
+                                                                                    + "szavak VARCHAR(30) NOT NULL UNIQUE,"
                                                                                     + "mondatok TEXT NOT NULL, "
                                                                                     + "kikerdezes_ideje BIGINT NOT NULL, "
                                                                                     + "forditas VARCHAR(100) NOT NULL, "
@@ -269,7 +272,9 @@ public class DB {
             
             ResultSet eredmeny = ps.executeQuery();
             while (eredmeny.next()) {
-                rekordok.add(new Sor(eredmeny.getString("szavak"),
+                rekordok.add(new Sor(
+                                     eredmeny.getString("nevelo"),
+                                     eredmeny.getString("szavak"),
                                      eredmeny.getString("mondatok"),
                                      eredmeny.getString("forditas")));
             }

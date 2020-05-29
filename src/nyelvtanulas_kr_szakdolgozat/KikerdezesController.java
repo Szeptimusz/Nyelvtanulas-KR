@@ -147,7 +147,10 @@ public class KikerdezesController implements Initializable {
      */
     private void szotMondatotBeallit(int index) {
         if (index < rekordok.size()) {
-            lblSzo.setText(rekordok.get(index).getSzo());
+            String nevelo = rekordok.get(index).getNevelo();
+            if (nevelo.length() > 0) nevelo += " ";
+            
+            lblSzo.setText(nevelo + rekordok.get(index).getSzo());
             lblMondat.setText(rekordok.get(index).getMondat());
         } else {
             tajekoztat("Figyelem","Véget ért a kikérdezés!");

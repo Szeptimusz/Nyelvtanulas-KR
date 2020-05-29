@@ -28,6 +28,8 @@ public class ForditasController {
     @FXML
     private TextField txtForditas;
     @FXML
+    private TextField txtNevelo;
+    @FXML
     private CheckBox cbxNagybetu;
 
     private String szo;
@@ -102,9 +104,11 @@ public class ForditasController {
         } else if (txaMondat.getText().equals("")){
             figyelmeztet("Figyelem!", "Az adott szóhoz nincsen megadva példamondat!");
         } else {
+            String nevelo = txtNevelo.getText();
+            
             // A mondatot a szövegterületről szedi ki, így lehetőség van a hozzáadás előtt szerkeszteni a példamondatot
             String mondat = txaMondat.getText();
-            DB.tanulandotBeirAdatbazisba(forrasNyelvKod + "_tanulando",szo,mondat,forditas,0);
+            DB.tanulandotBeirAdatbazisba(forrasNyelvKod + "_tanulando",nevelo,szo,mondat,forditas,0);
             tanulandoElmentve = true;
             Window ablak = lblSzo.getScene().getWindow();
             ablak.hide();

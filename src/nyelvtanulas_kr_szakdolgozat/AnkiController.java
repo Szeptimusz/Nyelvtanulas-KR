@@ -46,15 +46,18 @@ public class AnkiController implements Initializable {
             ArrayList<String> szavak = new ArrayList<>();
             String forrasNyelvKod = nyelvekKodja.get(cbxNyelvek.getValue());
             if (forrasNyelvKod != null) {
-                String query = "SELECT szavak, mondatok, forditas FROM " + forrasNyelvKod + "_tanulando WHERE ANKI == 0";
+                String query = "SELECT nevelo, szavak, mondatok, forditas FROM " + forrasNyelvKod + "_tanulando WHERE ANKI == 0";
                 try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
                     PreparedStatement ps = kapcs.prepareStatement(query)) {
                     ResultSet eredmeny = ps.executeQuery();
                     while (eredmeny.next()) {
+                        String nevelo = eredmeny.getString("nevelo");
+                        if (nevelo.length() > 0) nevelo += " ";
+                        
                         String szo = eredmeny.getString("szavak");
                         String mondat = eredmeny.getString("mondatok");
                         String forditas = eredmeny.getString("forditas");
-                        if (keszit(szo, mondat, forditas, forrasNyelvKod))
+                        if (keszit(nevelo, szo, mondat, forditas, forrasNyelvKod))
                             szavak.add(szo);
                         else 
                             hiba("Hiba!","Hiba történt a kártya készítése során!");
@@ -81,17 +84,18 @@ public class AnkiController implements Initializable {
      * és szókártyákat tud belőle készíteni. A fájlba írás FileOutputStream-el, UTF-8 kódolással történik (az Anki program
      * csak UTF-8-at fogad el importálásnál). A kiírásnál a szókártya két oldalát a \t - tabulátor jelzi, a szókártyákat \n-
      * új sor választja el.
+     * @param nevelo           A szó névelője
      * @param szo              A tanulandó szó.
      * @param mondat           A szóhoz tartozó példamondat.
      * @param forditas         Az általunk korábban megadott fordítása a szónak
      * @param forrasNyelvKod   A legördülő listából kiválasztott nyelv rövidített változata
      * @return                 Ha sikerült a fájlba írás igazad ad vissza, ha nem akkor false-t.
      */
-    public boolean keszit(String szo, String mondat, String forditas, String forrasNyelvKod) {
+    public boolean keszit(String nevelo, String szo, String mondat, String forditas, String forrasNyelvKod) {
         try (OutputStreamWriter writer =
              new OutputStreamWriter(new FileOutputStream(forrasNyelvKod + "_ankiimport.txt",true), StandardCharsets.UTF_8)) {
                 // A szó,mondat,lyukasmondat fájlba írása - az ANKI importálási szabályainak megfelelően
-                writer.write(szo + "<br><br>" + mondat + "\t" + forditas + "<br><br>" + lyukasMondatotKeszit(szo, mondat) + "\n");
+                writer.write(nevelo + szo + "<br><br>" + mondat + "\t" + forditas + "<br><br>" + lyukasMondatotKeszit(szo, mondat) + "\n");
                 return true;
         } catch(IOException e) {
             hiba("Hiba!",e.getMessage());

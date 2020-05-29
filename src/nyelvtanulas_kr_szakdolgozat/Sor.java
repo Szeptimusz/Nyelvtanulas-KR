@@ -7,6 +7,7 @@ package nyelvtanulas_kr_szakdolgozat;
  */
 public class Sor {
 
+    private String nevelo;
     private String szo;
     private String mondat;
     private int gyak;
@@ -32,11 +33,13 @@ public class Sor {
      * A szavak kikérdezésekor a lekérdezett rekordok feldolgozása során
      * használt konstruktor. Beállítja a szót, a mondatot és a hozzá tartozó 
      * fordítást.
+     * @param nevelo   A szó névelője
      * @param szo      A szó
      * @param mondat   A szóhoz tartozó példamondat
      * @param forditas A szó fordítása
      */
-    public Sor(String szo, String mondat, String forditas) {
+    public Sor(String nevelo, String szo, String mondat, String forditas) {
+        this.nevelo = nevelo;
         this.szo = szo;
         this.mondat = mondat;
         this.forditas = forditas;
@@ -88,6 +91,14 @@ public class Sor {
 
     public void setForditas(String forditas) {
         this.forditas = forditas;
+    }
+
+    public String getNevelo() {
+        return nevelo;
+    }
+
+    public void setNevelo(String nevelo) {
+        this.nevelo = nevelo;
     }
 
 }
