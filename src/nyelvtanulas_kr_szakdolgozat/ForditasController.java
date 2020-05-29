@@ -4,9 +4,7 @@ import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.List;
-import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -78,7 +76,10 @@ public class ForditasController {
 
     public void setMondatok(List<String> mondatok) {
         this.mondatok = mondatok;
-        if (!mondatok.isEmpty()) txaMondat.setText(mondatok.get(0));
+        if (!mondatok.isEmpty()) {
+            txaMondat.setText(mondatok.get(0));
+            txaMondat.selectRange(this.mondatok.get(0).toLowerCase().indexOf(szo.toLowerCase()), this.mondatok.get(0).toLowerCase().indexOf(szo.toLowerCase()) + szo.length() + 1);
+        }
         btnElozo.setDisable(true);
         if (mondatok.size() < 2) btnKovetkezo.setDisable(true);
     }
@@ -122,6 +123,7 @@ public class ForditasController {
         txaMondat.setText(eredetiMondat);
         if (mondatIndex == 0) btnElozo.setDisable(true);
         if (mondatIndex < mondatok.size()-1) btnKovetkezo.setDisable(false);
+        txaMondat.selectRange(mondatok.get(mondatIndex).toLowerCase().indexOf(szo.toLowerCase()), mondatok.get(mondatIndex).toLowerCase().indexOf(szo.toLowerCase()) + szo.length() + 1);
     }
     
     @FXML
@@ -131,6 +133,7 @@ public class ForditasController {
         txaMondat.setText(eredetiMondat);
         if (mondatIndex == mondatok.size()-1) btnKovetkezo.setDisable(true);
         if (mondatIndex > 0) btnElozo.setDisable(false);
+        txaMondat.selectRange(mondatok.get(mondatIndex).toLowerCase().indexOf(szo.toLowerCase()), mondatok.get(mondatIndex).toLowerCase().indexOf(szo.toLowerCase()) + szo.length() + 1);
     }
     
     /**
@@ -164,6 +167,7 @@ public class ForditasController {
     @FXML
     public void visszaallit() {
         txaMondat.setText(eredetiMondat);
+        txaMondat.selectRange(mondatok.get(mondatIndex).indexOf(szo), mondatok.get(mondatIndex).indexOf(szo) + szo.length() + 1);
     }
     
     /**
