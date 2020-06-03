@@ -62,23 +62,12 @@ public class ForditasController {
         });
     }
 
-    /**
-     * A fordítás ablak megnyitásakor beállítja az adott mondatot és
-     * kiírja az ablak megfelelő címkéjébe.
-     * @param mondat A FoablakController-ből átadott mondat.
-     */
-    /*
-    public void setMondat(String mondat) {
-        eredetiMondat = mondat;
-        txaMondat.setText(eredetiMondat);
-    }
-    */
-
     public void setMondatok(List<String> mondatok) {
         this.mondatok = mondatok;
         if (!mondatok.isEmpty()) {
             txaMondat.setText(mondatok.get(0));
-            txaMondat.selectRange(this.mondatok.get(0).toLowerCase().indexOf(szo.toLowerCase()), this.mondatok.get(0).toLowerCase().indexOf(szo.toLowerCase()) + szo.length() + 1);
+            txaMondat.selectRange(this.mondatok.get(0).toLowerCase().indexOf(szo.toLowerCase()), 
+                                  this.mondatok.get(0).toLowerCase().indexOf(szo.toLowerCase()) + szo.length());
         }
         btnElozo.setDisable(true);
         if (mondatok.size() < 2) btnKovetkezo.setDisable(true);
@@ -123,7 +112,8 @@ public class ForditasController {
         txaMondat.setText(eredetiMondat);
         if (mondatIndex == 0) btnElozo.setDisable(true);
         if (mondatIndex < mondatok.size()-1) btnKovetkezo.setDisable(false);
-        txaMondat.selectRange(mondatok.get(mondatIndex).toLowerCase().indexOf(szo.toLowerCase()), mondatok.get(mondatIndex).toLowerCase().indexOf(szo.toLowerCase()) + szo.length() + 1);
+        txaMondat.selectRange(mondatok.get(mondatIndex).toLowerCase().indexOf(szo.toLowerCase()), 
+                              mondatok.get(mondatIndex).toLowerCase().indexOf(szo.toLowerCase()) + szo.length());
     }
     
     @FXML
@@ -133,7 +123,8 @@ public class ForditasController {
         txaMondat.setText(eredetiMondat);
         if (mondatIndex == mondatok.size()-1) btnKovetkezo.setDisable(true);
         if (mondatIndex > 0) btnElozo.setDisable(false);
-        txaMondat.selectRange(mondatok.get(mondatIndex).toLowerCase().indexOf(szo.toLowerCase()), mondatok.get(mondatIndex).toLowerCase().indexOf(szo.toLowerCase()) + szo.length() + 1);
+        txaMondat.selectRange(mondatok.get(mondatIndex).toLowerCase().indexOf(szo.toLowerCase()), 
+                              mondatok.get(mondatIndex).toLowerCase().indexOf(szo.toLowerCase()) + szo.length());
     }
     
     /**

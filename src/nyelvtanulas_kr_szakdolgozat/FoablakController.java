@@ -325,7 +325,11 @@ public class FoablakController implements Initializable {
         toroltSzavak = 0;
         for (int i = 0; i < data.size(); i++) {
             String szo = data.get(i).getSzo();
-            if (szo.equals("torlendo") || (cxbEgyszer.isSelected() && data.get(i).getGyak() == 1)) {
+            
+            if (cxbEgyszer.isSelected() && data.get(i).getGyak() == 1 && !szo.equals("torlendo")) {
+                data.remove(i--);
+                eredetiOsszesSzo--;
+            } else if (szo.equals("torlendo")) {
                 toroltSzavak += data.get(i).getGyak();
                 data.remove(i--);
             }
@@ -440,29 +444,17 @@ public class FoablakController implements Initializable {
         }
     }
 
-    /**
-     * Új ablakot nyit meg, ahol ANKI-import fájl készíthető.
-     */
+    /*** Új ablakot nyit meg, ahol ANKI-import fájl készíthető.*/
     @FXML
-    public void ankiImportAblak() {
-        ablakotNyit("Anki.fxml", "ANKI-import elkészítése", "", null);
-    }
+    public void ankiImportAblak() { ablakotNyit("Anki.fxml", "ANKI-import elkészítése", "", null); }
     
-    /**
-     * Új ablakban megjeleníti az adott nyelvhez tartozó statisztikát
-     */
+    /*** Új ablakban megjeleníti az adott nyelvhez tartozó statisztikát*/
     @FXML
-    public void statisztikaAblak() {
-        ablakotNyit("Statisztika.fxml", "Adatbázis-statisztika", "", null);
-    }
+    public void statisztikaAblak() { ablakotNyit("Statisztika.fxml", "Adatbázis-statisztika", "", null); }
     
-    /**
-     * Új ablakban megjeleníti a szókártya-kikérdezés felületet
-     */
+    /*** Új ablakban megjeleníti a szókártya-kikérdezés felületet*/
     @FXML
-    public void kikerdezesAblak() {
-        ablakotNyit("Kikerdezes.fxml","Szavak kikérdezése szókártyákkal","",null);
-    }
+    public void kikerdezesAblak() { ablakotNyit("Kikerdezes.fxml","Szavak kikérdezése szókártyákkal","",null); }
     
     /**
      * A kapott fxml fájlnév alapján új ablakot nyit meg. Ha a szó paraméter nem üres, akkor a fordítás ablakot
@@ -542,12 +534,16 @@ public class FoablakController implements Initializable {
                 btnTanulando.setDisable(false);
             }
             
-            // Figyeli, hogy a sor mondata változott-e és azt írja ki a táblázat fölötti szövegterületre
+            // Figyeli, hogy a sor mondata változott-e és azt írja ki a táblázat fölötti szövegterületre, kijelöli az adott szót
             String mondat = uj.getMondat();
-            if (mondat != null)
+            String szo = uj.getSzo();
+            if (mondat != null) {
                 txaMondat.setText(mondat);
-            else
+                txaMondat.selectRange(mondat.toLowerCase().indexOf(szo.toLowerCase()), 
+                                      mondat.toLowerCase().indexOf(szo.toLowerCase()) + szo.length());
+            } else {
                 txaMondat.setText("");
+            }
         };
     }
     

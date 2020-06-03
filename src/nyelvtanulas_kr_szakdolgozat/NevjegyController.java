@@ -46,7 +46,7 @@ public class NevjegyController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         lblKeszito.setText("Készítette: Kremmer Róbert");
-        lblVerzio.setText("Verzió: 1.5.1");
+        lblVerzio.setText("Verzió: 1.5.2");
     }    
     
 }

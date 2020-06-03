@@ -92,18 +92,20 @@ public class AnkiController implements Initializable {
      * @return                 Ha sikerült a fájlba írás igazad ad vissza, ha nem akkor false-t.
      */
     public boolean keszit(String nevelo, String szo, String mondat, String forditas, String forrasNyelvKod) {
-        try (OutputStreamWriter writer =
-             new OutputStreamWriter(new FileOutputStream(forrasNyelvKod + "_ankiimport.txt",true), StandardCharsets.UTF_8)) {
-                // A szó,mondat,lyukasmondat fájlba írása - az ANKI importálási szabályainak megfelelően
-                writer.write(nevelo + szo + "<br><br>" + mondat + "\t" + forditas + "<br><br>" + lyukasMondatotKeszit(szo, mondat) + "\n");
+        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(forrasNyelvKod + "_ankiimport.txt",true), StandardCharsets.UTF_8)) {
+            
+                writer.write(nevelo + szo + "<br><br>" + mondat + "\t" 
+                           + forditas + "<br><br>" + (mondat + " ").replaceAll("[^\\w]" + szo + "[^\\w]", 
+                                                                               " " + new String(new char[szo.length()]).replace("\0", ".") + " ") + "\n");
                 return true;
+                
         } catch(IOException e) {
             hiba("Hiba!",e.getMessage());
             return false;
         }
     }
     
-    /**
+    /** MEGTARTJA AZ EREDETI BETŰMÉRETEKET
      * A mondatban a szó előfordulásainak megkeresése, pontokkal helyettesítése és így lyukas szöveg gyártása.
      * A kapott mondaton végigmegy és ha talál keresett szót, akkor annyi ponttal helyettesíti, amennyi a szó hossza.
      * A mondaton való végighaladás során egy új String-ben szavanként felépíti a lyukasmondatot.
@@ -111,24 +113,29 @@ public class AnkiController implements Initializable {
      * @param mondat A helyettesítendő szót tartalmazó mondat
      * @return       Visszaadja a készített lyukasmondatot
      */
+    /*
     public String lyukasMondatotKeszit(String szo, String mondat) {
         String lyukasMondat = "";
         String [] szavak = mondat.toLowerCase().split(" |\\, |\\,|\\; |\\;|\\—");
+        String [] szavak2 = mondat.split(" |\\, |\\,|\\; |\\;|\\—");
         for (int i = 0; i < szavak.length; i++) {
             if (szavak[i].equals(szo.toLowerCase())) {
-                int szoHossza = szavak[i].length();
                 String lyuk = "";
-                for (int j = 0; j < szoHossza; j++) {
+                for (int j = 0; j < szo.length(); j++) {
                     lyuk = lyuk + ".";
                 }
                 szavak[i] = lyuk;
+                lyukasMondat += szavak[i] + " ";
+            } else {
+                lyukasMondat += szavak2[i] + " ";
             }
-            lyukasMondat += szavak[i] + " ";
+            
         }
         // Lyukas mondat első betűjének nagybetűssé alakítása
         lyukasMondat = lyukasMondat.substring(0, 1).toUpperCase() + lyukasMondat.substring(1);
         return lyukasMondat;
     }
+    */
     
     /**
      * A nyelv kiválasztásához beállítja a legördülő lista nyelveit és tárolja azok kódját.
