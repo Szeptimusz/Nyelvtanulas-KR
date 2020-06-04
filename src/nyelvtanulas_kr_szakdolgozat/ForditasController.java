@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -12,6 +14,8 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Window;
 import static panel.Panel.figyelmeztet;
 
@@ -58,7 +62,44 @@ public class ForditasController {
         lblSzo.setText(szo);
         // A fordítás ablak megnyitásakor a kurzor a szövegbeviteli mezőn lesz
         Platform.runLater(() -> {
-            txtForditas.requestFocus();
+            btnCambridge.getScene().setOnKeyPressed((final KeyEvent keyEvent) -> {
+                if (keyEvent.getCode() == KeyCode.DIGIT8) {
+                    try {
+                        if (btnElozo.isDisabled()) {
+                            keyEvent.consume();
+                        } else {
+                            elozoMondat();   
+                        }
+                    } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
+                    keyEvent.consume();
+                }
+                
+                if (keyEvent.getCode() == KeyCode.DIGIT9) {
+                    try {
+                        if (btnKovetkezo.isDisabled()) {
+                            keyEvent.consume();
+                        } else {
+                            kovetkezoMondat();   
+                        }
+                    } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
+                    keyEvent.consume();
+                }
+                
+                if (keyEvent.getCode() == KeyCode.ESCAPE) {
+                    try {
+                        btnCambridge.getScene().getWindow().hide();
+                    } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
+                    keyEvent.consume();
+                }
+                
+                if (keyEvent.getCode() == KeyCode.DIGIT0) {
+                    try {
+                        txtForditas.requestFocus();
+                    } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
+                    keyEvent.consume();
+                }
+            });
+            
         });
     }
 
@@ -186,4 +227,5 @@ public class ForditasController {
         if (cbxNagybetu.isSelected()) szo = szo.substring(0, 1).toUpperCase() + szo.substring(1);
         Desktop.getDesktop().browse(new URI("https://www.duden.de/suchen/dudenonline/" + szo));
     }
+    
 }

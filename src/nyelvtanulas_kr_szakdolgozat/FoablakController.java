@@ -11,6 +11,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
@@ -28,6 +30,8 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -544,6 +548,37 @@ public class FoablakController implements Initializable {
             } else {
                 txaMondat.setText("");
             }
+            
+            // Hotkey-k beállítása a főablak 3 elmentési és a visszavonási gombjára
+            btnTanulando.getScene().setOnKeyPressed((final KeyEvent keyEvent) -> {
+                if (keyEvent.getCode() == KeyCode.DIGIT1) {
+                    try {
+                        ismertMent();
+                    } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
+                    keyEvent.consume();
+                }
+                
+                if (keyEvent.getCode() == KeyCode.DIGIT2) {
+                    try {
+                        tanulandoMent();
+                    } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
+                    keyEvent.consume();
+                }
+                
+                if (keyEvent.getCode() == KeyCode.DIGIT3) {
+                    try {
+                        ignoralMent();
+                    } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
+                    keyEvent.consume();
+                }
+                
+                if (keyEvent.getCode() == KeyCode.DIGIT4) {
+                    try {
+                        visszavon();
+                    } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
+                    keyEvent.consume();
+                }
+            });
         };
     }
     

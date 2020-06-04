@@ -105,38 +105,6 @@ public class AnkiController implements Initializable {
         }
     }
     
-    /** MEGTARTJA AZ EREDETI BETŰMÉRETEKET
-     * A mondatban a szó előfordulásainak megkeresése, pontokkal helyettesítése és így lyukas szöveg gyártása.
-     * A kapott mondaton végigmegy és ha talál keresett szót, akkor annyi ponttal helyettesíti, amennyi a szó hossza.
-     * A mondaton való végighaladás során egy új String-ben szavanként felépíti a lyukasmondatot.
-     * @param szo    A pontokkal helyettesítendő szó
-     * @param mondat A helyettesítendő szót tartalmazó mondat
-     * @return       Visszaadja a készített lyukasmondatot
-     */
-    /*
-    public String lyukasMondatotKeszit(String szo, String mondat) {
-        String lyukasMondat = "";
-        String [] szavak = mondat.toLowerCase().split(" |\\, |\\,|\\; |\\;|\\—");
-        String [] szavak2 = mondat.split(" |\\, |\\,|\\; |\\;|\\—");
-        for (int i = 0; i < szavak.length; i++) {
-            if (szavak[i].equals(szo.toLowerCase())) {
-                String lyuk = "";
-                for (int j = 0; j < szo.length(); j++) {
-                    lyuk = lyuk + ".";
-                }
-                szavak[i] = lyuk;
-                lyukasMondat += szavak[i] + " ";
-            } else {
-                lyukasMondat += szavak2[i] + " ";
-            }
-            
-        }
-        // Lyukas mondat első betűjének nagybetűssé alakítása
-        lyukasMondat = lyukasMondat.substring(0, 1).toUpperCase() + lyukasMondat.substring(1);
-        return lyukasMondat;
-    }
-    */
-    
     /**
      * A nyelv kiválasztásához beállítja a legördülő lista nyelveit és tárolja azok kódját.
      */
