@@ -70,6 +70,7 @@ public class AnkiController implements Initializable {
                     DB.ankitModositAdatbazisban(forrasNyelvKod + "_tanulando",szavak);
                     tajekoztat("Kártya készítés eredmény", 
                         "A kártyák sikeresen elkészítve a(z):  " + forrasNyelvKod + " _ankiimport fájlba!");
+                    cbxNyelvek.getScene().getWindow().hide();
                 } else {
                     figyelmeztet("Figyelem!", "Nincsen tanulandó szó amiből szókártya készíthető!");
                 }
@@ -95,7 +96,7 @@ public class AnkiController implements Initializable {
         try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(forrasNyelvKod + "_ankiimport.txt",true), StandardCharsets.UTF_8)) {
             
                 writer.write(nevelo + szo + "<br><br>" + mondat + "\t" 
-                           + forditas + "<br><br>" + (mondat + " ").replaceAll("[^\\w]" + szo + "[^\\w]", 
+                           + forditas + "<br><br>" + (mondat + " ").replaceAll("[^\\w](?i)" + szo + "[^\\w]", 
                                                                                " " + new String(new char[szo.length()]).replace("\0", ".") + " ") + "\n");
                 return true;
                 

@@ -3,6 +3,8 @@ package nyelvtanulas_kr_szakdolgozat;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
@@ -40,13 +42,22 @@ public class NevjegyController implements Initializable {
         }
     }
     
+    @FXML
+    void github() {
+        try {
+            Desktop.getDesktop().browse(new URI("https://github.com/Szeptimusz/Nyelvtanulas-KR"));
+        } catch (IOException | URISyntaxException e) {
+            hiba("Hiba", e.getMessage());
+        }
+    }
+    
     /**
      * Beállítja az ablak címkéibe a készítőt és a verzió számot.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         lblKeszito.setText("Készítette: Kremmer Róbert");
-        lblVerzio.setText("Verzió: 1.5.3");
+        lblVerzio.setText("Verzió: 1.5.4");
     }    
     
 }

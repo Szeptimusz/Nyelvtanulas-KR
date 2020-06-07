@@ -53,57 +53,16 @@ public class ForditasController {
     private static boolean tanulandoElmentve = false;
     
     /**
-     * A fordítás ablak megnyitásakor beállítja az adott szót és
-     * kiírja az ablak megfelelő címkéjébe.
-     * @param szo A FoablakController-ből átadott szó
+     * Beállítja a fordítás ablakban megjelenő adatokat: szó, példamondatok listája.
+     * Forrásnyelv alapján gombokat tilthat le. Hotkey-t rendel hozzá az ablakhoz. 
+     * @param szo            A tanulandó szó
+     * @param mondatok       A  példamondatok listája
+     * @param forrasNyelvKod A forrásnyelv kódja
      */
-    public void setSzo(String szo) {
+    public void setForditasAblakAdatok(String szo, List<String> mondatok, String forrasNyelvKod) {
         this.szo = szo;
         lblSzo.setText(szo);
-        // A fordítás ablak megnyitásakor a kurzor a szövegbeviteli mezőn lesz
-        Platform.runLater(() -> {
-            btnCambridge.getScene().setOnKeyPressed((final KeyEvent keyEvent) -> {
-                if (keyEvent.getCode() == KeyCode.DIGIT8) {
-                    try {
-                        if (btnElozo.isDisabled()) {
-                            keyEvent.consume();
-                        } else {
-                            elozoMondat();   
-                        }
-                    } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
-                    keyEvent.consume();
-                }
-                
-                if (keyEvent.getCode() == KeyCode.DIGIT9) {
-                    try {
-                        if (btnKovetkezo.isDisabled()) {
-                            keyEvent.consume();
-                        } else {
-                            kovetkezoMondat();   
-                        }
-                    } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
-                    keyEvent.consume();
-                }
-                
-                if (keyEvent.getCode() == KeyCode.ESCAPE) {
-                    try {
-                        btnCambridge.getScene().getWindow().hide();
-                    } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
-                    keyEvent.consume();
-                }
-                
-                if (keyEvent.getCode() == KeyCode.DIGIT0) {
-                    try {
-                        txtForditas.requestFocus();
-                    } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
-                    keyEvent.consume();
-                }
-            });
-            
-        });
-    }
-
-    public void setMondatok(List<String> mondatok) {
+        
         this.mondatok = mondatok;
         if (!mondatok.isEmpty()) {
             txaMondat.setText(mondatok.get(0));
@@ -112,22 +71,23 @@ public class ForditasController {
         }
         btnElozo.setDisable(true);
         if (mondatok.size() < 2) btnKovetkezo.setDisable(true);
-    }
-    
-    /**
-     * A Google Translate kereséshez beállítja a forrásnyelvet. Ha az adott nyelv nem
-     * angol, akkor a Cambridge gombot letiltja.
-     * @param forrasNyelvKod A FoablakController-ből átadott forrásnyelv kód
-     */
-    public void setForrasNyelvKod(String forrasNyelvKod) {
+        
         this.forrasNyelvKod = forrasNyelvKod;
-        // Ha nem angol a forrásnyelv, akkor a Cambridge gombot letiltja
-        if (!forrasNyelvKod.equals("en")) {
-            btnCambridge.setDisable(true); 
-        }
-        if (!forrasNyelvKod.equals("de")) {
-            btnDuden.setDisable(true);
-        }
+        if (!forrasNyelvKod.equals("en")) btnCambridge.setDisable(true); 
+        if (!forrasNyelvKod.equals("de")) btnDuden.setDisable(true);
+        
+        Platform.runLater(() -> {
+            btnCambridge.getScene().setOnKeyPressed((final KeyEvent keyEvent) -> {
+                
+                if (keyEvent.getCode() == KeyCode.ESCAPE) {
+                    try {
+                        btnCambridge.getScene().getWindow().hide();
+                    } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
+                    keyEvent.consume();
+                }
+                
+            });
+        });
     }
 
     /**
@@ -179,6 +139,7 @@ public class ForditasController {
         String forditas = txtForditas.getText();
         if (forditas.equals("")) {
             figyelmeztet("Figyelem!", "Kérem írjon be fordítást a szóhoz!");
+            txtForditas.requestFocus();
         } else if (txaMondat.getText().equals("")){
             figyelmeztet("Figyelem!", "Az adott szóhoz nincsen megadva példamondat!");
         } else {

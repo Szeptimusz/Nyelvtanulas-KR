@@ -75,11 +75,7 @@ public class FoablakController implements Initializable {
     @FXML
     private Label lblSzazalekIsmert;
     @FXML
-    private Label lblIsmertseg;
-    @FXML
     private Label lblOlvashatosag;
-    @FXML
-    private Label lblOlvashato;
     @FXML
     private TableView<Sor> tblTablazat;
     @FXML
@@ -128,7 +124,7 @@ public class FoablakController implements Initializable {
      * @throws java.io.IOException
      */
     @FXML
-    public void futtat() throws IOException{
+    public void futtat() {
         // Ha nem tallózott, és szöveget sem írt be, akkor nem futnak le a metódusok, csak figyelmeztető ablakot nyit meg
         if (txaBevitel.getText().equals("") && fajlUtvonal == null) {
             figyelmeztet("Figyelem!", "Üres szövegmező! Kérem adjon meg szöveget,"
@@ -138,49 +134,61 @@ public class FoablakController implements Initializable {
             figyelmeztet("Figyelem!", "Kérem adja meg a forrásnyelvet is!");
             
         } else {
-            // Töltés ablak a feldolgozás alatt
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("Toltes.fxml"));
-            Parent root = loader.load();
-            Scene scene = new Scene(root);
-            Stage ablak = new Stage();
-            ablak.setResizable(false);
-            ablak.initModality(Modality.APPLICATION_MODAL);
-            ablak.setScene(scene);
-            ablak.setTitle("Feldolgozás");
-            ablak.show();
+            try {
+                // Töltés ablak a feldolgozás alatt
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("Toltes.fxml"));
+                Parent root = loader.load();
+                Scene scene = new Scene(root);
+                Stage ablak = new Stage();
+                ablak.setResizable(false);
+                ablak.initModality(Modality.APPLICATION_MODAL);
+                ablak.setScene(scene);
+                ablak.setTitle("Feldolgozás");
+                ablak.show();
+                
+                // Korábbi listener eltávolítása
+                tblTablazat.getSelectionModel().selectedItemProperty().removeListener(listener);
+                // Korábbi HashMap beállítások törlése.
+                szavak_indexe.clear();
+                // Korábbi lista törlése.
+                data.clear();
+                txaMondat.setText("");
+                lblSzazalekIsmert.setText("");
+                // A megadott forrásnyelv beállítása (pl: 'Német' -> 'de')
+                forrasNyelvKod = nyelvekKodja.get(cbxForras.getValue());
+                TablaNevEleje = forrasNyelvKod + "_";
+                
+                try {
+                    beolvasasFeldolgozas();
+                } catch (IOException e) {
+                    ablak.hide();
+                    hiba("Hiba",e.getMessage());
+                }
+                
+                azonosakTorlese();
+                DB.tablakatKeszit(TablaNevEleje);
+                DB.adatbazistListavalOsszevet(TablaNevEleje + "szavak",data,szavak_indexe);
+                DB.adatbazistListavalOsszevet(TablaNevEleje + "tanulando",data,szavak_indexe);
+                listaTorlesek();
+                // A táblázatban már a gyakoriság szerint jelenjenek meg a szavak
+                data.sort((s1, s2) -> Integer.compare(s2.getGyak(), s1.getGyak()));
+                tblTablazat.setItems(data);
+                // Listener beállítása az adatok táblázatba betöltése után
+                tblTablazat.getSelectionModel().selectedItemProperty().addListener(listener);
+                lblTallozasEredmeny.setText("");
+                lblSzazalekIsmert.setText((int)((double)toroltSzavak / eredetiOsszesSzo * 10000) / 100.0 + " %");
+                
+                ablak.hide();
 
-            // Korábbi listener eltávolítása
-            tblTablazat.getSelectionModel().selectedItemProperty().removeListener(listener);
-            // Korábbi HashMap beállítások törlése.
-            szavak_indexe.clear();
-            // Korábbi lista törlése.
-            data.clear();
-            txaMondat.setText("");
-            lblSzazalekIsmert.setText("");
-            // A megadott forrásnyelv beállítása (pl: 'Német' -> 'de')
-            forrasNyelvKod = nyelvekKodja.get(cbxForras.getValue());
-            TablaNevEleje = forrasNyelvKod + "_"; 
-            beolvasasFeldolgozas();
-            azonosakTorlese();
-            DB.tablakatKeszit(TablaNevEleje);
-            DB.adatbazistListavalOsszevet(TablaNevEleje + "szavak",data,szavak_indexe);
-            DB.adatbazistListavalOsszevet(TablaNevEleje + "tanulando",data,szavak_indexe);
-            listaTorlesek();
-            // A táblázatban már a gyakoriság szerint jelenjenek meg a szavak
-            data.sort((s1, s2) -> Integer.compare(s2.getGyak(), s1.getGyak()));
-            tblTablazat.setItems(data);
-            // Listener beállítása az adatok táblázatba betöltése után
-            tblTablazat.getSelectionModel().selectedItemProperty().addListener(listener);
-            lblTallozasEredmeny.setText("");
-            lblSzazalekIsmert.setText((int)((double)toroltSzavak / eredetiOsszesSzo * 10000) / 100.0 + " %");
-
-            ablak.hide();
-
-            if (data.isEmpty())
-                figyelmeztet("Figyelem!", "A nem megfelelő karakterek eltávolítása és az adatbázis szinkronizálás után nem "
-                        + "maradt megjeleníthető eredmény!");
-            else
-                tajekoztat("Kész!", "Az adatok feldolgozása befejeződött!");  
+                if (data.isEmpty())
+                    figyelmeztet("Figyelem!", "A nem megfelelő karakterek eltávolítása és az adatbázis szinkronizálás után nem "
+                            + "maradt megjeleníthető eredmény!");
+                else
+                    tajekoztat("Kész!", "Az adatok feldolgozása befejeződött!");
+                
+            } catch (IOException e) {
+                hiba("Hiba",e.getMessage());
+            }
         }
     }
 
@@ -239,13 +247,17 @@ public class FoablakController implements Initializable {
         double fleschScore = 206.835 - 1.015 * ((double)eredetiOsszesSzo / mondatok.length)
                 - 84.6 * ((double)szotagokSzama / eredetiOsszesSzo);
         
-        if (fleschScore > 90) lblOlvashatosag.setText((int)fleschScore + "  (Very easy to read)");
-        else if (fleschScore > 80) lblOlvashatosag.setText((int)fleschScore + "  (Easy to read)");
-        else if (fleschScore > 70) lblOlvashatosag.setText((int)fleschScore + "  (Fairly easy to read)");
-        else if (fleschScore > 60) lblOlvashatosag.setText((int)fleschScore + "  (Plain English)");
-        else if (fleschScore > 50) lblOlvashatosag.setText((int)fleschScore + "  (Fairly difficult to read)");
-        else if (fleschScore > 30) lblOlvashatosag.setText((int)fleschScore + "  (Difficult to read)");
-        else lblOlvashatosag.setText((int)fleschScore + "  (Very difficult to read)");
+        if (forrasNyelvKod.equals("en")) {
+            if (fleschScore > 90) lblOlvashatosag.setText((int)fleschScore + "  (Very easy to read)");
+            else if (fleschScore > 80) lblOlvashatosag.setText((int)fleschScore + "  (Easy to read)");
+            else if (fleschScore > 70) lblOlvashatosag.setText((int)fleschScore + "  (Fairly easy to read)");
+            else if (fleschScore > 60) lblOlvashatosag.setText((int)fleschScore + "  (Plain English)");
+            else if (fleschScore > 50) lblOlvashatosag.setText((int)fleschScore + "  (Fairly difficult to read)");
+            else if (fleschScore > 30) lblOlvashatosag.setText((int)fleschScore + "  (Difficult to read)");
+            else lblOlvashatosag.setText((int)fleschScore + "  (Very difficult to read)");
+        } else {
+            lblOlvashatosag.setText("Nem érhető el");
+        }
     }
 
     /**
@@ -346,8 +358,9 @@ public class FoablakController implements Initializable {
      */
     @FXML
     public void ignoralMent() {
-        if (!ellenoriz().isEmpty()) {
-            figyelmeztet("Figyelem!", ellenoriz());
+        String uzenet = ellenoriz();
+        if (uzenet != null) {
+            figyelmeztet("Figyelem!", uzenet);
             return;
         }
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
@@ -362,8 +375,9 @@ public class FoablakController implements Initializable {
      */
     @FXML
     public void ismertMent() {
-        if (!ellenoriz().isEmpty()) {
-            figyelmeztet("Figyelem!", ellenoriz());
+        String uzenet = ellenoriz();
+        if (uzenet != null) {
+            figyelmeztet("Figyelem!", uzenet);
             return;
         }
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
@@ -379,12 +393,13 @@ public class FoablakController implements Initializable {
      */
     @FXML
     public void tanulandoMent() throws Exception{
-        if (!ellenoriz().isEmpty()) {
-            figyelmeztet("Figyelem!", ellenoriz());
+        String uzenet = ellenoriz();
+        if (uzenet != null) {
+            figyelmeztet("Figyelem!", uzenet);
             return;
         }
         
-        String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
+        String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo(); 
         List<String> mondatok = tblTablazat.getSelectionModel().getSelectedItem().getMondatok();
         
         ablakotNyit("Forditas.fxml", "Fordítás hozzáadása, feltöltés adatbázisba", szo, mondatok);
@@ -396,12 +411,17 @@ public class FoablakController implements Initializable {
     }
     
     /**
-     * Ellenőrzi, hogy a listában vannak-e elemek
-     * @return Ha üres a lista, akkor üzenetet ad vissza, különben üres Stringet
+     * Ellenőrzi, hogy a listában vannak-e elemek és van-e kijelölt sor a táblázatban.
+     * @return A visszaadott (megjelenítendő) üzenet.
      */
     public String ellenoriz() {
-        return data.isEmpty() ? "Nem történt adatfeldolgozás, kérem adjon meg bemenő adatot"
-                    + " és válassza az 'Adatok feldolgozása' gombot!" : "";
+        if (data.isEmpty())
+            return "Nem történt adatfeldolgozás, kérem adjon meg bemenő adatot"
+                    + " és válassza az 'Adatok feldolgozása' gombot!";
+        else if (tblTablazat.getSelectionModel().getSelectedItem() == null)
+            return "Nincs kijelölve sor a táblázatban!";
+        else
+            return null; 
     }
     
     /**
@@ -430,10 +450,12 @@ public class FoablakController implements Initializable {
      */
     @FXML
     public void visszavon() {
-        if (!ellenoriz().isEmpty()) {
-            figyelmeztet("Figyelem!", ellenoriz());
+        String uzenet = ellenoriz();
+        if (uzenet != null) {
+            figyelmeztet("Figyelem!", uzenet);
             return;
         }
+        
         String tabla = tblTablazat.getSelectionModel().getSelectedItem().getTabla();
         if (tabla != null) {
             Sor kivalasztottSor = tblTablazat.getSelectionModel().getSelectedItem();
@@ -474,9 +496,7 @@ public class FoablakController implements Initializable {
             Parent root = loader.load();
             if (!szo.isEmpty()) {
                 ForditasController fc = loader.getController();
-                fc.setSzo(szo);
-                fc.setMondatok(mondatok);
-                fc.setForrasNyelvKod(forrasNyelvKod);
+                fc.setForditasAblakAdatok(szo,mondatok,forrasNyelvKod);
             }
             Scene scene = new Scene(root);
             Stage ablak = new Stage();
@@ -549,37 +569,40 @@ public class FoablakController implements Initializable {
                 txaMondat.setText("");
             }
             
-            // Hotkey-k beállítása a főablak 3 elmentési és a visszavonási gombjára
-            btnTanulando.getScene().setOnKeyPressed((final KeyEvent keyEvent) -> {
-                if (keyEvent.getCode() == KeyCode.DIGIT1) {
-                    try {
-                        ismertMent();
-                    } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
-                    keyEvent.consume();
-                }
-                
-                if (keyEvent.getCode() == KeyCode.DIGIT2) {
-                    try {
-                        tanulandoMent();
-                    } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
-                    keyEvent.consume();
-                }
-                
-                if (keyEvent.getCode() == KeyCode.DIGIT3) {
-                    try {
-                        ignoralMent();
-                    } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
-                    keyEvent.consume();
-                }
-                
-                if (keyEvent.getCode() == KeyCode.DIGIT4) {
-                    try {
-                        visszavon();
-                    } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
-                    keyEvent.consume();
-                }
-            });
         };
+        
+        // Hotkey-k beállítása a főablak 3 elmentési és a visszavonási gombjára
+            Platform.runLater(() -> {
+                btnTanulando.getScene().setOnKeyPressed((final KeyEvent keyEvent) -> {
+                    if (keyEvent.getCode() == KeyCode.DIGIT1) {
+                        try {
+                            ismertMent();
+                        } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
+                        keyEvent.consume();
+                    }
+
+                    if (keyEvent.getCode() == KeyCode.DIGIT2) {
+                        try {
+                            tanulandoMent();
+                        } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
+                        keyEvent.consume();
+                    }
+
+                    if (keyEvent.getCode() == KeyCode.DIGIT3) {
+                        try {
+                            ignoralMent();
+                        } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
+                        keyEvent.consume();
+                    }
+
+                    if (keyEvent.getCode() == KeyCode.DIGIT4) {
+                        try {
+                            visszavon();
+                        } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
+                        keyEvent.consume();
+                    }
+                });
+            });
     }
     
     /**

@@ -20,7 +20,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="0.0" minWidth="0.0" prefHeight="800.0" prefWidth="900.0" stylesheets="@stilus.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="nyelvtanulas_kr_szakdolgozat.FoablakController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="0.0" minWidth="0.0" prefHeight="800.0" prefWidth="930.0" stylesheets="@stilus.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="nyelvtanulas_kr_szakdolgozat.FoablakController">
    <children>
       <MenuBar prefHeight="0.0">
         <menus>
@@ -122,11 +122,11 @@
                   </Label>
                   <HBox alignment="CENTER" layoutX="30.0" layoutY="52.0" prefHeight="42.0" prefWidth="541.0" spacing="20.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                      <children>
-                        <Button fx:id="btnIsmert" mnemonicParsing="false" onAction="#ismertMent" text="Ismert szó" />
-                        <Button fx:id="btnTanulando" mnemonicParsing="false" onAction="#tanulandoMent" text="Tanulandó szó" />
-                        <Button fx:id="btnIgnore" mnemonicParsing="false" onAction="#ignoralMent" text="Figyelmen kívül hagyás" />
+                        <Button fx:id="btnIsmert" mnemonicParsing="false" onAction="#ismertMent" text="Ismert szó (1)" />
+                        <Button fx:id="btnTanulando" mnemonicParsing="false" onAction="#tanulandoMent" text="Tanulandó szó (2)" />
+                        <Button fx:id="btnIgnore" mnemonicParsing="false" onAction="#ignoralMent" text="Figyelmen kívül hagyás (3)" />
                         <Separator orientation="VERTICAL" prefHeight="200.0" />
-                        <Button mnemonicParsing="false" onAction="#visszavon" text="Visszavonás" />
+                        <Button mnemonicParsing="false" onAction="#visszavon" text="Visszavonás (4)" />
                      </children>
                   </HBox>
                   <TextArea fx:id="txaMondat" editable="false" layoutX="30.0" layoutY="102.0" prefHeight="61.0" prefWidth="541.0" wrapText="true" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
