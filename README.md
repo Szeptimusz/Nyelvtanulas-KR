@@ -1,6 +1,8 @@
 # Nyelvtanulas-KR
 Készítette: Kremmer Róbert
 
+LETÖLTÉS: https://drive.google.com/drive/folders/1J9NI1lEkX9DiK-xdSaOnJIaJZWIB-G5L?usp=sharing
+
 Program működésének rövid leírása:
 ------------------------------
 Nyelvtanulási céllal egy adott szöveget feldolgoz, megjenelíti a szöveget felépítő szavakat példamondatokkal együtt, és az ismeretlen
