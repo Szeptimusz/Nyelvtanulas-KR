@@ -17,21 +17,27 @@ import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -57,6 +63,8 @@ public class FoablakController implements Initializable {
     static HashMap<String, Integer> szavak_indexe = new HashMap<>();
     static HashMap<String, String> nyelvekKodja = new HashMap<>();
     private final ObservableList<Sor> data = FXCollections.observableArrayList();
+    int progress = 1;
+    double fleschScore;
     
     @FXML
     private TextArea txaBevitel;
@@ -70,6 +78,8 @@ public class FoablakController implements Initializable {
     private Button btnTanulando;
     @FXML
     private Button btnIgnore;
+    @FXML
+    private Button btnFeldolgoz;
     @FXML
     private Label lblTallozasEredmeny;
     @FXML
@@ -112,154 +122,144 @@ public class FoablakController implements Initializable {
         }
     }
     
-    /**
-     * Az 'Adatok feldolgozása'-gomb megnyomásakor lefutó metódus. Csak akkor kezdődik meg
-     * a bevitt adatok feldolgozása, ha tallózással, vagy a szövegbeviteli mezót használva meg lett adva bemenő adat, illetve
-     * ha lett kiválasztva forrás nyelv a legördülő listából. A feldolgozás előtt a szavakat tároló lista és a szavak indexét tároló
-     * HashMap tartalmát törli, a mondatok szövegmezőt üresre állítja és a táblázathoz rendelt listenert eltávolítja. Beállítja az
-     * adott nyelvhez tartozó kódot, ami alapján az egyedi nevű táblákat létre is hozza az adatbázisban. Lefut az előfeldolgozás, a feldolgozás, az
-     * azonos szavak törlése - és így a szógyakoriság számlálása - majd az egyedi szavakat összeveti az adatbázis szavaival és 
-     * törli a listából ami már szerepel az adatbázisban. A már szinkronizált lista tartalmát megjeleníti a táblázatban és hozzáadja
-     * a táblázathoz a listenert. A tallózásról tájékoztató címkét kiüríti. Megjeleníti, hogy a szöveg hány százaléka ismert + tanulando + ignoralt szó.
-     * @throws java.io.IOException
-     */
-    @FXML
-    public void futtat() {
-        // Ha nem tallózott, és szöveget sem írt be, akkor nem futnak le a metódusok, csak figyelmeztető ablakot nyit meg
-        if (txaBevitel.getText().equals("") && fajlUtvonal == null) {
-            figyelmeztet("Figyelem!", "Üres szövegmező! Kérem adjon meg szöveget,"
-                         + " vagy használja a Tallózás gombot!");
-            
-        } else if (cbxForras.getValue() == null) {
-            figyelmeztet("Figyelem!", "Kérem adja meg a forrásnyelvet is!");
-            
-        } else {
-            try {
-                // Töltés ablak a feldolgozás alatt
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("Toltes.fxml"));
-                Parent root = loader.load();
-                Scene scene = new Scene(root);
-                Stage ablak = new Stage();
-                ablak.setResizable(false);
-                ablak.initModality(Modality.APPLICATION_MODAL);
-                ablak.setScene(scene);
-                ablak.setTitle("Feldolgozás");
-                ablak.show();
-                
-                // Korábbi listener eltávolítása
-                tblTablazat.getSelectionModel().selectedItemProperty().removeListener(listener);
-                // Korábbi HashMap beállítások törlése.
-                szavak_indexe.clear();
-                // Korábbi lista törlése.
-                data.clear();
-                txaMondat.setText("");
-                lblSzazalekIsmert.setText("");
-                // A megadott forrásnyelv beállítása (pl: 'Német' -> 'de')
-                forrasNyelvKod = nyelvekKodja.get(cbxForras.getValue());
-                TablaNevEleje = forrasNyelvKod + "_";
-                
-                try {
-                    beolvasasFeldolgozas();
-                } catch (IOException e) {
-                    ablak.hide();
-                    hiba("Hiba",e.getMessage());
-                }
-                
-                azonosakTorlese();
-                DB.tablakatKeszit(TablaNevEleje);
-                DB.adatbazistListavalOsszevet(TablaNevEleje + "szavak",data,szavak_indexe);
-                DB.adatbazistListavalOsszevet(TablaNevEleje + "tanulando",data,szavak_indexe);
-                listaTorlesek();
-                // A táblázatban már a gyakoriság szerint jelenjenek meg a szavak
-                data.sort((s1, s2) -> Integer.compare(s2.getGyak(), s1.getGyak()));
-                tblTablazat.setItems(data);
-                // Listener beállítása az adatok táblázatba betöltése után
-                tblTablazat.getSelectionModel().selectedItemProperty().addListener(listener);
-                lblTallozasEredmeny.setText("");
-                lblSzazalekIsmert.setText((int)((double)toroltSzavak / eredetiOsszesSzo * 10000) / 100.0 + " %");
-                
-                ablak.hide();
 
-                if (data.isEmpty())
-                    figyelmeztet("Figyelem!", "A nem megfelelő karakterek eltávolítása és az adatbázis szinkronizálás után nem "
-                            + "maradt megjeleníthető eredmény!");
-                else
-                    tajekoztat("Kész!", "Az adatok feldolgozása befejeződött!");
-                
-            } catch (IOException e) {
-                hiba("Hiba",e.getMessage());
-            }
-        }
-    }
-
+    Task copyWorker;
     
     /**
-     * Ha lett megadva tallózással fájlútvonal, akkor egyben beolvassa a fájlból az adatokat a Cp1250-es kódtábla alapján, majd
-     * beleteszi egy Stringbe. Eltávolítja belőle a tabulátorokat az új sorokat és a felesleges szóközöket, majd az eredménnyel meghívja a feldolgozást.
-     * Végül azért, hogy a következő futtatás előtt is dönteni lehessen a tallózás-
-     * szövegmező között, a fájlútvonalat null-ra állítja.
-     * Ha nem lett megadva fájlútvonal akkor a szövegterületről olvassa ki a szöveget, eltávolítja a tabulátorokat és az új sorokat,
-     * majd meghívja a kapott Stringgel az előfeldolgozást és a feldolgozást.
-     * @throws java.io.IOException
+     * Egy új szálon a háttérben végzi el az adatok feldolgozását. Szövegterületről,
+     * vagy fájlból beolvassa az adatokat, szavak és mondatok szerint listához adja,
+     * számolja a szógyakoriságot, törli az azonos szavakat, összeveti az adatbázis 
+     * szavaival (törli a listából amik már az adatbázisban vannak), gyakoriság 
+     * szerint rendezi.
+     * @return 
      */
-    public void beolvasasFeldolgozas() throws IOException{
-        if (fajlUtvonal != null) {
-            feldolgozas(new String(Files.readAllBytes(Paths.get(fajlUtvonal)),"Cp1250")
-                        .replaceAll("\t|\n|\r|\\  ", ""));
-            fajlUtvonal = null;
-        } else {
-            feldolgozas(txaBevitel.getText().replaceAll("\t|\n|\\  ", ""));
-        }
-    }
-   
-    /**
-     * A kapott szöveget "." "?" "!" és ezek szóközzel ellátott verziói alapján splitteli a mondatok tömbbe, majd a mondatok tömböt
-     * " " ", " ";" "—" és "," alapján splitteli a szavak tömbbe. Ha a szó legalább 2 karakter akkor megtisztítja a nem megfelelő karakterektől elölről és hátulról, ha ezek után 
-     * legalább 2 de maximum 30 karakter hosszú akkor kisbetűssé alakítva a szintén megtisztított mondattal együtt -Sor típusú objektumként-
-     * hozzáadja a listához. A Flesch-Kincaid képlet alapján kiszámítja a szöveg olvahatósági indexét és kiírja címkébe.
-     * @param szoveg A feldolgozandó szöveg
-     */
-    public void feldolgozas(String szoveg) {
-        int szotagokSzama = 0;
-        // A szöveg szétvágása mondatokká
-        String mondatok [] = szoveg.split("\\. |\\.|\\? |\\?|\\! |\\!");
-        SyllableCounter sc = new SyllableCounter();
-        for (String mondat : mondatok) {
-            // Mondat szétvágása szavakká
-            String[] szok = mondat.split(" |\\, |\\,|\\; |\\;|\\—");
-            for (String szo : szok) {
-                // Mozaikszavaknál, rövidítéseknél sok pont lehet közel egymáshoz, ilyenkor mindegyiket külön mondatnak
-                // veszi és 0, 1 karakter hosszú töredékek keletkeznek mint szó. Ilyen esetekben a szót figyelmen kívül hagyjuk
-                if (szo.length() < 2) continue;
-
-                szotagokSzama += sc.count(szo);
+    public Task createWorker() {
+        return new Task() {
+          @Override
+          protected Object call() throws Exception {
+            progress = 1;
+            
+            // Beolvasás fájlból vagy szövegterületről
+            String szoveg;
+            if (fajlUtvonal != null) {
+                szoveg = new String(Files.readAllBytes(Paths.get(fajlUtvonal)),"Cp1250")
+                            .replaceAll("\t|\n|\r|\\  ", "");
+                fajlUtvonal = null;
                 
-                String megtisztitottSzo = megtisztit(szo);
-                // Ha még a megtisztítás után is több mint 30 karakter a szó, akkor valószínűleg a belsejében van sok nem megfelelő
-                // karakter, ezért nem dolgozzuk fel. Illetve ha 2-nél kevesebb karakterből áll.
-                int szoHossza = megtisztitottSzo.length();
-                if (szoHossza > 30 || szoHossza < 2) continue;
-        
-                data.add(new Sor(megtisztitottSzo.toLowerCase(), megtisztit(mondat), 1));
+            } else {
+                szoveg = txaBevitel.getText().replaceAll("\t|\n|\\  ", "");
             }
-        }
-        eredetiOsszesSzo = data.size();
-        double fleschScore = 206.835 - 1.015 * ((double)eredetiOsszesSzo / mondatok.length)
-                - 84.6 * ((double)szotagokSzama / eredetiOsszesSzo);
-        
-        if (forrasNyelvKod.equals("en")) {
-            if (fleschScore > 90) lblOlvashatosag.setText((int)fleschScore + "  (Very easy to read)");
-            else if (fleschScore > 80) lblOlvashatosag.setText((int)fleschScore + "  (Easy to read)");
-            else if (fleschScore > 70) lblOlvashatosag.setText((int)fleschScore + "  (Fairly easy to read)");
-            else if (fleschScore > 60) lblOlvashatosag.setText((int)fleschScore + "  (Plain English)");
-            else if (fleschScore > 50) lblOlvashatosag.setText((int)fleschScore + "  (Fairly difficult to read)");
-            else if (fleschScore > 30) lblOlvashatosag.setText((int)fleschScore + "  (Difficult to read)");
-            else lblOlvashatosag.setText((int)fleschScore + "  (Very difficult to read)");
-        } else {
-            lblOlvashatosag.setText("Nem érhető el");
-        }
-    }
+            updateProgress(progress++, 15);
 
+            
+            // Szöveg szétvágása mondatok és szavak alapján, szavak megtisztítása, listához adás
+            int szotagokSzama = 0;
+            int mondatokSzama = 0;
+            double szazalek = 0.2;
+            String mondatok [] = szoveg.split("\\. |\\.|\\? |\\?|\\! |\\!");
+            SyllableCounter sc = new SyllableCounter();
+            
+            for (String mondat : mondatok) {
+                
+                String[] szok = mondat.split(" |\\, |\\,|\\; |\\;|\\—");
+                for (String szo : szok) {
+                    // Mozaikszavaknál, rövidítéseknél sok pont lehet közel egymáshoz, ilyenkor mindegyiket külön mondatnak
+                    // veszi és 0, 1 karakter hosszú töredékek keletkeznek mint szó. Ilyen esetekben a szót figyelmen kívül hagyjuk
+                    if (szo.length() < 2) continue;
+
+                    szotagokSzama += sc.count(szo);
+
+                    String megtisztitottSzo = megtisztit(szo);
+                    // Ha még a megtisztítás után is több mint 30 karakter a szó, akkor valószínűleg a belsejében van sok nem megfelelő
+                    // karakter, ezért nem dolgozzuk fel. Illetve ha 2-nél kevesebb karakterből áll.
+                    int szoHossza = megtisztitottSzo.length();
+                    if (szoHossza > 30 || szoHossza < 2) continue;
+
+                    data.add(new Sor(megtisztitottSzo.toLowerCase(), megtisztit(mondat), 1));
+                }
+                
+                if (++mondatokSzama >= mondatok.length * szazalek) {
+                    updateProgress(progress++, 15);
+                    szazalek += 0.2;
+                }
+            }
+            eredetiOsszesSzo = data.size();
+            fleschScore = 206.835 - 1.015 * ((double)eredetiOsszesSzo / mondatok.length)
+                    - 84.6 * ((double)szotagokSzama / eredetiOsszesSzo);
+            
+            
+            // A rendezés után az azonos szavak törlése, gyakoriság számolása
+            data.sort((s1, s2) -> s1.getSzo().compareTo(s2.getSzo()));
+            data.add(new Sor("", "", 1));
+            LinkedList<Sor> csatoltLista = new LinkedList<>(data);
+            ListIterator<Sor> it = csatoltLista.listIterator();
+            updateProgress(progress++, 15);
+            
+            int listaEredetiMeret = csatoltLista.size();
+            szazalek = 0.2;
+            int szavakSzama = 0;
+            int i = 0;
+            while (it.hasNext()) {
+                Sor s = it.next();
+                s.mondatotHozzaad(s.getMondat());
+                szavak_indexe.put(s.getSzo(), i);
+                int db = 1;
+                if (it.hasNext()) {
+                    Sor s2 = it.next();
+                    szavakSzama++;
+                    while(it.hasNext() && s.getSzo().equals(s2.getSzo())) {
+                        s.mondatotHozzaad(s2.getMondat());
+                        it.remove();
+                        db++;
+                        s2 = it.next();
+                        szavakSzama++;
+                    }
+                    it.previous();
+                    if (--szavakSzama >= listaEredetiMeret * szazalek) {
+                        updateProgress(progress++, 15);
+                        szazalek += 0.2;
+                    }
+                }
+                csatoltLista.get(i).setGyak(db);
+                i++;
+                s.azonosakTorleseListabol();
+            }
+            data.clear();
+            data.addAll(csatoltLista);
+            data.remove(data.size()-1);
+            updateProgress(progress++, 15);
+              
+            
+            // Adatbázis táblák készítése, a lista szavainak szinkronizálása az adatbázissal
+            DB.tablakatKeszit(TablaNevEleje);
+            DB.adatbazistListavalOsszevet(TablaNevEleje + "szavak",data,szavak_indexe);
+            DB.adatbazistListavalOsszevet(TablaNevEleje + "tanulando",data,szavak_indexe);
+            updateProgress(progress++, 15);
+            
+            
+            // Adatbázis szinkronizálás alapján a törlendő szavak törlése
+            toroltSzavak = 0;
+            for (int j = 0; j < data.size(); j++) {
+                String szo = data.get(j).getSzo();
+
+                if (cxbEgyszer.isSelected() && data.get(j).getGyak() == 1 && !szo.equals("torlendo")) {
+                    data.remove(j--);
+                    eredetiOsszesSzo--;
+                } else if (szo.equals("torlendo")) {
+                    toroltSzavak += data.get(j).getGyak();
+                    data.remove(j--);
+                }
+            }
+            
+            // Rendezés, hogy a táblázatban gyakoriság szerint legyenek a szavak
+            data.sort((s1, s2) -> Integer.compare(s2.getGyak(), s1.getGyak()));
+            updateProgress(progress++, 15);
+
+            return true;
+          }
+        };
+      }
+    
     /**
      * A kapott szöveg elejét és végét megtisztítja azoktól a karakterektől amik nem a támogatott idegen nyelvek részei.
      * Ha a tisztítás során minden karakter elfogy, akkor üres String-et ad vissza.
@@ -297,59 +297,99 @@ public class FoablakController implements Initializable {
     }
     
     /**
-     * Beépített rendezéssel rendezi a Sor típusú elemekből álló listát a szavak alapján, így az azonos szavak egymás mellé kerülnek. Majd addig 
-     * törli az azonos szavakat, amíg csak egyetlen példány marad, közben számolja a szavak gyakoriságát. A megmaradó szó gyakoriság 
-     * mezőjének értékére beállítja a törlések során számolt gyakoriságot.
-     * Egy HashMap-ben tárolja az így már egyszer előforduló szóhoz tartozó lista-indexet, így keresés nélkül megállapítható, hogy 
-     * egy adott szó benne van-e a listában.
+     * Ha van bemenő adat a felhasználótól, akkor alaphelyzetbe állítja a főablakot,
+     * beállítja a töltés ablakot, letiltja a futtatás gombot, elindítja azt a szálat
+     * ami a háttérben az adatok feldolgozását végzi. Ha befejezte a feldolgozást, akkor
+     * leveszi a tiltást a futtatás gombról, felugró ablakban tájékoztat, és megjeleníti
+     * az eredményeket a főablakban.
      */
-    public void azonosakTorlese() {
-        data.sort((s1, s2) -> s1.getSzo().compareTo(s2.getSzo()));
-        data.add(new Sor("", "", 1));
-        LinkedList<Sor> csatoltLista = new LinkedList<>(data);
-        ListIterator<Sor> it = csatoltLista.listIterator();
-        int i = 0;
-        while (it.hasNext()) {
-            Sor s = it.next();
-            s.mondatotHozzaad(s.getMondat());
-            szavak_indexe.put(s.getSzo(), i);
-            int db = 1;
-            if (it.hasNext()) {
-                Sor s2 = it.next();
-                while(it.hasNext() && s.getSzo().equals(s2.getSzo())) {
-                    s.mondatotHozzaad(s2.getMondat());
-                    it.remove();
-                    db++;
-                    s2 = it.next();
-                }
-                it.previous();
-            }
-            csatoltLista.get(i).setGyak(db);
-            i++;
-            s.azonosakTorleseListabol();
-        }
-        data.clear();
-        data.addAll(csatoltLista);
-        data.remove(data.size()-1);
-    }
-    
-    /**
-     * Végigmegy a listán és ha a szó "torlendo", akkor törli onnan. Különben ha be volt jelölve az egyszer előforduló
-     * szavak megjelenítésének tiltása és egyszer fordul elő a szó, akkor szintén törli a listából. Számolja a törölt szavak gyakoriságát.
-     */
-    public void listaTorlesek() {
-        toroltSzavak = 0;
-        for (int i = 0; i < data.size(); i++) {
-            String szo = data.get(i).getSzo();
+    @FXML
+    public void futtat() {
+        
+        // Ellenőrzi, hogy van-e bemenő feldolgozandó szöveg
+        if (txaBevitel.getText().equals("") && fajlUtvonal == null) {
+            figyelmeztet("Figyelem!", "Üres szövegmező! Kérem adjon meg szöveget,"
+                         + " vagy használja a Tallózás gombot!");
             
-            if (cxbEgyszer.isSelected() && data.get(i).getGyak() == 1 && !szo.equals("torlendo")) {
-                data.remove(i--);
-                eredetiOsszesSzo--;
-            } else if (szo.equals("torlendo")) {
-                toroltSzavak += data.get(i).getGyak();
-                data.remove(i--);
-            }
+        // Ellenőrzi, hogy ki van-e válaszva a forrásnyelv
+        } else if (cbxForras.getValue() == null) {
+            figyelmeztet("Figyelem!", "Kérem adja meg a forrásnyelvet is!");
+            
+        } else {
+        
+            // Korábbi listener eltávolítása
+            tblTablazat.getSelectionModel().selectedItemProperty().removeListener(listener);
+            // Korábbi HashMap beállítások törlése.
+            szavak_indexe.clear();
+            // Korábbi lista törlése.
+            data.clear();
+            txaMondat.setText("");
+            lblSzazalekIsmert.setText("");
+            // A megadott forrásnyelv beállítása (pl: 'Német' -> 'de')
+            forrasNyelvKod = nyelvekKodja.get(cbxForras.getValue());
+            TablaNevEleje = forrasNyelvKod + "_";
+            
+            
+            Stage primaryStage = new Stage();
+            Group root = new Group();
+            Scene scene = new Scene(root, 330, 120);
+            BorderPane mainPane = new BorderPane();
+            root.getChildren().add(mainPane);
+            
+            final Label label = new Label("Adatok feldolgozása folyamatban");
+            final ProgressBar progressBar = new ProgressBar(0);
+            final VBox vb = new VBox();
+            
+            progressBar.setPrefWidth(250);
+            vb.setPrefWidth(330);
+            vb.setPrefHeight(120);
+            vb.setSpacing(20);
+            vb.setAlignment(Pos.CENTER);
+            vb.getChildren().addAll(label, progressBar);
+            mainPane.setTop(vb);
+            
+            progressBar.setProgress(0);
+            copyWorker = createWorker();
+            progressBar.progressProperty().unbind();
+            progressBar.progressProperty().bind(copyWorker.progressProperty());
+            
+            btnFeldolgoz.setDisable(true);
+            new Thread(copyWorker).start();
+            
+            copyWorker.setOnSucceeded(e -> {
+                primaryStage.hide();
+                btnFeldolgoz.setDisable(false);
+                
+                if (data.isEmpty()) {
+                    figyelmeztet("Figyelem!", "A nem megfelelő karakterek eltávolítása és az adatbázis szinkronizálás után nem "
+                            + "maradt megjeleníthető eredmény!");
+                } else {
+                    tajekoztat("Kész!", "Az adatok feldolgozása befejeződött!");
+                }
+                
+                tblTablazat.setItems(data);
+                // Listener beállítása az adatok táblázatba betöltése után
+                tblTablazat.getSelectionModel().selectedItemProperty().addListener(listener);
+                lblTallozasEredmeny.setText("");
+                lblSzazalekIsmert.setText((int)((double)toroltSzavak / eredetiOsszesSzo * 10000) / 100.0 + " %");
+                
+                if (forrasNyelvKod.equals("en")) {
+                    if (fleschScore > 90) lblOlvashatosag.setText((int)fleschScore + "  (Very easy to read)");
+                    else if (fleschScore > 80) lblOlvashatosag.setText((int)fleschScore + "  (Easy to read)");
+                    else if (fleschScore > 70) lblOlvashatosag.setText((int)fleschScore + "  (Fairly easy to read)");
+                    else if (fleschScore > 60) lblOlvashatosag.setText((int)fleschScore + "  (Plain English)");
+                    else if (fleschScore > 50) lblOlvashatosag.setText((int)fleschScore + "  (Fairly difficult to read)");
+                    else if (fleschScore > 30) lblOlvashatosag.setText((int)fleschScore + "  (Difficult to read)");
+                    else lblOlvashatosag.setText((int)fleschScore + "  (Very difficult to read)");
+                } else {
+                    lblOlvashatosag.setText("Nem érhető el");
+                }
+                
+            });
+            primaryStage.setScene(scene);
+            primaryStage.show();
         }
+        
     }
 
     /**

@@ -69,35 +69,35 @@ public class Sor {
         }
     }
     
-    public String getSzo()                      { return szo; }
+    public String  getSzo()                      { return szo; }
 
-    public void setSzo(String szo)              { this.szo = szo; }
+    public void    setSzo(String szo)            { this.szo = szo; }
 
-    public String getMondat()                   { return mondat; }
+    public String  getMondat()                   { return mondat; }
 
-    public void setMondat(String mondat)        { this.mondat = mondat; }
+    public void    setMondat(String mondat)      { this.mondat = mondat; }
 
-    public int getGyak()                        { return gyak; }
+    public int     getGyak()                     { return gyak; }
 
-    public void setGyak(int gyak)               { this.gyak = gyak; }
+    public void    setGyak(int gyak)             { this.gyak = gyak; }
 
-    public boolean isTilt()                     { return tilt; }
+    public boolean isTilt()                      { return tilt; }
 
-    public void setTilt(boolean tilt)           { this.tilt = tilt; }
+    public void    setTilt(boolean tilt)         { this.tilt = tilt; }
 
-    public String getTabla()                    { return tabla; }
+    public String  getTabla()                    { return tabla; }
 
-    public void setTabla(String tabla)          { this.tabla = tabla; }
+    public void    setTabla(String tabla)        { this.tabla = tabla; }
 
-    public String getForditas()                 { return forditas; }
+    public String  getForditas()                 { return forditas; }
 
-    public void setForditas(String forditas)    { this.forditas = forditas; }
+    public void    setForditas(String forditas)  { this.forditas = forditas; }
 
-    public String getNevelo()                   { return nevelo; }
+    public String  getNevelo()                   { return nevelo; }
 
-    public void setNevelo(String nevelo)        { this.nevelo = nevelo; }
+    public void    setNevelo(String nevelo)      { this.nevelo = nevelo; }
 
-    public List<String> getMondatok()           { return mondatok; }
+    public List<String> getMondatok()            { return mondatok; }
 
     public void setMondatok(List<String> mondatok) { this.mondatok = mondatok; }
 
