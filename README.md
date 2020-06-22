@@ -1,7 +1,7 @@
 # Nyelvtanulas-KR
 Készítette: Kremmer Róbert
 
-LETÖLTÉS: https://drive.google.com/drive/folders/1J9NI1lEkX9DiK-xdSaOnJIaJZWIB-G5L?usp=sharing
+FUTTATHATÓ JAR-FILE ÉS A SZÜKSÉGES KÖNYVTÁRAK LETÖLTÉSE: https://drive.google.com/drive/folders/1J9NI1lEkX9DiK-xdSaOnJIaJZWIB-G5L?usp=sharing
 
 Program működésének rövid leírása:
 ------------------------------
