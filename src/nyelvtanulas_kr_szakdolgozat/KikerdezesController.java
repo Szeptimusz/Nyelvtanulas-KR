@@ -2,7 +2,6 @@ package nyelvtanulas_kr_szakdolgozat;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -11,7 +10,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import static nyelvtanulas_kr_szakdolgozat.FoablakController.uzenetek;
 import static panel.Panel.figyelmeztet;
-import static panel.Panel.tajekoztat;
 
 /**
  * A kikérdezés ablakot kezelő osztály. Az adott nyelv tanulandó szavai közül kikérdezi
@@ -20,7 +18,6 @@ import static panel.Panel.tajekoztat;
  */
 public class KikerdezesController implements Initializable, Feliratok {
 
-    static HashMap<String, String> nyelvekKodja = new HashMap<>();
     ArrayList<Sor> rekordok = new ArrayList<>();
     int            index;
     String         forrasNyelvKod;
@@ -58,7 +55,7 @@ public class KikerdezesController implements Initializable, Feliratok {
         if (cbxNyelvek.getValue() == null) {
             figyelmeztet(uzenetek.get("figyelmeztet"),uzenetek.get("melyiknyelv"));
         } else {
-            forrasNyelvKod = nyelvekKodja.get(cbxNyelvek.getValue());
+            forrasNyelvKod = FoablakController.nyelvekKodja.get(cbxNyelvek.getValue());
             rekordok = DB.tanulandotLekerdez(forrasNyelvKod + "_tanulando");
             if (rekordok.isEmpty()) {
                 figyelmeztet(uzenetek.get("figyelmeztet"),uzenetek.get("nincsentanulando"));
@@ -179,37 +176,22 @@ public class KikerdezesController implements Initializable, Feliratok {
     }
     
     /**
-     * A legördülő lista nyelveinek beállítása és rövidítéseik tárolása.
-     * Alapértelmezetten az értékelő és válasz gombok letiltása.
+     * A legördülő lista nyelveinek beállítása. Ablak feliratok beállítása a
+     * megfelelő nyelven. Alapértelmezetten az értékelő és válasz gombok letiltása.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         
-        String [] feliratok;
+        cbxNyelvek.getItems().clear();
+        cbxNyelvek.getItems().addAll(FoablakController.nyelvek);
         
-        switch (FoablakController.feluletNyelve) {
-            case "magyar" :
-                feliratok = KIKERDEZES_MAGYARFELIRATOK;
-                FoablakController.nyelvekBeallitasa(cbxNyelvek, nyelvekKodja, Feliratok.NYELVEK_MAGYAR);
-                break;
-            case "english" :
-                feliratok = KIKERDEZES_ANGOLFELIRATOK;
-                FoablakController.nyelvekBeallitasa(cbxNyelvek, nyelvekKodja, Feliratok.NYELVEK_ANGOL);
-                break;
-            default :
-                feliratok = KIKERDEZES_MAGYARFELIRATOK;
-                FoablakController.nyelvekBeallitasa(cbxNyelvek, nyelvekKodja, Feliratok.NYELVEK_MAGYAR);
-                break;
-        }
-        
-        lblKeremValasszaKi.setText(feliratok[0]);
-        btnKikerdezestElindit.setText(feliratok[1]);
-        btnValasz.setText(feliratok[2]);
-        btnUjra.setText(feliratok[3]);
-        btnNehez.setText(feliratok[4]);
-        btnJo.setText(feliratok[5]);
-        btnKonnyu.setText(feliratok[6]);
-        
+        lblKeremValasszaKi.setText(FoablakController.kikerdezesFelirat[0]);
+        btnKikerdezestElindit.setText(FoablakController.kikerdezesFelirat[1]);
+        btnValasz.setText(FoablakController.kikerdezesFelirat[2]);
+        btnUjra.setText(FoablakController.kikerdezesFelirat[3]);
+        btnNehez.setText(FoablakController.kikerdezesFelirat[4]);
+        btnJo.setText(FoablakController.kikerdezesFelirat[5]);
+        btnKonnyu.setText(FoablakController.kikerdezesFelirat[6]);
         
         gombokatTilt(true);
         btnValasz.setDisable(true);

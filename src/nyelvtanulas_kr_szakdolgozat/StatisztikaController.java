@@ -1,7 +1,6 @@
 package nyelvtanulas_kr_szakdolgozat;
 
 import java.net.URL;
-import java.util.HashMap;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -15,9 +14,8 @@ import javafx.scene.control.Label;
  */
 public class StatisztikaController implements Initializable, Feliratok {
 
-    static HashMap<String, String>  nyelvekKodja = new HashMap<>();
     @FXML
-    private ComboBox<String>        cbxNyelvek;
+    private ComboBox<String>  cbxNyelvek;
     @FXML
     private Label lblKeremValasszonKi;
     @FXML
@@ -48,21 +46,20 @@ public class StatisztikaController implements Initializable, Feliratok {
     private Label lblOsszes;
    
     /**
-     * Beállítja a legördülő lista nyelveit és tárolja azok kódját.
+     * Beállítja a legördülő lista nyelveit.
      * A legördülő listához rendelt listener figyeli a kiválasztott nyelvet és mindig az aktuálisan
      * kiválasztott nyelv tábláinak adatait jeleníti meg az ablak címkéiben. A címkékben megjelenített adatok:
      * az összes szó mennyisége, az ismert szavak száma, a figyelmen kívül hagyott szavak száma, az összes tanulandó
      * szó mennyisége, az importált tanulandó szavak száma és a nem importált tanulandó szavak száma.
+     * Beállítja az ablak feliratait a megfelelő nyelven.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Legördülő lista nyelveinek beállítása
-        FoablakController.nyelvekBeallitasa(cbxNyelvek, nyelvekKodja, Feliratok.NYELVEK_MAGYAR);
         
         // A legördülő listában kiválasztott nyelv tábláiból statisztikát készít
         cbxNyelvek.getSelectionModel().selectedItemProperty().addListener(
             (v, regi, uj) -> {
-                String nyelvKodja = nyelvekKodja.get(uj);
+                String nyelvKodja = FoablakController.nyelvekKodja.get(uj);
 
                 int ismert = DB.statisztikatLekerdez(nyelvKodja + "_szavak","ismert");
                 int ignoralt = DB.statisztikatLekerdez(nyelvKodja + "_szavak","ignoralt");
@@ -77,36 +74,17 @@ public class StatisztikaController implements Initializable, Feliratok {
                 lblNemImportaltTanulando.setText(nemExportalt + "");
             });
         
+        cbxNyelvek.getItems().clear();
+        cbxNyelvek.getItems().addAll(FoablakController.nyelvek);
         
-        
-        String [] feliratok;
-        
-        switch (FoablakController.feluletNyelve) {
-            case "magyar" :
-                feliratok = STATISZTIKA_MAGYARFELIRATOK;
-                FoablakController.nyelvekBeallitasa(cbxNyelvek, nyelvekKodja, Feliratok.NYELVEK_MAGYAR);
-                break;
-            case "english" :
-                feliratok = STATISZTIKA_ANGOLFELIRATOK;
-                FoablakController.nyelvekBeallitasa(cbxNyelvek, nyelvekKodja, Feliratok.NYELVEK_ANGOL);
-                break;
-            default :
-                feliratok = STATISZTIKA_MAGYARFELIRATOK;
-                FoablakController.nyelvekBeallitasa(cbxNyelvek, nyelvekKodja, Feliratok.NYELVEK_MAGYAR);
-                break;
-        }
-        
-        lblStatisztika.setText(feliratok[0]);
-        lblKeremValasszonKi.setText(feliratok[1]);
-        lblOsszesSzo.setText(feliratok[2]);
-        lblIsmertSzavak.setText(feliratok[3]);
-        lblFigyelmenKivulHagyott.setText(feliratok[4]);
-        lblTanulandoSzavak.setText(feliratok[5]);
-        lblExportaltSzavak.setText(feliratok[6]);
-        lblNemExportaltSzavak.setText(feliratok[7]);
-        
+        lblStatisztika.setText(FoablakController.statisztikaFelirat[0]);
+        lblKeremValasszonKi.setText(FoablakController.statisztikaFelirat[1]);
+        lblOsszesSzo.setText(FoablakController.statisztikaFelirat[2]);
+        lblIsmertSzavak.setText(FoablakController.statisztikaFelirat[3]);
+        lblFigyelmenKivulHagyott.setText(FoablakController.statisztikaFelirat[4]);
+        lblTanulandoSzavak.setText(FoablakController.statisztikaFelirat[5]);
+        lblExportaltSzavak.setText(FoablakController.statisztikaFelirat[6]);
+        lblNemExportaltSzavak.setText(FoablakController.statisztikaFelirat[7]);
     }
-    
-    
     
 }

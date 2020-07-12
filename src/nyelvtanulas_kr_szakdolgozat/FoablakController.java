@@ -60,19 +60,29 @@ import static panel.Panel.tajekoztat;
  */
 public class FoablakController implements Initializable, Feliratok {
 
-    static String fajlUtvonal;
-    static String TablaNevEleje;
-    static String forrasNyelvKod;
-    static int    eredetiOsszesSzo;
-    static int    toroltSzavak;
-    static String mappaUtvonal = System.getProperty("user.dir");
-    static HashMap<String, Integer> szavak_indexe = new HashMap<>();
-    static HashMap<String, String>  nyelvekKodja  = new HashMap<>();
-    static HashMap<String, String>  uzenetek      = new HashMap<>();
-    static String feluletNyelve;
-    private final ObservableList<Sor> data = FXCollections.observableArrayList();
+    String fajlUtvonal;
+    String TablaNevEleje;
+    String forrasNyelvKod;
+    String mappaUtvonal = System.getProperty("user.dir");
+    int    eredetiOsszesSzo;
+    int    toroltSzavak;
     int    progress = 1;
     double fleschScore;
+    HashMap<String, Integer> szavak_indexe = new HashMap<>();
+    
+    // Statikus adatmezők a felület nyelvének beállítására és a nyelvek kódjainak
+    // meghatározására (más osztályokból is)
+    static HashMap<String, String>  nyelvekKodja  = new HashMap<>();
+    static HashMap<String, String>  uzenetek      = new HashMap<>();
+    static String [] foablakFelirat;
+    static String [] ankiFelirat;
+    static String [] forditasFelirat;
+    static String [] nyelvek;
+    static String [] kikerdezesFelirat;
+    static String [] statisztikaFelirat;
+    static String [] nevjegyFelirat;
+    
+    private final ObservableList<Sor> data = FXCollections.observableArrayList();
     
     @FXML
     private Menu             menuOpciok;
@@ -598,28 +608,14 @@ public class FoablakController implements Initializable, Feliratok {
         }
     }
     
-    /**
-     * A kapott comboboxba beállítja a nyelvek teljes nevét, majd hashmap-ben tárolja a hozzá tartozó rövidítést.
-     * @param combobox          A legördülő lista neve
-     * @param hashmap           Hashmap neve
-     * @param nyelvekLeforditva A felület nyelvére lefordítva a nyelvek nevei
-     */
-    public static void nyelvekBeallitasa(ComboBox<String> combobox, HashMap<String, String> hashmap, String [] nyelvekLeforditva) {
-        String roviditettNyelv [] = {"en","es","fr","de","it","pt","nl","pl","da","cs","sk","sl"};
-
-        combobox.getItems().clear();
-        combobox.getItems().addAll(nyelvekLeforditva);
-        for (int i = 0; i < nyelvekLeforditva.length; i++) {
-            hashmap.put(nyelvekLeforditva[i], roviditettNyelv[i]);
-        }
-    } 
 
     /**
-     * A program indulásakor a DB osztály osztályváltozójára beállítja az adatbázis elérési útvonalát, ha nincsen 
-     * adatbázis, akkor előtte létrehozza a projekt mappájába. Beállítja a Főablak legördülő listájának nyelveit.
-     * Megadja, hogy a táblázat egy adott oszlopának értéke a Sor osztály melyik mezőjéből legyen kiszedve. Az ismert-tanulandó-
-     * ignorált gombok letiltásához és a táblázat feletti mondatkiíráshoz definiál egy listenert, amit még nem rendel hozzá semmihez.
-     * 
+     * Megadja, hogy a táblázat egy adott oszlopának értéke 
+     * a Sor osztály melyik mezőjéből legyen kiszedve. Az ismert-tanulandó-ignorált gombok letiltásához és 
+     * a táblázat feletti mondatkiíráshoz definiál egy listenert, amit még nem rendel hozzá semmihez.
+     * Beállítja a szavakat adatbázisba mentő gombokra a hotkey-ket. Fájlból beolvassa a felület nyelvét,
+     * beállítja a felület feliratait. A DB osztály osztályváltozójára beállítja az adatbázis elérési útvonalát,
+     * ha nincsen adatbázis, akkor előtte létrehozza a projekt mappájába.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -721,67 +717,98 @@ public class FoablakController implements Initializable, Feliratok {
     }
     
     /**
-     * A kapott nyelvkód alapján eldönti, hogy melyik tömböt használja a feliratok
-     * beállításakor a főablakban. Beállítja a feliratokat.
+     * A kapott nyelv alapján a statikus felirat mezőkre beállítja a megfelelő 
+     * Feliratok interface-beli string tömböket (más java osztály hozzá tud férni, hogy
+     * egy másik ablak feliratait beállítsa). A főablakon alkalmazza a feliratokat.
      * @param nyelv A feliratok nyelvét határozza meg
      */
     public void foablakFeliratokatBeallit(String nyelv) {
         
-        feluletNyelve = nyelv;
-        String [] feliratok;
-        
         switch (nyelv) {
             case "magyar" :
-                feliratok = FOABLAK_MAGYARFELIRATOK;
-                nyelvekBeallitasa(cbxForras, nyelvekKodja, Feliratok.NYELVEK_MAGYAR);
-                uzenetek = UZENETEK_MAGYAR;
+                foablakFelirat     = FOABLAK_MAGYARFELIRATOK;
+                ankiFelirat        = ANKI_MAGYARFELIRATOK;
+                forditasFelirat    = FORDITAS_MAGYARFELIRATOK;
+                nyelvek            = NYELVEK_MAGYAR;
+                kikerdezesFelirat  = KIKERDEZES_MAGYARFELIRATOK;
+                statisztikaFelirat = STATISZTIKA_MAGYARFELIRATOK;
+                nevjegyFelirat     = NEVJEGY_MAGYARFELIRATOK;
+                uzenetek           = UZENETEK_MAGYAR;
                 break;
+                
             case "english" :
-                feliratok = FOABLAK_ANGOLFELIRATOK;
-                nyelvekBeallitasa(cbxForras, nyelvekKodja, Feliratok.NYELVEK_ANGOL);
-                uzenetek = UZENETEK_ANGOL;
+                foablakFelirat     = FOABLAK_ANGOLFELIRATOK;
+                ankiFelirat        = ANKI_ANGOLFELIRATOK;
+                forditasFelirat    = FORDITAS_ANGOLFELIRATOK;
+                nyelvek            = NYELVEK_ANGOL;
+                kikerdezesFelirat  = KIKERDEZES_ANGOLFELIRATOK;
+                statisztikaFelirat = STATISZTIKA_ANGOLFELIRATOK;
+                nevjegyFelirat     = NEVJEGY_ANGOLFELIRATOK;
+                uzenetek           = UZENETEK_ANGOL;
                 break;
+                
             default :
-                feliratok = FOABLAK_MAGYARFELIRATOK;
-                nyelvekBeallitasa(cbxForras, nyelvekKodja, Feliratok.NYELVEK_MAGYAR);
-                uzenetek = UZENETEK_MAGYAR;
+                foablakFelirat     = FOABLAK_MAGYARFELIRATOK;
+                ankiFelirat        = ANKI_MAGYARFELIRATOK;
+                forditasFelirat    = FORDITAS_MAGYARFELIRATOK;
+                nyelvek            = NYELVEK_MAGYAR;
+                kikerdezesFelirat  = KIKERDEZES_MAGYARFELIRATOK;
+                statisztikaFelirat = STATISZTIKA_MAGYARFELIRATOK;
+                nevjegyFelirat     = NEVJEGY_MAGYARFELIRATOK;
+                uzenetek           = UZENETEK_MAGYAR;
                 break;
         }
         
-        menuOpciok.setText(feliratok[0]);
-        menuiAnki.setText(feliratok[1]);
-        menuiKikerdezes.setText(feliratok[2]);
-        menuiStatisztika.setText(feliratok[3]);
-        menuiKilepes.setText(feliratok[4]);
-        menuEgyeb.setText(feliratok[5]);
-        menuiNevjegy.setText(feliratok[6]);
-        lblLehetoseg.setText(feliratok[7]);
-        lblKulsoSzovegesTallozas.setText(feliratok[8]);
-        btnTalloz.setText(feliratok[9]);
-        lblSzovegKozvetlenBemasolas.setText(feliratok[10]);
-        lblEgyszeritNeListazza.setText(feliratok[11]);
-        lblForrasnyelv.setText(feliratok[12]);
-        btnFeldolgoz.setText(feliratok[13]);
-        lblFeldolgozasEredmeny.setText(feliratok[14]);
-        btnIsmert.setText(feliratok[15]);
-        btnTanulando.setText(feliratok[16]);
-        btnIgnore.setText(feliratok[17]);
-        btnVisszavon.setText(feliratok[18]);
-        oSzo.setText(feliratok[19]);
-        oMondat.setText(feliratok[20]);
-        oGyak.setText(feliratok[21]);
-        lblIsmertseg.setText(feliratok[22]);
-        lblOlvashato.setText(feliratok[23]);
-        menuNyelv.setText(feliratok[24]);
-        menuiMagyar.setText(feliratok[25]);
-        menuiEnglish.setText(feliratok[26]);
+        /* Beállítja a legördülő lista nyelveit (a felületen használt nyelven) és
+           a nyelvek nevéhez statikus hashmap-ben hozzárendeli a nyelv kódját (más
+           osztály használni tudja a nyelvkód megállapításához */
+        String roviditettNyelv [] = {"en","es","fr","de","it","pt","nl","pl","da","cs","sk","sl"};
+        cbxForras.getItems().clear();
+        cbxForras.getItems().addAll(nyelvek);
+        for (int i = 0; i < nyelvek.length; i++) {
+            nyelvekKodja.put(nyelvek[i], roviditettNyelv[i]);
+        }
+        
+        menuOpciok.setText(foablakFelirat[0]);
+        menuiAnki.setText(foablakFelirat[1]);
+        menuiKikerdezes.setText(foablakFelirat[2]);
+        menuiStatisztika.setText(foablakFelirat[3]);
+        menuiKilepes.setText(foablakFelirat[4]);
+        menuEgyeb.setText(foablakFelirat[5]);
+        menuiNevjegy.setText(foablakFelirat[6]);
+        lblLehetoseg.setText(foablakFelirat[7]);
+        lblKulsoSzovegesTallozas.setText(foablakFelirat[8]);
+        btnTalloz.setText(foablakFelirat[9]);
+        lblSzovegKozvetlenBemasolas.setText(foablakFelirat[10]);
+        lblEgyszeritNeListazza.setText(foablakFelirat[11]);
+        lblForrasnyelv.setText(foablakFelirat[12]);
+        btnFeldolgoz.setText(foablakFelirat[13]);
+        lblFeldolgozasEredmeny.setText(foablakFelirat[14]);
+        btnIsmert.setText(foablakFelirat[15]);
+        btnTanulando.setText(foablakFelirat[16]);
+        btnIgnore.setText(foablakFelirat[17]);
+        btnVisszavon.setText(foablakFelirat[18]);
+        oSzo.setText(foablakFelirat[19]);
+        oMondat.setText(foablakFelirat[20]);
+        oGyak.setText(foablakFelirat[21]);
+        lblIsmertseg.setText(foablakFelirat[22]);
+        lblOlvashato.setText(foablakFelirat[23]);
+        menuNyelv.setText(foablakFelirat[24]);
+        menuiMagyar.setText(foablakFelirat[25]);
+        menuiEnglish.setText(foablakFelirat[26]);
     }
     
+    /**
+     * A program teljes felületét angol nyelvűre állító gomb.
+     */
     @FXML
     void feluletAngolra() {
         foablakFeliratokatBeallit("english");
     }
 
+    /**
+     * A program teljes felületét magyar nyelvűre állító gomb.
+     */
     @FXML
     void feluletMagyarra() {
         foablakFeliratokatBeallit("magyar");

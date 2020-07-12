@@ -11,7 +11,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -43,8 +42,6 @@ public class AnkiController implements Initializable, Feliratok {
     @FXML
     private ComboBox<String>  cbxNyelvek;
     
-    static HashMap<String, String> nyelvekKodja = new HashMap<>();
-    
     /**
      * Ha van kiválasztott nyelv, akkor az ahhoz tartozó tanulandó táblában megkeresi azokat a rekordokat, amikből még nem volt
      * Anki-import készítve. Elkészíti az Anki-import fájlt és átírja az érintett szavak ANKI állapotát 1-re a tanulandó táblában.
@@ -54,7 +51,7 @@ public class AnkiController implements Initializable, Feliratok {
     public void kartyatKeszit() {
         if (igennem(uzenetek.get("ankiimportkeszites"),uzenetek.get("akarankiimportotkesziteni"))) {
             ArrayList<String> szavak = new ArrayList<>();
-            String forrasNyelvKod = nyelvekKodja.get(cbxNyelvek.getValue());
+            String forrasNyelvKod = FoablakController.nyelvekKodja.get(cbxNyelvek.getValue());
             if (forrasNyelvKod != null) {
                 String query = "SELECT nevelo, szavak, mondatok, forditas FROM " + forrasNyelvKod + "_tanulando WHERE ANKI == 0";
                 try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
@@ -94,7 +91,7 @@ public class AnkiController implements Initializable, Feliratok {
      * A kapott szóból, mondatból és fordításból olyan .txt fájlt készít, amit az ANKI szótanuló program be tud importálni 
      * és szókártyákat tud belőle készíteni. A fájlba írás FileOutputStream-el, UTF-8 kódolással történik (az Anki program
      * csak UTF-8-at fogad el importálásnál). A kiírásnál a szókártya két oldalát a \t - tabulátor jelzi, a szókártyákat \n-
-     * új sor választja el.
+     * új sor választja el. A példamondatnak elkészíti egy olyan verzióját, ahol az idegen szó helye ki van pontozva.
      * @param nevelo           A szó névelője
      * @param szo              A tanulandó szó.
      * @param mondat           A szóhoz tartozó példamondat.
@@ -117,32 +114,19 @@ public class AnkiController implements Initializable, Feliratok {
     }
     
     /**
-     * A nyelv kiválasztásához beállítja a legördülő lista nyelveit és tárolja azok kódját.
+     * A nyelv kiválasztásához beállítja a legördülő lista nyelveit, beállítja
+     * az ablak feliratait a megfelelő nyelven.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
-        String [] feliratok;
         
-        switch (FoablakController.feluletNyelve) {
-            case "magyar" :
-                feliratok = ANKI_MAGYARFELIRATOK;
-                FoablakController.nyelvekBeallitasa(cbxNyelvek, nyelvekKodja, Feliratok.NYELVEK_MAGYAR);
-                break;
-            case "english" :
-                feliratok = ANKI_ANGOLFELIRATOK;
-                FoablakController.nyelvekBeallitasa(cbxNyelvek, nyelvekKodja, Feliratok.NYELVEK_ANGOL);
-                break;
-            default :
-                feliratok = ANKI_MAGYARFELIRATOK;
-                FoablakController.nyelvekBeallitasa(cbxNyelvek, nyelvekKodja, Feliratok.NYELVEK_MAGYAR);
-                break;
-        }
+        cbxNyelvek.getItems().clear();
+        cbxNyelvek.getItems().addAll(FoablakController.nyelvek);
         
-        lblKeremValasszaKi.setText(feliratok[0]);
-        btnKartyakElkeszitese.setText(feliratok[1]);
-        btnMegse.setText(feliratok[2]);
-
+        lblKeremValasszaKi.setText(FoablakController.ankiFelirat[0]);
+        btnKartyakElkeszitese.setText(FoablakController.ankiFelirat[1]);
+        btnMegse.setText(FoablakController.ankiFelirat[2]);
+        
     }
 
     

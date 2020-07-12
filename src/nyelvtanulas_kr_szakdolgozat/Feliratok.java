@@ -2,6 +2,10 @@ package nyelvtanulas_kr_szakdolgozat;
 
 import java.util.HashMap;
 
+/**
+ * A feliratok különböző nyelveken tömbökben eltárolása.
+ * @author Kremmer Róbert
+ */
 public interface Feliratok {
     
     ////////////////////////////////////////////////////////////////////////////
@@ -147,7 +151,7 @@ public interface Feliratok {
         "Options",
         "Create ANKI-import",
         "Review cards",
-        "Statistic",
+        "Statistics",
         "Exit",
         "Other",
         "About",

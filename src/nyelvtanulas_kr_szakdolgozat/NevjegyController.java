@@ -47,6 +47,9 @@ public class NevjegyController implements Initializable, Feliratok {
         }
     }
     
+    /**
+     * Megnyitja a program Github oldalát.
+     */
     @FXML
     void github() {
         try {
@@ -58,28 +61,15 @@ public class NevjegyController implements Initializable, Feliratok {
     
     /**
      * Beállítja az ablak címkéibe a készítőt és a verzió számot.
+     * Beállítja az ablak feliratait a megfelelő nyelven.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         
-        String [] feliratok;
-        
-        switch (FoablakController.feluletNyelve) {
-            case "magyar" :
-                feliratok = NEVJEGY_MAGYARFELIRATOK;
-                break;
-            case "english" :
-                feliratok = NEVJEGY_ANGOLFELIRATOK;
-                break;
-            default :
-                feliratok = NEVJEGY_MAGYARFELIRATOK;
-                break;
-        }
-        
-        lblKeszito.setText(feliratok[0] + " Kremmer Róbert");
-        lblVerzio.setText(feliratok[1] + " 1.7");
-        btnFejlesztoiDok.setText(feliratok[2]);
-        btnGithub.setText(feliratok[3]);
+        lblKeszito.setText(FoablakController.nevjegyFelirat[0] + " Kremmer Róbert");
+        lblVerzio.setText(FoablakController.nevjegyFelirat[1] + " 1.7.1");
+        btnFejlesztoiDok.setText(FoablakController.nevjegyFelirat[2]);
+        btnGithub.setText(FoablakController.nevjegyFelirat[3]);
     }    
     
 }

@@ -64,16 +64,17 @@ public class ForditasController implements Feliratok {
     @FXML
     private Button      btnKovetkezo;
 
-    private String szo;
-    private List<String> mondatok;
-    private int mondatIndex = 0;
-    private String eredetiMondat;
-    private String forrasNyelvKod;
+    private String         szo;
+    private List<String>   mondatok;
+    private int            mondatIndex = 0;
+    private String         eredetiMondat;
+    private String         forrasNyelvKod;
     private static boolean tanulandoElmentve = false;
     
     /**
      * Beállítja a fordítás ablakban megjelenő adatokat: szó, példamondatok listája.
-     * Forrásnyelv alapján gombokat tilthat le. Hotkey-t rendel hozzá az ablakhoz. 
+     * Forrásnyelv alapján gombokat tilthat le. Hotkey-t rendel hozzá az ablakhoz.
+     * Beállítja az ablak felületének a kiírásait a megfelelő nyelven.
      * @param szo            A tanulandó szó
      * @param mondatok       A  példamondatok listája
      * @param forrasNyelvKod A forrásnyelv kódja
@@ -108,33 +109,20 @@ public class ForditasController implements Feliratok {
             });
         });
         
-        String [] feliratok;
-        
-        switch (FoablakController.feluletNyelve) {
-            case "magyar" :
-                feliratok = FORDITAS_MAGYARFELIRATOK;
-                break;
-            case "english" :
-                feliratok = FORDITAS_ANGOLFELIRATOK;
-                break;
-            default :
-                feliratok = FORDITAS_MAGYARFELIRATOK;
-                break;
-        }
-        
-        lblMentesElottKeremAdjaMeg.setText(feliratok[0]);
-        lblNevelo.setText(feliratok[1]);
-        lblSzo1.setText(feliratok[2]);
-        lblNagybetuvelKezdodjon.setText(feliratok[3]);
-        lblPeldamondat.setText(feliratok[4]);
-        btnEredetiPeldamondat.setText(feliratok[5]);
-        btnElozo.setText(feliratok[6]);
-        btnKovetkezo.setText(feliratok[7]);
-        btnGoogleTranslate.setText(feliratok[8]);
-        btnCambridge.setText(feliratok[9]);
-        btnDuden.setText(feliratok[10]);
-        lblSzoForditasa.setText(feliratok[11]);
-        btnHozzaadas.setText(feliratok[12]);
+        // Az ablak feliratainak beállítása a megfelelő nyelven
+        lblMentesElottKeremAdjaMeg.setText(FoablakController.forditasFelirat[0]);
+        lblNevelo.setText(FoablakController.forditasFelirat[1]);
+        lblSzo1.setText(FoablakController.forditasFelirat[2]);
+        lblNagybetuvelKezdodjon.setText(FoablakController.forditasFelirat[3]);
+        lblPeldamondat.setText(FoablakController.forditasFelirat[4]);
+        btnEredetiPeldamondat.setText(FoablakController.forditasFelirat[5]);
+        btnElozo.setText(FoablakController.forditasFelirat[6]);
+        btnKovetkezo.setText(FoablakController.forditasFelirat[7]);
+        btnGoogleTranslate.setText(FoablakController.forditasFelirat[8]);
+        btnCambridge.setText(FoablakController.forditasFelirat[9]);
+        btnDuden.setText(FoablakController.forditasFelirat[10]);
+        lblSzoForditasa.setText(FoablakController.forditasFelirat[11]);
+        btnHozzaadas.setText(FoablakController.forditasFelirat[12]);
     }
 
     /**
@@ -153,6 +141,10 @@ public class ForditasController implements Feliratok {
         ForditasController.tanulandoElmentve = tanulandoElmentve;
     }
     
+    /**
+     * Az adott szóhoz tartozó példamondatok listájából a korábbi mondatot 
+     * jeleníti meg (ha legalább a második elemnél van). Kijelöli a szót a mondatban.
+     */
     @FXML
     void elozoMondat() {
         mondatIndex--;
@@ -164,6 +156,10 @@ public class ForditasController implements Feliratok {
                               mondatok.get(mondatIndex).toLowerCase().indexOf(szo.toLowerCase()) + szo.length());
     }
     
+    /**
+     * Az adott szóhoz tartozó példamondatok listájából a későbbi mondatot
+     * jeleníti meg (kivéve ha már a lista végén van). Kijelöli a szót a mondatban.
+     */
     @FXML
     void kovetkezoMondat() {
         mondatIndex++;
@@ -230,6 +226,11 @@ public class ForditasController implements Feliratok {
             Desktop.getDesktop().browse(new URI("https://dictionary.cambridge.org/dictionary/english/" + szo));
     }
     
+    /**
+     * A Duden.de online német szótárat megnyitja az adott német szóval.
+     * @throws URISyntaxException
+     * @throws IOException 
+     */
     @FXML
     void megnyitDuden() throws URISyntaxException, IOException {
         if (cbxNagybetu.isSelected()) szo = szo.substring(0, 1).toUpperCase() + szo.substring(1);

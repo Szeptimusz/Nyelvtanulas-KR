@@ -12,13 +12,13 @@ import java.util.Set;
  */
 public class Sor {
 
-    private String nevelo;
-    private String szo;
-    private String mondat;
-    private int gyak;
+    private String  nevelo;
+    private String  szo;
+    private String  mondat;
+    private int     gyak;
     private boolean tilt = false;
-    private String tabla;
-    private String forditas;
+    private String  tabla;
+    private String  forditas;
     private List<String> mondatok;
   
     /**
