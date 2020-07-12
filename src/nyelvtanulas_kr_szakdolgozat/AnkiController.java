@@ -15,9 +15,12 @@ import java.util.HashMap;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.stage.Window;
 import static nyelvtanulas_kr_szakdolgozat.DB.adatbazisUtvonal;
+import static nyelvtanulas_kr_szakdolgozat.FoablakController.uzenetek;
 import static panel.Panel.figyelmeztet;
 import static panel.Panel.hiba;
 import static panel.Panel.igennem;
@@ -29,10 +32,17 @@ import static panel.Panel.tajekoztat;
  * importálni.
  * @author Kremmer Róbert
  */
-public class AnkiController implements Initializable {
+public class AnkiController implements Initializable, Feliratok {
 
     @FXML
-    private ComboBox<String> cbxNyelvek;
+    private Label             lblKeremValasszaKi;
+    @FXML
+    private Button            btnKartyakElkeszitese;
+    @FXML
+    private Button            btnMegse;
+    @FXML
+    private ComboBox<String>  cbxNyelvek;
+    
     static HashMap<String, String> nyelvekKodja = new HashMap<>();
     
     /**
@@ -42,7 +52,7 @@ public class AnkiController implements Initializable {
      */
     @FXML
     public void kartyatKeszit() {
-        if (igennem("ANKI kártya készítés","Valóban szeretne minden új tanulandó szóból ANKI-importot készíteni?")) {
+        if (igennem(uzenetek.get("ankiimportkeszites"),uzenetek.get("akarankiimportotkesziteni"))) {
             ArrayList<String> szavak = new ArrayList<>();
             String forrasNyelvKod = nyelvekKodja.get(cbxNyelvek.getValue());
             if (forrasNyelvKod != null) {
@@ -60,22 +70,22 @@ public class AnkiController implements Initializable {
                         if (keszit(nevelo, szo, mondat, forditas, forrasNyelvKod))
                             szavak.add(szo);
                         else 
-                            hiba("Hiba!","Hiba történt a kártya készítése során!");
+                            hiba(uzenetek.get("hiba"),uzenetek.get("hibaskartyakeszites"));
                     }
                 } catch (SQLException e) {
-                    hiba("Hiba!",e.getMessage());
+                    hiba(uzenetek.get("hiba"),e.getMessage());
                 }
                 // Ha sikeres volt az ANKI kártya készítés, akkor a táblában átírja az ANKI mezőt 0-ról 1-re.
                 if (!szavak.isEmpty()) {
                     DB.ankitModositAdatbazisban(forrasNyelvKod + "_tanulando",szavak);
-                    tajekoztat("Kártya készítés eredmény", 
-                        "A kártyák sikeresen elkészítve a(z):  " + forrasNyelvKod + " _ankiimport fájlba!");
+                    tajekoztat(uzenetek.get("kártyakesziteseredmeny"), 
+                        uzenetek.get("kartyakelkeszitve") + forrasNyelvKod + uzenetek.get("fajlba"));
                     cbxNyelvek.getScene().getWindow().hide();
                 } else {
-                    figyelmeztet("Figyelem!", "Nincsen tanulandó szó amiből szókártya készíthető!");
+                    figyelmeztet(uzenetek.get("figyelmeztet"), uzenetek.get("nincstanulando"));
                 }
             } else {
-                figyelmeztet("Figyelem!", "Kérem adja meg a nyelvet!");
+                figyelmeztet(uzenetek.get("figyelmeztet"), uzenetek.get("adjameganyelvet"));
             }
         }
     }
@@ -101,7 +111,7 @@ public class AnkiController implements Initializable {
                 return true;
                 
         } catch(IOException e) {
-            hiba("Hiba!",e.getMessage());
+            hiba(uzenetek.get("hiba"),e.getMessage());
             return false;
         }
     }
@@ -111,9 +121,30 @@ public class AnkiController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Legördülő lista nyelveinek beállítása
-        FoablakController.nyelvekBeallitasa(cbxNyelvek, nyelvekKodja);
+
+        String [] feliratok;
+        
+        switch (FoablakController.feluletNyelve) {
+            case "magyar" :
+                feliratok = ANKI_MAGYARFELIRATOK;
+                FoablakController.nyelvekBeallitasa(cbxNyelvek, nyelvekKodja, Feliratok.NYELVEK_MAGYAR);
+                break;
+            case "english" :
+                feliratok = ANKI_ANGOLFELIRATOK;
+                FoablakController.nyelvekBeallitasa(cbxNyelvek, nyelvekKodja, Feliratok.NYELVEK_ANGOL);
+                break;
+            default :
+                feliratok = ANKI_MAGYARFELIRATOK;
+                FoablakController.nyelvekBeallitasa(cbxNyelvek, nyelvekKodja, Feliratok.NYELVEK_MAGYAR);
+                break;
+        }
+        
+        lblKeremValasszaKi.setText(feliratok[0]);
+        btnKartyakElkeszitese.setText(feliratok[1]);
+        btnMegse.setText(feliratok[2]);
+
     }
+
     
     /**
      * Mégse-gombra kattintva az ablak bezárása

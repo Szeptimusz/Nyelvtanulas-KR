@@ -19,13 +19,13 @@
     <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
   </rowConstraints>
    <children>
-      <Label text="Kérem válassza ki, hogy melyik nyelv tanulandó szavaiból legyen ANKI-import készítve" wrapText="true">
+      <Label fx:id="lblKeremValasszaKi" wrapText="true">
          <font>
             <Font size="14.0" />
          </font>
       </Label>
-      <Button mnemonicParsing="false" onAction="#kartyatKeszit" text="Kártyák elkészítése" GridPane.rowIndex="1" />
-      <Button mnemonicParsing="false" onAction="#megse" text="Mégsem" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+      <Button fx:id="btnKartyakElkeszitese" mnemonicParsing="false" onAction="#kartyatKeszit" GridPane.rowIndex="1" />
+      <Button fx:id="btnMegse" mnemonicParsing="false" onAction="#megse" GridPane.columnIndex="1" GridPane.rowIndex="1" />
       <ComboBox fx:id="cbxNyelvek" prefWidth="150.0" GridPane.columnIndex="1" />
    </children>
    <padding>

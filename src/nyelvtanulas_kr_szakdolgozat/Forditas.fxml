@@ -31,22 +31,22 @@
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
   </rowConstraints>
    <children>
-      <Label text="A mentés előtt kérem adja meg a szó fordítását!" GridPane.columnSpan="2" GridPane.halignment="CENTER">
+      <Label fx:id="lblMentesElottKeremAdjaMeg" GridPane.columnSpan="2" GridPane.halignment="CENTER">
          <font>
             <Font size="18.0" />
          </font>
       </Label>
-      <Label text="Szó:" GridPane.rowIndex="2">
+      <Label fx:id="lblSzo1" GridPane.rowIndex="2">
          <font>
             <Font size="16.0" />
          </font>
       </Label>
-      <Label text="Példamondat:" GridPane.rowIndex="4" GridPane.valignment="TOP">
+      <Label fx:id="lblPeldamondat" GridPane.rowIndex="4" GridPane.valignment="TOP">
          <font>
             <Font size="16.0" />
          </font>
       </Label>
-      <Button mnemonicParsing="false" onAction="#megnyitGoogleTranslate" text="Google Translate" GridPane.columnSpan="2" GridPane.rowIndex="6" GridPane.valignment="BOTTOM">
+      <Button fx:id="btnGoogleTranslate" mnemonicParsing="false" onAction="#megnyitGoogleTranslate" GridPane.columnSpan="2" GridPane.rowIndex="6" GridPane.valignment="BOTTOM">
          <font>
             <Font size="13.0" />
          </font>
@@ -54,7 +54,7 @@
             <Insets />
          </GridPane.margin>
       </Button>
-      <Label text="Szó fordítása:" GridPane.rowIndex="9">
+      <Label fx:id="lblSzoForditasa" GridPane.rowIndex="9">
          <font>
             <Font size="16.0" />
          </font>
@@ -68,19 +68,19 @@
          </font>
       </Label>
       <TextField fx:id="txtForditas" maxWidth="300.0" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="9" />
-      <Button fx:id="btnCambridge" mnemonicParsing="false" onAction="#megnyitCambridge" text="Cambridge Dictionary (kizárólag angol nyelvnél elérhető)" GridPane.columnSpan="2" GridPane.rowIndex="7">
+      <Button fx:id="btnCambridge" mnemonicParsing="false" onAction="#megnyitCambridge" GridPane.columnSpan="2" GridPane.rowIndex="7">
          <font>
             <Font size="13.0" />
          </font>
       </Button>
-      <Button defaultButton="true" mnemonicParsing="false" onAction="#hozzaad" prefWidth="200.0" text="Hozzáadás" GridPane.halignment="CENTER" GridPane.rowIndex="10" />
+      <Button fx:id="btnHozzaadas" defaultButton="true" mnemonicParsing="false" onAction="#hozzaad" prefWidth="200.0" GridPane.halignment="CENTER" GridPane.rowIndex="10" />
       <TextArea fx:id="txaMondat" prefHeight="130.0" prefWidth="430.0" wrapText="true" GridPane.columnSpan="2" GridPane.rowIndex="4">
          <GridPane.margin>
             <Insets left="120.0" right="20.0" />
          </GridPane.margin>
       </TextArea>
-      <Button alignment="CENTER" mnemonicParsing="false" onAction="#visszaallit" prefHeight="60.0" prefWidth="100.0" text="Eredeti példamondat visszaállítása" wrapText="true" GridPane.rowIndex="4" />
-      <Label text="A szó nagybetűvel kezdődjön:" GridPane.rowIndex="3">
+      <Button fx:id="btnEredetiPeldamondat" alignment="CENTER" mnemonicParsing="false" onAction="#visszaallit" prefHeight="60.0" prefWidth="100.0" wrapText="true" GridPane.rowIndex="4" />
+      <Label fx:id="lblNagybetuvelKezdodjon" GridPane.rowIndex="3">
          <font>
             <Font size="14.0" />
          </font>
@@ -90,7 +90,7 @@
             <Insets left="200.0" />
          </GridPane.margin>
       </CheckBox>
-      <Label text="Névelő:" GridPane.rowIndex="1">
+      <Label fx:id="lblNevelo" GridPane.rowIndex="1">
          <font>
             <Font size="16.0" />
          </font>
@@ -100,7 +100,7 @@
             <Insets left="120.0" />
          </GridPane.margin>
       </TextField>
-      <Button fx:id="btnDuden" mnemonicParsing="false" onAction="#megnyitDuden" text="Duden (kizárólag német nyelvnél elérhető)" GridPane.rowIndex="8">
+      <Button fx:id="btnDuden" mnemonicParsing="false" onAction="#megnyitDuden" GridPane.rowIndex="8">
          <font>
             <Font size="13.0" />
          </font>
@@ -110,8 +110,8 @@
       </Button>
       <HBox prefHeight="25.0" prefWidth="469.0" spacing="30.0" GridPane.rowIndex="5">
          <children>
-            <Button fx:id="btnElozo" mnemonicParsing="false" onAction="#elozoMondat" text="Előző mondat" />
-            <Button fx:id="btnKovetkezo" mnemonicParsing="false" onAction="#kovetkezoMondat" text="Következő mondat" />
+            <Button fx:id="btnElozo" mnemonicParsing="false" onAction="#elozoMondat" />
+            <Button fx:id="btnKovetkezo" mnemonicParsing="false" onAction="#kovetkezoMondat" />
          </children>
          <GridPane.margin>
             <Insets left="225.0" />

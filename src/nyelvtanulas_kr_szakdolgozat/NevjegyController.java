@@ -9,7 +9,9 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import static nyelvtanulas_kr_szakdolgozat.FoablakController.uzenetek;
 import static panel.Panel.hiba;
 
 /**
@@ -18,14 +20,17 @@ import static panel.Panel.hiba;
  * metódusokat és függvényeket leíró részlete.
  * @author Kremmer Róbert
  */
-public class NevjegyController implements Initializable {
+public class NevjegyController implements Initializable, Feliratok {
 
     @FXML
-    private Label lblKeszito;
-
+    private Label  lblKeszito;
     @FXML
-    private Label lblVerzio;
-
+    private Label  lblVerzio;
+    @FXML
+    private Button btnFejlesztoiDok;
+    @FXML
+    private Button btnGithub;
+    
     /**
      * A gombra kattintva ha talál javadoc mappát a projekt mappájában, akkor
      * a fejlesztői dokumentáció html verzióját megnyitja a böngészőben. 
@@ -38,7 +43,7 @@ public class NevjegyController implements Initializable {
             File htmlFile = new File(docUtvonal);
             Desktop.getDesktop().browse(htmlFile.toURI());
         } catch (IOException e) {
-            hiba("Hiba",e.getMessage());
+            hiba(uzenetek.get("hiba"),e.getMessage());
         }
     }
     
@@ -47,7 +52,7 @@ public class NevjegyController implements Initializable {
         try {
             Desktop.getDesktop().browse(new URI("https://github.com/Szeptimusz/Nyelvtanulas-KR"));
         } catch (IOException | URISyntaxException e) {
-            hiba("Hiba", e.getMessage());
+            hiba(uzenetek.get("hiba"), e.getMessage());
         }
     }
     
@@ -56,8 +61,25 @@ public class NevjegyController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        lblKeszito.setText("Készítette: Kremmer Róbert");
-        lblVerzio.setText("Verzió: 1.6");
+        
+        String [] feliratok;
+        
+        switch (FoablakController.feluletNyelve) {
+            case "magyar" :
+                feliratok = NEVJEGY_MAGYARFELIRATOK;
+                break;
+            case "english" :
+                feliratok = NEVJEGY_ANGOLFELIRATOK;
+                break;
+            default :
+                feliratok = NEVJEGY_MAGYARFELIRATOK;
+                break;
+        }
+        
+        lblKeszito.setText(feliratok[0] + " Kremmer Róbert");
+        lblVerzio.setText(feliratok[1] + " 1.7");
+        btnFejlesztoiDok.setText(feliratok[2]);
+        btnGithub.setText(feliratok[3]);
     }    
     
 }

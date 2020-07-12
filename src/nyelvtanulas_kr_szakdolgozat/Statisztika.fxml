@@ -27,27 +27,27 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Label text="Kérem válasszon ki egy nyelvet:" GridPane.rowIndex="1">
+            <Label fx:id="lblKeremValasszonKi" GridPane.rowIndex="1">
                <font>
                   <Font size="15.0" />
                </font>
             </Label>
-            <Label text="Ismert szavak:" GridPane.rowIndex="3">
+            <Label fx:id="lblIsmertSzavak" GridPane.rowIndex="3">
                <font>
                   <Font size="15.0" />
                </font>
             </Label>
-            <Label text="Figyelmen kívül hagyott szavak:" GridPane.rowIndex="4">
+            <Label fx:id="lblFigyelmenKivulHagyott" GridPane.rowIndex="4">
                <font>
                   <Font size="15.0" />
                </font>
             </Label>
-            <Label text="Tanulandó szavak összesen:" GridPane.rowIndex="5">
+            <Label fx:id="lblTanulandoSzavak" GridPane.rowIndex="5">
                <font>
                   <Font size="15.0" />
                </font>
             </Label>
-            <Label text="Exportált tanulandó szavak:" GridPane.rowIndex="6">
+            <Label fx:id="lblExportaltSzavak" GridPane.rowIndex="6">
                <font>
                   <Font size="15.0" />
                </font>
@@ -55,7 +55,7 @@
                   <Insets />
                </GridPane.margin>
             </Label>
-            <Label text="Nem Exportált tanulandó szavak:" GridPane.rowIndex="7">
+            <Label fx:id="lblNemExportaltSzavak" GridPane.rowIndex="7">
                <font>
                   <Font size="15.0" />
                </font>
@@ -64,7 +64,7 @@
                </GridPane.margin>
             </Label>
             <ComboBox fx:id="cbxNyelvek" prefWidth="120.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <Label text="Statisztika" GridPane.columnSpan="2" GridPane.halignment="CENTER">
+            <Label fx:id="lblStatisztika" GridPane.columnSpan="2" GridPane.halignment="CENTER">
                <font>
                   <Font size="20.0" />
                </font>
@@ -97,7 +97,7 @@
                   <Font size="15.0" />
                </font>
             </Label>
-            <Label text="Összes szó:" GridPane.rowIndex="2">
+            <Label fx:id="lblOsszesSzo" GridPane.rowIndex="2">
                <font>
                   <Font size="15.0" />
                </font>

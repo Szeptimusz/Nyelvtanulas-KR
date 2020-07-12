@@ -17,6 +17,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Window;
+import static nyelvtanulas_kr_szakdolgozat.FoablakController.uzenetek;
 import static panel.Panel.figyelmeztet;
 
 /**
@@ -24,26 +25,44 @@ import static panel.Panel.figyelmeztet;
  * tanulandóként való elmentéséért felel.
  * @author Kremmer Róbert
  */
-public class ForditasController {
+public class ForditasController implements Feliratok {
     
     @FXML
-    private Button btnCambridge;
+    private Label       lblMentesElottKeremAdjaMeg;
     @FXML
-    private Button btnDuden;
+    private Label       lblSzo1;
     @FXML
-    private Button btnElozo;
+    private Label       lblPeldamondat;
     @FXML
-    private Button btnKovetkezo;
+    private Button      btnGoogleTranslate;
     @FXML
-    private Label lblSzo;
+    private Label       lblSzoForditasa;
     @FXML
-    private TextArea txaMondat;
+    private Label       lblSzo;
     @FXML
-    private TextField txtForditas;
+    private TextField   txtForditas;
     @FXML
-    private TextField txtNevelo;
+    private Button      btnCambridge;
     @FXML
-    private CheckBox cbxNagybetu;
+    private Button      btnHozzaadas;
+    @FXML
+    private TextArea    txaMondat;
+    @FXML
+    private Button      btnEredetiPeldamondat;
+    @FXML
+    private Label       lblNagybetuvelKezdodjon;
+    @FXML
+    private CheckBox    cbxNagybetu;
+    @FXML
+    private Label       lblNevelo;
+    @FXML
+    private TextField   txtNevelo;
+    @FXML
+    private Button      btnDuden;
+    @FXML
+    private Button      btnElozo;
+    @FXML
+    private Button      btnKovetkezo;
 
     private String szo;
     private List<String> mondatok;
@@ -88,6 +107,34 @@ public class ForditasController {
                 
             });
         });
+        
+        String [] feliratok;
+        
+        switch (FoablakController.feluletNyelve) {
+            case "magyar" :
+                feliratok = FORDITAS_MAGYARFELIRATOK;
+                break;
+            case "english" :
+                feliratok = FORDITAS_ANGOLFELIRATOK;
+                break;
+            default :
+                feliratok = FORDITAS_MAGYARFELIRATOK;
+                break;
+        }
+        
+        lblMentesElottKeremAdjaMeg.setText(feliratok[0]);
+        lblNevelo.setText(feliratok[1]);
+        lblSzo1.setText(feliratok[2]);
+        lblNagybetuvelKezdodjon.setText(feliratok[3]);
+        lblPeldamondat.setText(feliratok[4]);
+        btnEredetiPeldamondat.setText(feliratok[5]);
+        btnElozo.setText(feliratok[6]);
+        btnKovetkezo.setText(feliratok[7]);
+        btnGoogleTranslate.setText(feliratok[8]);
+        btnCambridge.setText(feliratok[9]);
+        btnDuden.setText(feliratok[10]);
+        lblSzoForditasa.setText(feliratok[11]);
+        btnHozzaadas.setText(feliratok[12]);
     }
 
     /**
@@ -138,10 +185,10 @@ public class ForditasController {
         
         String forditas = txtForditas.getText();
         if (forditas.equals("")) {
-            figyelmeztet("Figyelem!", "Kérem írjon be fordítást a szóhoz!");
+            figyelmeztet(uzenetek.get("figyelmeztet"), uzenetek.get("irjonbeforditast"));
             txtForditas.requestFocus();
         } else if (txaMondat.getText().equals("")){
-            figyelmeztet("Figyelem!", "Az adott szóhoz nincsen megadva példamondat!");
+            figyelmeztet(uzenetek.get("figyelmeztet"), uzenetek.get("nincspeldamondat"));
         } else {
             String nevelo = txtNevelo.getText();
             
@@ -188,5 +235,5 @@ public class ForditasController {
         if (cbxNagybetu.isSelected()) szo = szo.substring(0, 1).toUpperCase() + szo.substring(1);
         Desktop.getDesktop().browse(new URI("https://www.duden.de/suchen/dudenonline/" + szo));
     }
-    
+
 }

@@ -3,6 +3,7 @@ package nyelvtanulas_kr_szakdolgozat;
 import eu.crydee.syllablecounter.SyllableCounter;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -10,7 +11,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
@@ -29,7 +32,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
@@ -52,51 +58,94 @@ import static panel.Panel.tajekoztat;
  * ablakből lehet megnyitni a program többi ablakát (menüpontok vagy gomb által).
  * @author Kremmer Róbert
  */
-public class FoablakController implements Initializable {
+public class FoablakController implements Initializable, Feliratok {
 
     static String fajlUtvonal;
     static String TablaNevEleje;
     static String forrasNyelvKod;
-    static int eredetiOsszesSzo;
-    static int toroltSzavak;
+    static int    eredetiOsszesSzo;
+    static int    toroltSzavak;
     static String mappaUtvonal = System.getProperty("user.dir");
     static HashMap<String, Integer> szavak_indexe = new HashMap<>();
-    static HashMap<String, String> nyelvekKodja = new HashMap<>();
+    static HashMap<String, String>  nyelvekKodja  = new HashMap<>();
+    static HashMap<String, String>  uzenetek      = new HashMap<>();
+    static String feluletNyelve;
     private final ObservableList<Sor> data = FXCollections.observableArrayList();
-    int progress = 1;
+    int    progress = 1;
     double fleschScore;
     
     @FXML
-    private TextArea txaBevitel;
+    private Menu             menuOpciok;
     @FXML
-    private TextArea txaMondat;
+    private MenuItem         menuiAnki;
     @FXML
-    private CheckBox cxbEgyszer;
+    private MenuItem         menuiKikerdezes;
     @FXML
-    private Button btnIsmert;
+    private MenuItem         menuiStatisztika;
     @FXML
-    private Button btnTanulando;
+    private MenuItem         menuiKilepes;
     @FXML
-    private Button btnIgnore;
+    private Menu             menuEgyeb;
     @FXML
-    private Button btnFeldolgoz;
+    private MenuItem         menuiNevjegy;
     @FXML
-    private Label lblTallozasEredmeny;
+    private Menu             menuNyelv;
     @FXML
-    private Label lblSzazalekIsmert;
+    private MenuItem         menuiMagyar;
     @FXML
-    private Label lblOlvashatosag;
+    private MenuItem         menuiEnglish;
     @FXML
-    private TableView<Sor> tblTablazat;
+    private SplitPane        anchor;
+    @FXML
+    private Label            lblLehetoseg;
+    @FXML
+    private Label            lblKulsoSzovegesTallozas;
+    @FXML
+    private Button           btnTalloz;
+    @FXML
+    private Label            lblSzovegKozvetlenBemasolas;
+    @FXML
+    private TextArea         txaBevitel;
+    @FXML
+    private Label            lblEgyszeritNeListazza;
+    @FXML
+    private Label            lblForrasnyelv;
+    @FXML
+    private Button           btnFeldolgoz;
+    @FXML
+    private CheckBox         cxbEgyszer;
+    @FXML
+    private ComboBox<String> cbxForras;
+    @FXML
+    private Label            lblTallozasEredmeny;
+    @FXML
+    private Label            lblFeldolgozasEredmeny;
+    @FXML
+    private Button           btnIsmert;
+    @FXML
+    private Button           btnTanulando;
+    @FXML   
+    private Button           btnIgnore;
+    @FXML
+    private Button           btnVisszavon;
+    @FXML
+    private TextArea         txaMondat;
+    @FXML
+    private TableView<Sor>   tblTablazat;
     @FXML
     private TableColumn<Sor, String> oSzo;
     @FXML
     private TableColumn<Sor, String> oMondat;
     @FXML
-    private TableColumn<Sor, Integer> oGyak; 
+    private TableColumn<Sor, Integer> oGyak;
     @FXML
-    private ComboBox<String> cbxForras;
-    
+    private Label            lblIsmertseg;
+    @FXML
+    private Label            lblSzazalekIsmert;
+    @FXML
+    private Label            lblOlvashato;
+    @FXML
+    private Label            lblOlvashatosag;
     private ChangeListener<Sor> listener;
 
     /**
@@ -115,10 +164,10 @@ public class FoablakController implements Initializable {
         if (selectedFile != null) {
             fajlUtvonal = selectedFile.getAbsolutePath();
             txaBevitel.setText("");
-            lblTallozasEredmeny.setText("Tallózás sikeres!");
+            lblTallozasEredmeny.setText(uzenetek.get("tallozassikeres"));
             mappaUtvonal = fajlUtvonal.substring(0, fajlUtvonal.lastIndexOf('\\') + 1);
         } else {
-            lblTallozasEredmeny.setText("Sikertelen tallózás!");
+            lblTallozasEredmeny.setText(uzenetek.get("tallozassikertelen"));
         }
     }
     
@@ -308,12 +357,11 @@ public class FoablakController implements Initializable {
         
         // Ellenőrzi, hogy van-e bemenő feldolgozandó szöveg
         if (txaBevitel.getText().equals("") && fajlUtvonal == null) {
-            figyelmeztet("Figyelem!", "Üres szövegmező! Kérem adjon meg szöveget,"
-                         + " vagy használja a Tallózás gombot!");
+            figyelmeztet(uzenetek.get("figyelmeztet"), uzenetek.get("uresszovegmezo"));
             
         // Ellenőrzi, hogy ki van-e válaszva a forrásnyelv
         } else if (cbxForras.getValue() == null) {
-            figyelmeztet("Figyelem!", "Kérem adja meg a forrásnyelvet is!");
+            figyelmeztet(uzenetek.get("figyelmeztet"), uzenetek.get("forrasnyelvis"));
             
         } else {
         
@@ -336,7 +384,7 @@ public class FoablakController implements Initializable {
             BorderPane mainPane = new BorderPane();
             root.getChildren().add(mainPane);
             
-            final Label label = new Label("Adatok feldolgozása folyamatban");
+            final Label label = new Label(uzenetek.get("feldolgozasfolyamatban"));
             final ProgressBar progressBar = new ProgressBar(0);
             final VBox vb = new VBox();
             
@@ -361,10 +409,9 @@ public class FoablakController implements Initializable {
                 btnFeldolgoz.setDisable(false);
                 
                 if (data.isEmpty()) {
-                    figyelmeztet("Figyelem!", "A nem megfelelő karakterek eltávolítása és az adatbázis szinkronizálás után nem "
-                            + "maradt megjeleníthető eredmény!");
+                    figyelmeztet(uzenetek.get("figyelmeztet"), uzenetek.get("nincseredmeny"));
                 } else {
-                    tajekoztat("Kész!", "Az adatok feldolgozása befejeződött!");
+                    tajekoztat(uzenetek.get("tajekoztat"), uzenetek.get("feldolgozasbefejezodott"));
                 }
                 
                 tblTablazat.setItems(data);
@@ -372,6 +419,7 @@ public class FoablakController implements Initializable {
                 tblTablazat.getSelectionModel().selectedItemProperty().addListener(listener);
                 lblTallozasEredmeny.setText("");
                 lblSzazalekIsmert.setText((int)((double)toroltSzavak / eredetiOsszesSzo * 10000) / 100.0 + " %");
+                
                 
                 if (forrasNyelvKod.equals("en")) {
                     if (fleschScore > 90) lblOlvashatosag.setText((int)fleschScore + "  (Very easy to read)");
@@ -382,8 +430,9 @@ public class FoablakController implements Initializable {
                     else if (fleschScore > 30) lblOlvashatosag.setText((int)fleschScore + "  (Difficult to read)");
                     else lblOlvashatosag.setText((int)fleschScore + "  (Very difficult to read)");
                 } else {
-                    lblOlvashatosag.setText("Nem érhető el");
+                    lblOlvashatosag.setText(uzenetek.get("nemerhetoel"));
                 }
+                
                 
             });
             primaryStage.setScene(scene);
@@ -400,7 +449,7 @@ public class FoablakController implements Initializable {
     public void ignoralMent() {
         String uzenet = ellenoriz();
         if (uzenet != null) {
-            figyelmeztet("Figyelem!", uzenet);
+            figyelmeztet(uzenetek.get("figyelmeztet"), uzenet);
             return;
         }
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
@@ -417,7 +466,7 @@ public class FoablakController implements Initializable {
     public void ismertMent() {
         String uzenet = ellenoriz();
         if (uzenet != null) {
-            figyelmeztet("Figyelem!", uzenet);
+            figyelmeztet(uzenetek.get("figyelmeztet"), uzenet);
             return;
         }
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
@@ -435,14 +484,14 @@ public class FoablakController implements Initializable {
     public void tanulandoMent() throws Exception{
         String uzenet = ellenoriz();
         if (uzenet != null) {
-            figyelmeztet("Figyelem!", uzenet);
+            figyelmeztet(uzenetek.get("figyelmeztet"), uzenet);
             return;
         }
         
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo(); 
         List<String> mondatok = tblTablazat.getSelectionModel().getSelectedItem().getMondatok();
         
-        ablakotNyit("Forditas.fxml", "Fordítás hozzáadása, feltöltés adatbázisba", szo, mondatok);
+        ablakotNyit("Forditas.fxml", uzenetek.get("forditashozzaadas"), szo, mondatok);
         if (ForditasController.isTanulandoElmentve()) {
             letiltLeptet(TablaNevEleje + "tanulando");
             // Miután elmentette és léptetett a táblázatban, visszaállítja a ForditasController osztályban false-ra
@@ -456,10 +505,9 @@ public class FoablakController implements Initializable {
      */
     public String ellenoriz() {
         if (data.isEmpty())
-            return "Nem történt adatfeldolgozás, kérem adjon meg bemenő adatot"
-                    + " és válassza az 'Adatok feldolgozása' gombot!";
+            return uzenetek.get("ellenorizelsouzenet");
         else if (tblTablazat.getSelectionModel().getSelectedItem() == null)
-            return "Nincs kijelölve sor a táblázatban!";
+            return uzenetek.get("ellenorizmasodikuzenet");
         else
             return null; 
     }
@@ -492,7 +540,7 @@ public class FoablakController implements Initializable {
     public void visszavon() {
         String uzenet = ellenoriz();
         if (uzenet != null) {
-            figyelmeztet("Figyelem!", uzenet);
+            figyelmeztet(uzenetek.get("figyelmeztet"), uzenet);
             return;
         }
         
@@ -506,21 +554,21 @@ public class FoablakController implements Initializable {
             DB.szotTorolAdatbazisbol(tabla, kivalasztottSor.getSzo());
             kivalasztottSor.setTabla(null);
         } else {
-            figyelmeztet("Figyelem!", "A kijelölt sornál nem történt változás amit vissza kéne vonni!");
+            figyelmeztet(uzenetek.get("figyelmeztet"), uzenetek.get("kijeloltsornalnincsvaltozas"));
         }
     }
 
     /*** Új ablakot nyit meg, ahol ANKI-import fájl készíthető.*/
     @FXML
-    public void ankiImportAblak() { ablakotNyit("Anki.fxml", "ANKI-import elkészítése", "", null); }
+    public void ankiImportAblak() { ablakotNyit("Anki.fxml", uzenetek.get("ankiimportelkeszites"), "", null); }
     
     /*** Új ablakban megjeleníti az adott nyelvhez tartozó statisztikát*/
     @FXML
-    public void statisztikaAblak() { ablakotNyit("Statisztika.fxml", "Adatbázis-statisztika", "", null); }
+    public void statisztikaAblak() { ablakotNyit("Statisztika.fxml", uzenetek.get("adatbazisstatisztika"), "", null); }
     
     /*** Új ablakban megjeleníti a szókártya-kikérdezés felületet*/
     @FXML
-    public void kikerdezesAblak() { ablakotNyit("Kikerdezes.fxml","Szavak kikérdezése szókártyákkal","",null); }
+    public void kikerdezesAblak() { ablakotNyit("Kikerdezes.fxml",uzenetek.get("szavakkikerdezese"),"",null); }
     
     /**
      * A kapott fxml fájlnév alapján új ablakot nyit meg. Ha a szó paraméter nem üres, akkor a fordítás ablakot
@@ -546,21 +594,23 @@ public class FoablakController implements Initializable {
             ablak.setTitle(ablakCim);
             ablak.showAndWait();
         } catch (IOException e) {
-            hiba("Hiba!",e.getMessage());
+            hiba(uzenetek.get("hiba"),e.getMessage());
         }
     }
     
     /**
      * A kapott comboboxba beállítja a nyelvek teljes nevét, majd hashmap-ben tárolja a hozzá tartozó rövidítést.
-     * @param combobox  A legördülő lista neve
-     * @param hashmap   Hashmap neve
+     * @param combobox          A legördülő lista neve
+     * @param hashmap           Hashmap neve
+     * @param nyelvekLeforditva A felület nyelvére lefordítva a nyelvek nevei
      */
-    public static void nyelvekBeallitasa(ComboBox<String> combobox, HashMap<String, String> hashmap) {
+    public static void nyelvekBeallitasa(ComboBox<String> combobox, HashMap<String, String> hashmap, String [] nyelvekLeforditva) {
         String roviditettNyelv [] = {"en","es","fr","de","it","pt","nl","pl","da","cs","sk","sl"};
-        String teljesNyelv [] = {"Angol","Spanyol","Francia","Német","Olasz","Portugál","Holland","Lengyel","Dán","Cseh","Szlovák","Szlovén"};
-        combobox.getItems().addAll(teljesNyelv);
-        for (int i = 0; i < teljesNyelv.length; i++) {
-            hashmap.put(teljesNyelv[i], roviditettNyelv[i]);
+
+        combobox.getItems().clear();
+        combobox.getItems().addAll(nyelvekLeforditva);
+        for (int i = 0; i < nyelvekLeforditva.length; i++) {
+            hashmap.put(nyelvekLeforditva[i], roviditettNyelv[i]);
         }
     } 
 
@@ -573,11 +623,6 @@ public class FoablakController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Adatbázis elérési útvonalát beállítja, ha nincs adatbázis akkor létrehozza
-        DB.adatbazistKeszit("\\nyelvtanulas.db");
-
-        // Legördülő lista nyelveinek beállítása
-        nyelvekBeallitasa(cbxForras, nyelvekKodja);
         
         // A táblázatban az adott oszlopban megjelenő adat a Sor osztály melyik mezőjéből legyen kiszedve
         oSzo.setCellValueFactory(new PropertyValueFactory<>("szo"));
@@ -618,6 +663,7 @@ public class FoablakController implements Initializable {
                         try {
                             ismertMent();
                         } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
+                        
                         keyEvent.consume();
                     }
 
@@ -625,6 +671,7 @@ public class FoablakController implements Initializable {
                         try {
                             tanulandoMent();
                         } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
+                        
                         keyEvent.consume();
                     }
 
@@ -632,6 +679,7 @@ public class FoablakController implements Initializable {
                         try {
                             ignoralMent();
                         } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
+                        
                         keyEvent.consume();
                     }
 
@@ -639,10 +687,104 @@ public class FoablakController implements Initializable {
                         try {
                             visszavon();
                         } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
+                        
                         keyEvent.consume();
                     }
                 });
             });
+            
+            
+            // Ha talál lng.txt nevű fájlt akkor kiolvassa belőle, hogy milyen 
+            // nyelvű legyen a program felülete, ha nem talál akkor a helyi
+            // nyelvet állítja be
+            Locale currentLocale = Locale.getDefault();
+            try (Scanner be = new Scanner(new File("lng.txt"))) {
+                
+                foablakFeliratokatBeallit(be.nextLine());
+                
+            } catch (Exception e) {
+                
+                String helyiNyelv = currentLocale.getDisplayLanguage();
+                foablakFeliratokatBeallit(helyiNyelv);
+                
+                try (PrintWriter ki = new PrintWriter("lng.txt")) { 
+                    ki.println(helyiNyelv);
+                } catch (IOException ex) {
+                    System.out.println(ex.getMessage());
+                }
+                
+            }
+  
+            
+        // Adatbázis elérési útvonalát beállítja, ha nincs adatbázis akkor létrehozza
+        DB.adatbazistKeszit("\\nyelvtanulas.db");
+    }
+    
+    /**
+     * A kapott nyelvkód alapján eldönti, hogy melyik tömböt használja a feliratok
+     * beállításakor a főablakban. Beállítja a feliratokat.
+     * @param nyelv A feliratok nyelvét határozza meg
+     */
+    public void foablakFeliratokatBeallit(String nyelv) {
+        
+        feluletNyelve = nyelv;
+        String [] feliratok;
+        
+        switch (nyelv) {
+            case "magyar" :
+                feliratok = FOABLAK_MAGYARFELIRATOK;
+                nyelvekBeallitasa(cbxForras, nyelvekKodja, Feliratok.NYELVEK_MAGYAR);
+                uzenetek = UZENETEK_MAGYAR;
+                break;
+            case "english" :
+                feliratok = FOABLAK_ANGOLFELIRATOK;
+                nyelvekBeallitasa(cbxForras, nyelvekKodja, Feliratok.NYELVEK_ANGOL);
+                uzenetek = UZENETEK_ANGOL;
+                break;
+            default :
+                feliratok = FOABLAK_MAGYARFELIRATOK;
+                nyelvekBeallitasa(cbxForras, nyelvekKodja, Feliratok.NYELVEK_MAGYAR);
+                uzenetek = UZENETEK_MAGYAR;
+                break;
+        }
+        
+        menuOpciok.setText(feliratok[0]);
+        menuiAnki.setText(feliratok[1]);
+        menuiKikerdezes.setText(feliratok[2]);
+        menuiStatisztika.setText(feliratok[3]);
+        menuiKilepes.setText(feliratok[4]);
+        menuEgyeb.setText(feliratok[5]);
+        menuiNevjegy.setText(feliratok[6]);
+        lblLehetoseg.setText(feliratok[7]);
+        lblKulsoSzovegesTallozas.setText(feliratok[8]);
+        btnTalloz.setText(feliratok[9]);
+        lblSzovegKozvetlenBemasolas.setText(feliratok[10]);
+        lblEgyszeritNeListazza.setText(feliratok[11]);
+        lblForrasnyelv.setText(feliratok[12]);
+        btnFeldolgoz.setText(feliratok[13]);
+        lblFeldolgozasEredmeny.setText(feliratok[14]);
+        btnIsmert.setText(feliratok[15]);
+        btnTanulando.setText(feliratok[16]);
+        btnIgnore.setText(feliratok[17]);
+        btnVisszavon.setText(feliratok[18]);
+        oSzo.setText(feliratok[19]);
+        oMondat.setText(feliratok[20]);
+        oGyak.setText(feliratok[21]);
+        lblIsmertseg.setText(feliratok[22]);
+        lblOlvashato.setText(feliratok[23]);
+        menuNyelv.setText(feliratok[24]);
+        menuiMagyar.setText(feliratok[25]);
+        menuiEnglish.setText(feliratok[26]);
+    }
+    
+    @FXML
+    void feluletAngolra() {
+        foablakFeliratokatBeallit("english");
+    }
+
+    @FXML
+    void feluletMagyarra() {
+        foablakFeliratokatBeallit("magyar");
     }
     
     /**
@@ -651,7 +793,7 @@ public class FoablakController implements Initializable {
      */
     @FXML
     public void kilep() {
-        if (igennem("Kilépés megerősítés", "Valóban be szeretné zárni a programot?")) {
+        if (igennem(uzenetek.get("kilepesmegerosites"), uzenetek.get("bezaras"))) {
             Platform.exit();
         }
     }
@@ -664,6 +806,6 @@ public class FoablakController implements Initializable {
      */
     @FXML
     public void nevjegy() throws Exception {
-        ablakotNyit("Nevjegy.fxml", "Nyelvtanulás program","",null);
+        ablakotNyit("Nevjegy.fxml", uzenetek.get("nevjegy"),"",null);
     }
 }

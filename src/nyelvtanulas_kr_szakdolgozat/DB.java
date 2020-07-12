@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import javafx.collections.ObservableList;
+import static nyelvtanulas_kr_szakdolgozat.FoablakController.uzenetek;
 import static panel.Panel.hiba;
 
 /**
@@ -34,7 +35,7 @@ public class DB {
             // automatikusan létrehozza
             
         } catch (SQLException e) {
-            hiba("hiba",e.getMessage());
+            hiba(uzenetek.get("hiba"),e.getMessage());
         }
     }
     
@@ -68,7 +69,7 @@ public class DB {
                 kapcs.commit();
                 
         } catch (SQLException e) {
-            hiba("Hiba!",e.getMessage());
+            hiba(uzenetek.get("hiba"),e.getMessage());
         }
     }
     
@@ -88,7 +89,7 @@ public class DB {
                 ps.executeUpdate();
                 
         } catch (SQLException e) {
-                hiba("Hiba!",e.getMessage());
+                hiba(uzenetek.get("hiba"),e.getMessage());
         }
     }
 
@@ -116,7 +117,7 @@ public class DB {
                 ps.executeUpdate();
                 
         } catch (SQLException e) {
-            hiba("Hiba!",e.getMessage());
+            hiba(uzenetek.get("hiba"),e.getMessage());
         }
     }
 
@@ -134,7 +135,7 @@ public class DB {
                 ps.executeUpdate();
                 
         } catch (SQLException e) {
-            hiba("Hiba!",e.getMessage());
+            hiba(uzenetek.get("hiba"),e.getMessage());
         }
     }
     
@@ -162,7 +163,7 @@ public class DB {
             }
             
         } catch (SQLException e) {
-            hiba("Hiba!",e.getMessage());
+            hiba(uzenetek.get("hiba"),e.getMessage());
         }
         
     }
@@ -180,7 +181,7 @@ public class DB {
                 PreparedStatement ps = kapcs.prepareStatement(createTable)) {
                 ps.executeUpdate();
         } catch (SQLException e) {
-            hiba("Hiba!",e.getMessage());
+            hiba(uzenetek.get("hiba"),e.getMessage());
         }
         
         String createIndex = "CREATE INDEX IF NOT EXISTS allapot ON " + TablaNevEleje + "szavak" + "(allapot);";
@@ -188,7 +189,7 @@ public class DB {
                 PreparedStatement ps2 = kapcs.prepareStatement(createIndex)) {
                 ps2.executeUpdate();
         } catch (SQLException e) {
-            hiba("Hiba!",e.getMessage());
+            hiba(uzenetek.get("hiba"),e.getMessage());
         }
         
         
@@ -202,7 +203,7 @@ public class DB {
                 PreparedStatement ps = kapcs.prepareStatement(createTable)) {
                 ps.executeUpdate();
         } catch (SQLException e) {
-            hiba("Hiba!",e.getMessage());
+            hiba(uzenetek.get("hiba"),e.getMessage());
         }
         
         createIndex = "CREATE INDEX IF NOT EXISTS anki ON " + TablaNevEleje + "tanulando" + "(ANKI);";
@@ -210,7 +211,7 @@ public class DB {
                 PreparedStatement ps2 = kapcs.prepareStatement(createIndex)) {
                 ps2.executeUpdate();
         } catch (SQLException e) {
-            hiba("Hiba!",e.getMessage());
+            hiba(uzenetek.get("hiba"),e.getMessage());
         }
     }
     
@@ -281,7 +282,7 @@ public class DB {
             return rekordok;
             
         } catch (SQLException e) {
-            hiba("Hiba!",e.getMessage());
+            hiba(uzenetek.get("hiba"),e.getMessage());
             return rekordok;
         }
     }
@@ -302,7 +303,7 @@ public class DB {
                 ps.executeUpdate();
                 
         } catch (SQLException e) {
-            hiba("Hiba!",e.getMessage());
+            hiba(uzenetek.get("hiba"),e.getMessage());
         }
     }
 }

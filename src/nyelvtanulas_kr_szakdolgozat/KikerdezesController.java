@@ -9,6 +9,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import static nyelvtanulas_kr_szakdolgozat.FoablakController.uzenetek;
 import static panel.Panel.figyelmeztet;
 import static panel.Panel.tajekoztat;
 
@@ -17,15 +18,17 @@ import static panel.Panel.tajekoztat;
  * azokat, amiknek a tanulása éppen esedékes.
  * @author Kremmer Róbert
  */
-public class KikerdezesController implements Initializable {
+public class KikerdezesController implements Initializable, Feliratok {
 
-    @FXML
-    private ComboBox<String> cbxNyelvek;
     static HashMap<String, String> nyelvekKodja = new HashMap<>();
     ArrayList<Sor> rekordok = new ArrayList<>();
-    int index;
-    String forrasNyelvKod;
+    int            index;
+    String         forrasNyelvKod;
     
+    @FXML
+    private ComboBox<String> cbxNyelvek;
+    @FXML
+    private Label lblKeremValasszaKi;
     @FXML
     private Button btnKikerdezestElindit;
     @FXML
@@ -53,12 +56,12 @@ public class KikerdezesController implements Initializable {
     public void kikerdez() {
         
         if (cbxNyelvek.getValue() == null) {
-            figyelmeztet("Figyelem!","Kérem válassza ki, hogy melyik nyelv szókártyáit szeretné használni");
+            figyelmeztet(uzenetek.get("figyelmeztet"),uzenetek.get("melyiknyelv"));
         } else {
             forrasNyelvKod = nyelvekKodja.get(cbxNyelvek.getValue());
             rekordok = DB.tanulandotLekerdez(forrasNyelvKod + "_tanulando");
             if (rekordok.isEmpty()) {
-                figyelmeztet("Figyelem","Nincsen aktuálisan tanulandó szó!");
+                figyelmeztet(uzenetek.get("figyelmeztet"),uzenetek.get("nincsentanulando"));
             } else {
                 index = 0;
                 szotMondatotBeallit(index);
@@ -153,7 +156,7 @@ public class KikerdezesController implements Initializable {
             lblSzo.setText(nevelo + rekordok.get(index).getSzo());
             lblMondat.setText(rekordok.get(index).getMondat());
         } else {
-            tajekoztat("Figyelem","Véget ért a kikérdezés!");
+            figyelmeztet(uzenetek.get("figyelmeztet"),uzenetek.get("kikerdezesvege"));
             btnKikerdezestElindit.setDisable(false);
             cbxNyelvek.setDisable(false);
             rekordok.clear();
@@ -181,8 +184,33 @@ public class KikerdezesController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Legördülő lista nyelveinek beállítása
-        FoablakController.nyelvekBeallitasa(cbxNyelvek, nyelvekKodja);
+        
+        String [] feliratok;
+        
+        switch (FoablakController.feluletNyelve) {
+            case "magyar" :
+                feliratok = KIKERDEZES_MAGYARFELIRATOK;
+                FoablakController.nyelvekBeallitasa(cbxNyelvek, nyelvekKodja, Feliratok.NYELVEK_MAGYAR);
+                break;
+            case "english" :
+                feliratok = KIKERDEZES_ANGOLFELIRATOK;
+                FoablakController.nyelvekBeallitasa(cbxNyelvek, nyelvekKodja, Feliratok.NYELVEK_ANGOL);
+                break;
+            default :
+                feliratok = KIKERDEZES_MAGYARFELIRATOK;
+                FoablakController.nyelvekBeallitasa(cbxNyelvek, nyelvekKodja, Feliratok.NYELVEK_MAGYAR);
+                break;
+        }
+        
+        lblKeremValasszaKi.setText(feliratok[0]);
+        btnKikerdezestElindit.setText(feliratok[1]);
+        btnValasz.setText(feliratok[2]);
+        btnUjra.setText(feliratok[3]);
+        btnNehez.setText(feliratok[4]);
+        btnJo.setText(feliratok[5]);
+        btnKonnyu.setText(feliratok[6]);
+        
+        
         gombokatTilt(true);
         btnValasz.setDisable(true);
     }
