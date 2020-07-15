@@ -25,15 +25,15 @@ public class KikerdezesController implements Initializable, Feliratok {
     @FXML
     private ComboBox<String> cbxNyelvek;
     @FXML
-    private Label lblKeremValasszaKi;
+    private Label  lblKeremValasszaKi;
     @FXML
     private Button btnKikerdezestElindit;
     @FXML
-    private Label lblSzo;
+    private Label  lblSzo;
     @FXML
-    private Label lblMondat;
+    private Label  lblMondat;
     @FXML
-    private Label lblForditas;
+    private Label  lblForditas;
     @FXML
     private Button btnUjra;
     @FXML

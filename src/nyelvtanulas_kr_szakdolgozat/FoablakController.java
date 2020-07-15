@@ -143,9 +143,9 @@ public class FoablakController implements Initializable, Feliratok {
     @FXML
     private TableView<Sor>   tblTablazat;
     @FXML
-    private TableColumn<Sor, String> oSzo;
+    private TableColumn<Sor, String>  oSzo;
     @FXML
-    private TableColumn<Sor, String> oMondat;
+    private TableColumn<Sor, String>  oMondat;
     @FXML
     private TableColumn<Sor, Integer> oGyak;
     @FXML
@@ -156,6 +156,7 @@ public class FoablakController implements Initializable, Feliratok {
     private Label            lblOlvashato;
     @FXML
     private Label            lblOlvashatosag;
+    
     private ChangeListener<Sor> listener;
 
     /**
@@ -425,6 +426,7 @@ public class FoablakController implements Initializable, Feliratok {
                 }
                 
                 tblTablazat.setItems(data);
+                tblTablazat.refresh();
                 // Listener beállítása az adatok táblázatba betöltése után
                 tblTablazat.getSelectionModel().selectedItemProperty().addListener(listener);
                 lblTallozasEredmeny.setText("");
@@ -570,7 +572,7 @@ public class FoablakController implements Initializable, Feliratok {
 
     /*** Új ablakot nyit meg, ahol ANKI-import fájl készíthető.*/
     @FXML
-    public void ankiImportAblak() { ablakotNyit("Anki.fxml", uzenetek.get("ankiimportelkeszites"), "", null); }
+    public void ankiImportAblak()  { ablakotNyit("Anki.fxml", uzenetek.get("ankiimportelkeszites"), "", null); }
     
     /*** Új ablakban megjeleníti az adott nyelvhez tartozó statisztikát*/
     @FXML
@@ -578,7 +580,7 @@ public class FoablakController implements Initializable, Feliratok {
     
     /*** Új ablakban megjeleníti a szókártya-kikérdezés felületet*/
     @FXML
-    public void kikerdezesAblak() { ablakotNyit("Kikerdezes.fxml",uzenetek.get("szavakkikerdezese"),"",null); }
+    public void kikerdezesAblak()  { ablakotNyit("Kikerdezes.fxml",uzenetek.get("szavakkikerdezese"),"",null); }
     
     /**
      * A kapott fxml fájlnév alapján új ablakot nyit meg. Ha a szó paraméter nem üres, akkor a fordítás ablakot
