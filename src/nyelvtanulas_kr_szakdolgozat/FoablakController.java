@@ -67,6 +67,10 @@ public class FoablakController implements Initializable, Feliratok {
     int    eredetiOsszesSzo;
     int    toroltSzavak;
     int    progress = 1;
+    int    dataIndex = 0;
+    int    vegPont = 0;
+    double progressbarJelenlegiErtek;
+    double progressbarMaximumErtek;
     double fleschScore;
     HashMap<String, Integer> szavak_indexe = new HashMap<>();
     
@@ -131,13 +135,13 @@ public class FoablakController implements Initializable, Feliratok {
     @FXML
     private Label            lblFeldolgozasEredmeny;
     @FXML
-    private Button           btnIsmert;
-    @FXML
     private Button           btnTanulando;
     @FXML   
     private Button           btnIgnore;
     @FXML
     private Button           btnVisszavon;
+    @FXML
+    private Button           btnKovetkezoOldal;
     @FXML
     private TextArea         txaMondat;
     @FXML
@@ -156,6 +160,8 @@ public class FoablakController implements Initializable, Feliratok {
     private Label            lblOlvashato;
     @FXML
     private Label            lblOlvashatosag;
+    @FXML
+    private ProgressBar      pbarOldal;
     
     private ChangeListener<Sor> listener;
 
@@ -376,14 +382,19 @@ public class FoablakController implements Initializable, Feliratok {
             
         } else {
         
-            // Korábbi listener eltávolítása
+            // Korábbi listener eltávolítása, lista és hashmap adatok törlése
             tblTablazat.getSelectionModel().selectedItemProperty().removeListener(listener);
-            // Korábbi HashMap beállítások törlése.
             szavak_indexe.clear();
-            // Korábbi lista törlése.
+            tblTablazat.getItems().clear();
             data.clear();
             txaMondat.setText("");
             lblSzazalekIsmert.setText("");
+            dataIndex = 0;
+            vegPont = 0;
+            btnKovetkezoOldal.setDisable(false);
+            btnKovetkezoOldal.setText(foablakFelirat[26]);
+            progressbarJelenlegiErtek = 0;
+            pbarOldal.setProgress(progressbarJelenlegiErtek);
             // A megadott forrásnyelv beállítása (pl: 'Német' -> 'de')
             forrasNyelvKod = nyelvekKodja.get(cbxForras.getValue());
             TablaNevEleje = forrasNyelvKod + "_";
@@ -421,26 +432,48 @@ public class FoablakController implements Initializable, Feliratok {
                 
                 if (data.isEmpty()) {
                     figyelmeztet(uzenetek.get("figyelmeztet"), uzenetek.get("nincseredmeny"));
+                    btnKovetkezoOldal.setDisable(true);
                 } else {
                     tajekoztat(uzenetek.get("tajekoztat"), uzenetek.get("feldolgozasbefejezodott"));
+                    
+                    // Oldalak számának meghatározása, az elején a progress 1-re állítása
+                    if (data.size() % 22 == 0) {
+                        progressbarMaximumErtek = data.size() / 22.0;
+                    } else {
+                        progressbarMaximumErtek = data.size() / 22.0 + 1;
+                    }
+
+                    progressbarJelenlegiErtek = 1;
+                    pbarOldal.setProgress(1.0 * progressbarJelenlegiErtek / progressbarMaximumErtek);
+                    System.out.println(1.0 * progressbarJelenlegiErtek / progressbarMaximumErtek);
                 }
                 
-                tblTablazat.setItems(data);
+                
+                // Első maximum 22 sor betöltése a táblázatba
+                for (int i = 0; i < data.size(); i++) {
+                    tblTablazat.getItems().add(data.get(i));
+                    vegPont++;
+                    if (i == 21) break;
+                }
+                
+                
+                
                 tblTablazat.refresh();
                 // Listener beállítása az adatok táblázatba betöltése után
                 tblTablazat.getSelectionModel().selectedItemProperty().addListener(listener);
                 lblTallozasEredmeny.setText("");
                 lblSzazalekIsmert.setText((int)((double)toroltSzavak / eredetiOsszesSzo * 10000) / 100.0 + " %");
                 
+                if (data.size() < 23) btnKovetkezoOldal.setText(foablakFelirat[27]);
                 
                 if (forrasNyelvKod.equals("en")) {
-                    if (fleschScore > 90) lblOlvashatosag.setText((int)fleschScore + "  (Very easy to read)");
+                    if      (fleschScore > 90) lblOlvashatosag.setText((int)fleschScore + "  (Very easy to read)");
                     else if (fleschScore > 80) lblOlvashatosag.setText((int)fleschScore + "  (Easy to read)");
                     else if (fleschScore > 70) lblOlvashatosag.setText((int)fleschScore + "  (Fairly easy to read)");
                     else if (fleschScore > 60) lblOlvashatosag.setText((int)fleschScore + "  (Plain English)");
                     else if (fleschScore > 50) lblOlvashatosag.setText((int)fleschScore + "  (Fairly difficult to read)");
                     else if (fleschScore > 30) lblOlvashatosag.setText((int)fleschScore + "  (Difficult to read)");
-                    else lblOlvashatosag.setText((int)fleschScore + "  (Very difficult to read)");
+                    else                       lblOlvashatosag.setText((int)fleschScore + "  (Very difficult to read)");
                 } else {
                     lblOlvashatosag.setText(uzenetek.get("nemerhetoel"));
                 }
@@ -453,9 +486,43 @@ public class FoablakController implements Initializable, Feliratok {
         
     }
 
+    @FXML
+    void kovetkezooldal() {
+        if (data.isEmpty()) return;
+        pbarOldal.setProgress(++progressbarJelenlegiErtek * 1.0 / progressbarMaximumErtek);
+
+        for (; dataIndex < vegPont; dataIndex++) {
+            if (!data.get(dataIndex).isTanulandoVagyIgnoralt()) {
+                Sor jelenlegiSor = data.get(dataIndex);
+                DB.szotBeirAdatbazisba(TablaNevEleje + "szavak",jelenlegiSor.getSzo(), "ismert");
+                jelenlegiSor.setTabla(TablaNevEleje + "szavak");
+            }
+        }
+
+        tblTablazat.getSelectionModel().selectedItemProperty().removeListener(listener);
+        tblTablazat.getItems().clear();
+
+        if (vegPont == data.size()) {
+            btnKovetkezoOldal.setDisable(true);
+            tajekoztat(uzenetek.get("tajekoztat"), uzenetek.get("tajekoztat"));
+        }
+
+        int db = 1;
+        for (; vegPont < data.size(); vegPont++) {
+            tblTablazat.getItems().add(data.get(vegPont));
+            if (db == 22) break;
+            db++;
+        }
+
+        if (vegPont == data.size()) btnKovetkezoOldal.setText(foablakFelirat[27]);
+
+        tblTablazat.getSelectionModel().selectedItemProperty().addListener(listener);
+        
+    }
+    
     /**
      * Ha a feldolgozás után a lista nem üres, akkor a táblázatban kijelölt sor szavát a gomb megnyomása 
-     * után elmenti a szavak táblába ignoralt állapottal, majd letiltja a sorhoz tartozó gombokat és léptet a táblázatban.
+     * után elmenti a szavak táblába ismert állapottal, majd letiltja a sorhoz tartozó gombokat és léptet a táblázatban.
      */
     @FXML
     public void ignoralMent() {
@@ -466,26 +533,11 @@ public class FoablakController implements Initializable, Feliratok {
         }
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
         DB.szotBeirAdatbazisba(TablaNevEleje + "szavak",szo, "ignoralt");
+        tblTablazat.getSelectionModel().getSelectedItem().setTanulandoVagyIgnoralt(true);
         letiltLeptet(TablaNevEleje + "szavak");
 
     }
-   
-    /**
-     * Ha a feldolgozás után a lista nem üres, akkor a táblázatban kijelölt sor szavát a gomb megnyomása 
-     * után elmenti a szavak táblába ismert állapottal, majd letiltja a sorhoz tartozó gombokat és léptet a táblázatban.
-     */
-    @FXML
-    public void ismertMent() {
-        String uzenet = ellenoriz();
-        if (uzenet != null) {
-            figyelmeztet(uzenetek.get("figyelmeztet"), uzenet);
-            return;
-        }
-        String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo();
-        DB.szotBeirAdatbazisba(TablaNevEleje + "szavak",szo, "ismert");
-        letiltLeptet(TablaNevEleje + "szavak");
-    }
-
+    
     /**
      * Ha a feldolgozás után a lista nem üres, akkor a gomb megnyomása után megnyit egy új ablakot és 
      * átadja neki a szo és mondat String tartalmát. Ha az új ablakban a tanulandó szó sikeresen el lett mentve,
@@ -505,6 +557,7 @@ public class FoablakController implements Initializable, Feliratok {
         
         ablakotNyit("Forditas.fxml", uzenetek.get("forditashozzaadas"), szo, mondatok);
         if (ForditasController.isTanulandoElmentve()) {
+            tblTablazat.getSelectionModel().getSelectedItem().setTanulandoVagyIgnoralt(true);
             letiltLeptet(TablaNevEleje + "tanulando");
             // Miután elmentette és léptetett a táblázatban, visszaállítja a ForditasController osztályban false-ra
             ForditasController.setTanulandoElmentve(false);
@@ -557,10 +610,10 @@ public class FoablakController implements Initializable, Feliratok {
         }
         
         String tabla = tblTablazat.getSelectionModel().getSelectedItem().getTabla();
-        if (tabla != null) {
+        if (tblTablazat.getSelectionModel().getSelectedItem().isTanulandoVagyIgnoralt()) {
             Sor kivalasztottSor = tblTablazat.getSelectionModel().getSelectedItem();
             kivalasztottSor.setTilt(false);
-            btnIsmert.setDisable(false);
+            kivalasztottSor.setTanulandoVagyIgnoralt(false);
             btnIgnore.setDisable(false);
             btnTanulando.setDisable(false);
             DB.szotTorolAdatbazisbol(tabla, kivalasztottSor.getSzo());
@@ -632,11 +685,9 @@ public class FoablakController implements Initializable, Feliratok {
             // Lekérdezi, hogy az adott sor gombjainak tiltása true-ra vagy false-ra változott
             boolean tiltva = uj.isTilt();
             if (tiltva) {
-                btnIsmert.setDisable(true);
                 btnIgnore.setDisable(true);
                 btnTanulando.setDisable(true);
             } else {
-                btnIsmert.setDisable(false);
                 btnIgnore.setDisable(false);
                 btnTanulando.setDisable(false);
             }
@@ -659,7 +710,7 @@ public class FoablakController implements Initializable, Feliratok {
                 btnTanulando.getScene().setOnKeyPressed((final KeyEvent keyEvent) -> {
                     if (keyEvent.getCode() == KeyCode.DIGIT1) {
                         try {
-                            ismertMent();
+                            tanulandoMent();
                         } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
                         
                         keyEvent.consume();
@@ -667,21 +718,13 @@ public class FoablakController implements Initializable, Feliratok {
 
                     if (keyEvent.getCode() == KeyCode.DIGIT2) {
                         try {
-                            tanulandoMent();
-                        } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
-                        
-                        keyEvent.consume();
-                    }
-
-                    if (keyEvent.getCode() == KeyCode.DIGIT3) {
-                        try {
                             ignoralMent();
                         } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
                         
                         keyEvent.consume();
                     }
 
-                    if (keyEvent.getCode() == KeyCode.DIGIT4) {
+                    if (keyEvent.getCode() == KeyCode.DIGIT3) {
                         try {
                             visszavon();
                         } catch (Exception ex) { Logger.getLogger(FoablakController.class.getName()).log(Level.SEVERE, null, ex); }
@@ -786,18 +829,18 @@ public class FoablakController implements Initializable, Feliratok {
         lblForrasnyelv.setText(foablakFelirat[12]);
         btnFeldolgoz.setText(foablakFelirat[13]);
         lblFeldolgozasEredmeny.setText(foablakFelirat[14]);
-        btnIsmert.setText(foablakFelirat[15]);
-        btnTanulando.setText(foablakFelirat[16]);
-        btnIgnore.setText(foablakFelirat[17]);
-        btnVisszavon.setText(foablakFelirat[18]);
-        oSzo.setText(foablakFelirat[19]);
-        oMondat.setText(foablakFelirat[20]);
-        oGyak.setText(foablakFelirat[21]);
-        lblIsmertseg.setText(foablakFelirat[22]);
-        lblOlvashato.setText(foablakFelirat[23]);
-        menuNyelv.setText(foablakFelirat[24]);
-        menuiMagyar.setText(foablakFelirat[25]);
-        menuiEnglish.setText(foablakFelirat[26]);
+        btnTanulando.setText(foablakFelirat[15]);
+        btnIgnore.setText(foablakFelirat[16]);
+        btnVisszavon.setText(foablakFelirat[17]);
+        oSzo.setText(foablakFelirat[18]);
+        oMondat.setText(foablakFelirat[19]);
+        oGyak.setText(foablakFelirat[20]);
+        lblIsmertseg.setText(foablakFelirat[21]);
+        lblOlvashato.setText(foablakFelirat[22]);
+        menuNyelv.setText(foablakFelirat[23]);
+        menuiMagyar.setText(foablakFelirat[24]);
+        menuiEnglish.setText(foablakFelirat[25]);
+        btnKovetkezoOldal.setText(foablakFelirat[26]);
     }
     
     /**

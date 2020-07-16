@@ -28,10 +28,9 @@ public interface Feliratok {
         "Forrásnyelv (kötelező)",
         "Adatok feldolgozása",
         "Feldolgozás eredménye",
-        "Ismert szó (1)",
-        "Tanulandó szó (2)",
-        "Figyelmen kívül hagyás (3)",
-        "Visszavonás (4)",
+        "Tanulandó szó (1)",
+        "Figyelmen kívül hagyás (2)",
+        "Visszavonás (3)",
         "Szavak",
         "Mondatok",
         "Gyakoriság",
@@ -39,7 +38,9 @@ public interface Feliratok {
         "Olvashatósági index:",
         "Felület nyelve",
         "Magyar",
-        "English"
+        "English",
+        "Következő oldal",
+        "Befejezés"
     };
     
     public static final String [] ANKI_MAGYARFELIRATOK = new String [] {
@@ -163,10 +164,9 @@ public interface Feliratok {
         "Source language (required)",
         "Data processing",
         "Result of processing",
-        "Known word (1)",
-        "Word to learn (2)",
-        "Ignore (3)",
-        "Undo (4)",
+        "Word to learn (1)",
+        "Ignore (2)",
+        "Undo (3)",
         "Words",
         "Sentences",
         "Frequency",
@@ -174,7 +174,9 @@ public interface Feliratok {
         "Readability index:",
         "Language",
         "Magyar",
-        "English"
+        "English",
+        "Next page",
+        "Finish"
     };
     
     public static final String [] ANKI_ANGOLFELIRATOK = new String [] {
