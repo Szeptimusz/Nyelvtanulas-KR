@@ -69,6 +69,7 @@ public class FoablakController implements Initializable, Feliratok {
     int    progress = 1;
     int    dataIndex = 0;
     int    vegPont = 0;
+    int    szavakSzama = 15;
     double progressbarJelenlegiErtek;
     double progressbarMaximumErtek;
     double fleschScore;
@@ -435,10 +436,10 @@ public class FoablakController implements Initializable, Feliratok {
                     tajekoztat(uzenetek.get("tajekoztat"), uzenetek.get("feldolgozasbefejezodott"));
                     
                     // Oldalak számának meghatározása, az elején a progress 1-re állítása
-                    if (data.size() % 22 == 0) {
-                        progressbarMaximumErtek = data.size() / 22.0;
+                    if (data.size() % szavakSzama == 0) {
+                        progressbarMaximumErtek = data.size() / (szavakSzama * 1.0);
                     } else {
-                        progressbarMaximumErtek = data.size() / 22.0 + 1;
+                        progressbarMaximumErtek = data.size() / (szavakSzama * 1.0) + 1;
                     }
 
                     progressbarJelenlegiErtek = 1;
@@ -451,7 +452,7 @@ public class FoablakController implements Initializable, Feliratok {
                 for (int i = 0; i < data.size(); i++) {
                     tblTablazat.getItems().add(data.get(i));
                     vegPont++;
-                    if (i == 21) break;
+                    if (i == szavakSzama - 1) break;
                 }
                 
                 
@@ -462,7 +463,7 @@ public class FoablakController implements Initializable, Feliratok {
                 lblTallozasEredmeny.setText("");
                 lblSzazalekIsmert.setText((int)((double)toroltSzavak / eredetiOsszesSzo * 10000) / 100.0 + " %");
                 
-                if (data.size() < 23) btnKovetkezoOldal.setText(foablakFelirat[27]);
+                if (data.size() < szavakSzama + 1) btnKovetkezoOldal.setText(foablakFelirat[27]);
                 
                 if (forrasNyelvKod.equals("en")) {
                     if      (fleschScore > 90) lblOlvashatosag.setText((int)fleschScore + "  (Very easy to read)");
@@ -508,7 +509,10 @@ public class FoablakController implements Initializable, Feliratok {
         int db = 1;
         for (; vegPont < data.size(); vegPont++) {
             tblTablazat.getItems().add(data.get(vegPont));
-            if (db == 22) break;
+            if (db == szavakSzama) {
+                vegPont++;
+                break;
+            }
             db++;
         }
 
