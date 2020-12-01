@@ -77,15 +77,13 @@ public class DB {
      * A kapott táblához hozzáadja a kapott szót és annak állapotát.
      * @param tabla   A tábla neve
      * @param szo     A kiírandó szó
-     * @param allapot A kiírandó szó állapota (ismert,ignoralt)
      */
-    public static void szotBeirAdatbazisba(String tabla, String szo, String allapot) {
-        String into = "INSERT INTO " + tabla + " VALUES (?,?)";
+    public static void szotBeirAdatbazisba(String tabla, String szo) {
+        String into = "INSERT INTO " + tabla + " VALUES (?)";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
                 PreparedStatement ps = kapcs.prepareStatement(into)) {
             
                 ps.setString(1, szo);
-                ps.setString(2, allapot);
                 ps.executeUpdate();
                 
         } catch (SQLException e) {
@@ -175,24 +173,14 @@ public class DB {
      *                        az ehhez kapcsolódó 'szavak' vagy 'tanulandó' együtt alkotja a tábla teljes nevét. 
      */
     public static void tablakatKeszit(String TablaNevEleje) {
-        String createTable = "CREATE TABLE IF NOT EXISTS " + TablaNevEleje + "szavak" + " (szavak VARCHAR(30) NOT NULL UNIQUE,"
-                                                                                        + "allapot VARCHAR(15) NOT NULL);";
+        String createTable = "CREATE TABLE IF NOT EXISTS " + TablaNevEleje + "szavak" + " (szavak VARCHAR(30) NOT NULL UNIQUE);";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
                 PreparedStatement ps = kapcs.prepareStatement(createTable)) {
                 ps.executeUpdate();
         } catch (SQLException e) {
             hiba(uzenetek.get("hiba"),e.getMessage());
         }
-        
-        String createIndex = "CREATE INDEX IF NOT EXISTS allapot ON " + TablaNevEleje + "szavak" + "(allapot);";
-        try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
-                PreparedStatement ps2 = kapcs.prepareStatement(createIndex)) {
-                ps2.executeUpdate();
-        } catch (SQLException e) {
-            hiba(uzenetek.get("hiba"),e.getMessage());
-        }
-        
-        
+
         createTable = "CREATE TABLE IF NOT EXISTS " + TablaNevEleje + "tanulando" + " (nevelo VARCHAR(10) NOT NULL, "
                                                                                     + "szavak VARCHAR(30) NOT NULL UNIQUE,"
                                                                                     + "mondatok TEXT NOT NULL, "
@@ -206,7 +194,7 @@ public class DB {
             hiba(uzenetek.get("hiba"),e.getMessage());
         }
         
-        createIndex = "CREATE INDEX IF NOT EXISTS anki ON " + TablaNevEleje + "tanulando" + "(ANKI);";
+        String createIndex = "CREATE INDEX IF NOT EXISTS anki ON " + TablaNevEleje + "tanulando" + "(ANKI);";
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
                 PreparedStatement ps2 = kapcs.prepareStatement(createIndex)) {
                 ps2.executeUpdate();
@@ -218,15 +206,13 @@ public class DB {
     /**
      * A kapott _szavak táblából lekérdezi a kapott állapotú szavak számát.
      * @param tabla    A tábla neve
-     * @param allapot  A szó állapota (ismert, ignoralt)
-     * @return         Visszaadja, hogy hány ilyen állapotú sor van.
+     * @return         Visszaadja, hogy hány sor van.
      */
-    public static int statisztikatLekerdez(String tabla, String allapot) {
-        String query = "SELECT COUNT(*) FROM " + tabla + " WHERE allapot=?";
+    public static int statisztikatLekerdez(String tabla) {
+        String query = "SELECT COUNT(*) FROM " + tabla;
         try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
             PreparedStatement ps = kapcs.prepareStatement(query)) {
             
-            ps.setString(1, allapot);
             ResultSet eredmeny = ps.executeQuery();
             int sorokSzama = eredmeny.getInt(1);
             return sorokSzama;

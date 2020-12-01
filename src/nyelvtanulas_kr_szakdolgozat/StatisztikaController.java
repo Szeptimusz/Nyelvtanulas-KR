@@ -61,14 +61,12 @@ public class StatisztikaController implements Initializable, Feliratok {
             (v, regi, uj) -> {
                 String nyelvKodja = FoablakController.nyelvekKodja.get(uj);
 
-                int ismert = DB.statisztikatLekerdez(nyelvKodja + "_szavak","ismert");
-                int ignoralt = DB.statisztikatLekerdez(nyelvKodja + "_szavak","ignoralt");
+                int ismert = DB.statisztikatLekerdez(nyelvKodja + "_szavak");
                 int exportalt = DB.statisztikatTanulandobolLekerdez(nyelvKodja + "_tanulando",1);
                 int nemExportalt = DB.statisztikatTanulandobolLekerdez(nyelvKodja + "_tanulando",0);
                 
-                lblOsszes.setText((ismert + ignoralt + exportalt + nemExportalt) + "");
+                lblOsszes.setText((ismert + exportalt + nemExportalt) + "");
                 lblIsmertekSzama.setText(ismert + "");
-                lblIgnoraltakSzama.setText(ignoralt + "");
                 lblTanulandoOsszes.setText((exportalt + nemExportalt) + "");
                 lblImportaltTanulando.setText(exportalt + "");
                 lblNemImportaltTanulando.setText(nemExportalt + "");
@@ -81,7 +79,6 @@ public class StatisztikaController implements Initializable, Feliratok {
         lblKeremValasszonKi.setText(FoablakController.statisztikaFelirat[1]);
         lblOsszesSzo.setText(FoablakController.statisztikaFelirat[2]);
         lblIsmertSzavak.setText(FoablakController.statisztikaFelirat[3]);
-        lblFigyelmenKivulHagyott.setText(FoablakController.statisztikaFelirat[4]);
         lblTanulandoSzavak.setText(FoablakController.statisztikaFelirat[5]);
         lblExportaltSzavak.setText(FoablakController.statisztikaFelirat[6]);
         lblNemExportaltSzavak.setText(FoablakController.statisztikaFelirat[7]);

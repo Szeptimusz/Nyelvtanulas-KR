@@ -17,7 +17,7 @@ public class Sor {
     private String  mondat;
     private int     gyak;
     private boolean tilt = false;
-    private boolean tanulandoVagyIgnoralt = false;
+    private boolean tanulando = false;
     private String  tabla;
     private String  forditas;
     private List<String> mondatok;
@@ -102,8 +102,8 @@ public class Sor {
 
     public void setMondatok(List<String> mondatok) { this.mondatok = mondatok; }
 
-    public boolean isTanulandoVagyIgnoralt()       { return tanulandoVagyIgnoralt; }
+    public boolean isTanulando()       { return tanulando; }
 
-    public void setTanulandoVagyIgnoralt(boolean tanulandoVagyIgnoralt) { this.tanulandoVagyIgnoralt = tanulandoVagyIgnoralt; }
+    public void setTanulando(boolean tanulando) { this.tanulando = tanulando; }
     
 }

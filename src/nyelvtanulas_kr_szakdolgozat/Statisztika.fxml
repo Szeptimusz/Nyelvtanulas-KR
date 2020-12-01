@@ -24,7 +24,6 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
             <Label fx:id="lblKeremValasszonKi" GridPane.rowIndex="1">
@@ -37,17 +36,12 @@
                   <Font size="15.0" />
                </font>
             </Label>
-            <Label fx:id="lblFigyelmenKivulHagyott" GridPane.rowIndex="4">
+            <Label fx:id="lblTanulandoSzavak" GridPane.rowIndex="4">
                <font>
                   <Font size="15.0" />
                </font>
             </Label>
-            <Label fx:id="lblTanulandoSzavak" GridPane.rowIndex="5">
-               <font>
-                  <Font size="15.0" />
-               </font>
-            </Label>
-            <Label fx:id="lblExportaltSzavak" GridPane.rowIndex="6">
+            <Label fx:id="lblExportaltSzavak" GridPane.rowIndex="5">
                <font>
                   <Font size="15.0" />
                </font>
@@ -55,7 +49,7 @@
                   <Insets />
                </GridPane.margin>
             </Label>
-            <Label fx:id="lblNemExportaltSzavak" GridPane.rowIndex="7">
+            <Label fx:id="lblNemExportaltSzavak" GridPane.rowIndex="6">
                <font>
                   <Font size="15.0" />
                </font>
@@ -77,22 +71,17 @@
                   <Font size="15.0" />
                </font>
             </Label>
-            <Label fx:id="lblIgnoraltakSzama" GridPane.columnIndex="1" GridPane.rowIndex="4">
+            <Label fx:id="lblTanulandoOsszes" GridPane.columnIndex="1" GridPane.rowIndex="4">
                <font>
                   <Font size="15.0" />
                </font>
             </Label>
-            <Label fx:id="lblTanulandoOsszes" GridPane.columnIndex="1" GridPane.rowIndex="5">
+            <Label fx:id="lblImportaltTanulando" GridPane.columnIndex="1" GridPane.rowIndex="5">
                <font>
                   <Font size="15.0" />
                </font>
             </Label>
-            <Label fx:id="lblImportaltTanulando" GridPane.columnIndex="1" GridPane.rowIndex="6">
-               <font>
-                  <Font size="15.0" />
-               </font>
-            </Label>
-            <Label fx:id="lblNemImportaltTanulando" GridPane.columnIndex="1" GridPane.rowIndex="7">
+            <Label fx:id="lblNemImportaltTanulando" GridPane.columnIndex="1" GridPane.rowIndex="6">
                <font>
                   <Font size="15.0" />
                </font>
