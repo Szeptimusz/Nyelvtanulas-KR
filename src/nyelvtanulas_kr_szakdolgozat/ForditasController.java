@@ -69,6 +69,7 @@ public class ForditasController implements Feliratok {
     private int            mondatIndex = 0;
     private String         eredetiMondat;
     private String         forrasNyelvKod;
+    private String         celNyelvKod;
     private static boolean tanulandoElmentve = false;
     
     /**
@@ -78,10 +79,13 @@ public class ForditasController implements Feliratok {
      * @param szo            A tanulandó szó
      * @param mondatok       A  példamondatok listája
      * @param forrasNyelvKod A forrásnyelv kódja
+     * @param celNyelvKod
      */
-    public void setForditasAblakAdatok(String szo, List<String> mondatok, String forrasNyelvKod) {
+    public void setForditasAblakAdatok(String szo, List<String> mondatok, String forrasNyelvKod, String celNyelvKod) {
         this.szo = szo;
         lblSzo.setText(szo);
+        
+        this.celNyelvKod = celNyelvKod;
         
         this.mondatok = mondatok;
         if (!mondatok.isEmpty()) {
@@ -213,8 +217,8 @@ public class ForditasController implements Feliratok {
     @FXML
     public void megnyitGoogleTranslate() throws Exception {
         Desktop.getDesktop().browse(new URI("https://translate.google.com/"
-                    + "?hl=hu#view=home&op=translate&sl=" + forrasNyelvKod
-                    + "&tl=hu&text=" + szo));
+                    + "?hl=" + celNyelvKod + "#view=home&op=translate&sl=" + forrasNyelvKod
+                    + "&tl=" + celNyelvKod + "&text=" + szo));
     }
     
     /**

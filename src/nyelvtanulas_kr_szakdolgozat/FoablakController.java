@@ -2,6 +2,7 @@ package nyelvtanulas_kr_szakdolgozat;
 
 import eu.crydee.syllablecounter.SyllableCounter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
@@ -69,7 +70,7 @@ public class FoablakController implements Initializable, Feliratok {
     int    progress = 1;
     int    dataIndex = 0;
     int    vegPont = 0;
-    int    szavakSzama = 15;
+    int    sorokSzama;
     double progressbarJelenlegiErtek;
     double progressbarMaximumErtek;
     double fleschScore;
@@ -79,6 +80,9 @@ public class FoablakController implements Initializable, Feliratok {
     // meghatározására (más osztályokból is)
     static HashMap<String, String>  nyelvekKodja  = new HashMap<>();
     static HashMap<String, String>  uzenetek      = new HashMap<>();
+    static int       beolvasottSorokSzama;
+    static String    celNyelvKod;
+    static String    feluletNyelve;
     static String [] foablakFelirat;
     static String [] ankiFelirat;
     static String [] forditasFelirat;
@@ -86,6 +90,7 @@ public class FoablakController implements Initializable, Feliratok {
     static String [] kikerdezesFelirat;
     static String [] statisztikaFelirat;
     static String [] nevjegyFelirat;
+    static String [] beallitasokFelirat;
     
     private final ObservableList<Sor> data = FXCollections.observableArrayList();
     
@@ -98,17 +103,13 @@ public class FoablakController implements Initializable, Feliratok {
     @FXML
     private MenuItem         menuiStatisztika;
     @FXML
+    private MenuItem         menuiBeallitasok;
+    @FXML
     private MenuItem         menuiKilepes;
     @FXML
     private Menu             menuEgyeb;
     @FXML
     private MenuItem         menuiNevjegy;
-    @FXML
-    private Menu             menuNyelv;
-    @FXML
-    private MenuItem         menuiMagyar;
-    @FXML
-    private MenuItem         menuiEnglish;
     @FXML
     private SplitPane        anchor;
     @FXML
@@ -397,7 +398,7 @@ public class FoablakController implements Initializable, Feliratok {
             // A megadott forrásnyelv beállítása (pl: 'Német' -> 'de')
             forrasNyelvKod = nyelvekKodja.get(cbxForras.getValue());
             TablaNevEleje = forrasNyelvKod + "_";
-            
+            sorokSzama = beolvasottSorokSzama;
             
             Stage primaryStage = new Stage();
             Group root = new Group();
@@ -436,10 +437,10 @@ public class FoablakController implements Initializable, Feliratok {
                     tajekoztat(uzenetek.get("tajekoztat"), uzenetek.get("feldolgozasbefejezodott"));
                     
                     // Oldalak számának meghatározása, az elején a progress 1-re állítása
-                    if (data.size() % szavakSzama == 0) {
-                        progressbarMaximumErtek = data.size() / (szavakSzama * 1.0);
+                    if (data.size() % sorokSzama == 0) {
+                        progressbarMaximumErtek = data.size() / (sorokSzama * 1.0);
                     } else {
-                        progressbarMaximumErtek = data.size() / (szavakSzama * 1.0) + 1;
+                        progressbarMaximumErtek = data.size() / (sorokSzama * 1.0) + 1;
                     }
 
                     progressbarJelenlegiErtek = 1;
@@ -452,7 +453,7 @@ public class FoablakController implements Initializable, Feliratok {
                 for (int i = 0; i < data.size(); i++) {
                     tblTablazat.getItems().add(data.get(i));
                     vegPont++;
-                    if (i == szavakSzama - 1) break;
+                    if (i == sorokSzama - 1) break;
                 }
                 
                 
@@ -463,7 +464,7 @@ public class FoablakController implements Initializable, Feliratok {
                 lblTallozasEredmeny.setText("");
                 lblSzazalekIsmert.setText((int)((double)toroltSzavak / eredetiOsszesSzo * 10000) / 100.0 + " %");
                 
-                if (data.size() < szavakSzama + 1) btnKovetkezoOldal.setText(foablakFelirat[27]);
+                if (data.size() < sorokSzama + 1) btnKovetkezoOldal.setText(foablakFelirat[27]);
                 
                 if (forrasNyelvKod.equals("en")) {
                     if      (fleschScore > 90) lblOlvashatosag.setText((int)fleschScore + "  (Very easy to read)");
@@ -509,7 +510,7 @@ public class FoablakController implements Initializable, Feliratok {
         int db = 1;
         for (; vegPont < data.size(); vegPont++) {
             tblTablazat.getItems().add(data.get(vegPont));
-            if (db == szavakSzama) {
+            if (db == sorokSzama) {
                 vegPont++;
                 break;
             }
@@ -618,6 +619,12 @@ public class FoablakController implements Initializable, Feliratok {
     @FXML
     public void kikerdezesAblak()  { ablakotNyit("Kikerdezes.fxml",uzenetek.get("szavakkikerdezese"),"",null); }
     
+    @FXML
+    public void beallitasokAblak() { 
+        ablakotNyit("Beallitasok.fxml",uzenetek.get("beallitasok"),"",null);
+        foablakFeliratokatBeallit(feluletNyelve);
+    }
+    
     /**
      * A kapott fxml fájlnév alapján új ablakot nyit meg. Ha a szó paraméter nem üres, akkor a fordítás ablakot
      * nyitja meg, ekkor az új ablakhoz tartozó controller osztályban beállítja a szó, mondat és forrás nyelv kód mezők értékeit.
@@ -632,7 +639,7 @@ public class FoablakController implements Initializable, Feliratok {
             Parent root = loader.load();
             if (!szo.isEmpty()) {
                 ForditasController fc = loader.getController();
-                fc.setForditasAblakAdatok(szo,mondatok,forrasNyelvKod);
+                fc.setForditasAblakAdatok(szo,mondatok,forrasNyelvKod,celNyelvKod);
             }
             Scene scene = new Scene(root);
             Stage ablak = new Stage();
@@ -708,26 +715,38 @@ public class FoablakController implements Initializable, Feliratok {
             });
             
             
-            // Ha talál lng.txt nevű fájlt akkor kiolvassa belőle, hogy milyen 
-            // nyelvű legyen a program felülete, ha nem talál akkor a helyi
-            // nyelvet állítja be
-            Locale currentLocale = Locale.getDefault();
-            try (Scanner be = new Scanner(new File("lng.txt"))) {
+            try (Scanner be = new Scanner(new File("settings.txt"))) {
                 
-                foablakFeliratokatBeallit(be.nextLine());
+                String felNyelv = be.nextLine();
+                feluletNyelve = felNyelv;
+                foablakFeliratokatBeallit(felNyelv);
                 
-            } catch (Exception e) {
+                celNyelvKod = be.nextLine();
+                beolvasottSorokSzama = Integer.parseInt(be.nextLine());
                 
+            } catch (FileNotFoundException e) {
+                
+                Locale currentLocale = Locale.getDefault();
                 String helyiNyelv = currentLocale.getDisplayLanguage();
+                feluletNyelve = helyiNyelv;
                 foablakFeliratokatBeallit(helyiNyelv);
                 
-                try (PrintWriter ki = new PrintWriter("lng.txt")) { 
+                try (PrintWriter ki = new PrintWriter("settings.txt")) { 
+                    
                     ki.println(helyiNyelv);
+                    ki.println("hu");
+                    ki.println("15");
+                    
+                    foablakFeliratokatBeallit(helyiNyelv);
+                    celNyelvKod = "hu";
+                    beolvasottSorokSzama = 15;
+                    
                 } catch (IOException ex) {
                     System.out.println(ex.getMessage());
                 }
                 
             }
+            
   
             
         // Adatbázis elérési útvonalát beállítja, ha nincs adatbázis akkor létrehozza
@@ -742,8 +761,8 @@ public class FoablakController implements Initializable, Feliratok {
      */
     public void foablakFeliratokatBeallit(String nyelv) {
         
-        switch (nyelv) {
-            case "magyar" :
+        if (nyelv.matches("magyar|Magyar|Hungarian|hungarian")) {
+            
                 foablakFelirat     = FOABLAK_MAGYARFELIRATOK;
                 ankiFelirat        = ANKI_MAGYARFELIRATOK;
                 forditasFelirat    = FORDITAS_MAGYARFELIRATOK;
@@ -752,9 +771,10 @@ public class FoablakController implements Initializable, Feliratok {
                 statisztikaFelirat = STATISZTIKA_MAGYARFELIRATOK;
                 nevjegyFelirat     = NEVJEGY_MAGYARFELIRATOK;
                 uzenetek           = UZENETEK_MAGYAR;
-                break;
+                beallitasokFelirat = BEALLITASOK_MAGYARFELIRATOK;
                 
-            case "english" :
+        } else if (nyelv.matches("english|English|angol|Angol")) {
+
                 foablakFelirat     = FOABLAK_ANGOLFELIRATOK;
                 ankiFelirat        = ANKI_ANGOLFELIRATOK;
                 forditasFelirat    = FORDITAS_ANGOLFELIRATOK;
@@ -763,9 +783,10 @@ public class FoablakController implements Initializable, Feliratok {
                 statisztikaFelirat = STATISZTIKA_ANGOLFELIRATOK;
                 nevjegyFelirat     = NEVJEGY_ANGOLFELIRATOK;
                 uzenetek           = UZENETEK_ANGOL;
-                break;
+                beallitasokFelirat = BEALLITASOK_ANGOLFELIRATOK;
                 
-            default :
+        } else { 
+            
                 foablakFelirat     = FOABLAK_MAGYARFELIRATOK;
                 ankiFelirat        = ANKI_MAGYARFELIRATOK;
                 forditasFelirat    = FORDITAS_MAGYARFELIRATOK;
@@ -774,13 +795,13 @@ public class FoablakController implements Initializable, Feliratok {
                 statisztikaFelirat = STATISZTIKA_MAGYARFELIRATOK;
                 nevjegyFelirat     = NEVJEGY_MAGYARFELIRATOK;
                 uzenetek           = UZENETEK_MAGYAR;
-                break;
+                beallitasokFelirat = BEALLITASOK_MAGYARFELIRATOK;
         }
         
         /* Beállítja a legördülő lista nyelveit (a felületen használt nyelven) és
            a nyelvek nevéhez statikus hashmap-ben hozzárendeli a nyelv kódját (más
            osztály használni tudja a nyelvkód megállapításához */
-        String roviditettNyelv [] = {"en","es","fr","de","it","pt","nl","pl","da","cs","sk","sl"};
+        String roviditettNyelv [] = {"en","es","fr","de","it","pt","nl","pl","da","cs","sk","sl","hu"};
         cbxForras.getItems().clear();
         cbxForras.getItems().addAll(nyelvek);
         for (int i = 0; i < nyelvek.length; i++) {
@@ -809,26 +830,8 @@ public class FoablakController implements Initializable, Feliratok {
         oGyak.setText(foablakFelirat[20]);
         lblIsmertseg.setText(foablakFelirat[21]);
         lblOlvashato.setText(foablakFelirat[22]);
-        menuNyelv.setText(foablakFelirat[23]);
-        menuiMagyar.setText(foablakFelirat[24]);
-        menuiEnglish.setText(foablakFelirat[25]);
         btnKovetkezoOldal.setText(foablakFelirat[26]);
-    }
-    
-    /**
-     * A program teljes felületét angol nyelvűre állító gomb.
-     */
-    @FXML
-    void feluletAngolra() {
-        foablakFeliratokatBeallit("english");
-    }
-
-    /**
-     * A program teljes felületét magyar nyelvűre állító gomb.
-     */
-    @FXML
-    void feluletMagyarra() {
-        foablakFeliratokatBeallit("magyar");
+        menuiBeallitasok.setText(foablakFelirat[16]);
     }
     
     /**

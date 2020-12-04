@@ -29,7 +29,7 @@ public interface Feliratok {
         "Adatok feldolgozása",
         "Feldolgozás eredménye",
         "Tanulandó szó (1)",
-        "",
+        "Beállítások",
         "Visszavonás (2)",
         "Szavak",
         "Mondatok",
@@ -37,8 +37,8 @@ public interface Feliratok {
         "Szöveg ismertsége:",
         "Olvashatósági index:",
         "Felület nyelve",
-        "Magyar",
-        "English",
+        "",
+        "",
         "Következő oldal",
         "Befejezés"
     };
@@ -66,7 +66,7 @@ public interface Feliratok {
     };
     
     public static final String [] NYELVEK_MAGYAR = new String [] {
-        "Angol","Spanyol","Francia","Német","Olasz","Portugál","Holland","Lengyel","Dán","Cseh","Szlovák","Szlovén"
+        "Angol","Spanyol","Francia","Német","Olasz","Portugál","Holland","Lengyel","Dán","Cseh","Szlovák","Szlovén","Magyar"
     };
     
     public static final String [] KIKERDEZES_MAGYARFELIRATOK = new String [] {
@@ -95,6 +95,15 @@ public interface Feliratok {
         "Verzió:",
         "Fejlesztői dokumentáció megtekintése a böngészőben",
         "Program Github oldala"
+    };
+    
+    public static final String [] BEALLITASOK_MAGYARFELIRATOK = new String [] {
+        "Beállítások",
+        "Felület nyelve:",
+        "Célnyelv (ismert nyelv):",
+        "Sorok száma a táblázatban:",
+        "Mentés",
+        "Mégse"
     };
     
     public static final HashMap<String, String> UZENETEK_MAGYAR = new HashMap<String, String>() {{
@@ -134,6 +143,10 @@ public interface Feliratok {
         put("nincsentanulando",           "Nincsen aktuálisan tanulandó szó!");
         put("kikerdezesvege",             "Véget ért a kikérdezés!");
         
+        // Beállítások ablak üzenetei
+        put("beallitasok",                "Beállítások");
+        put("nemszam",                    "Pozitív egész számot adjon meg!");
+        
         // Panel header feliratok
         put("tajekoztat",                 "Kész!");
         put("figyelmeztet",               "Figyelem!");
@@ -141,6 +154,7 @@ public interface Feliratok {
         put("kilepesmegerosites",         "Kilépés megerősítés");
         put("ankiimportkeszites",         "ANKI kártya készítés");
         put("kártyakesziteseredmeny",     "Kártya készítés eredmény");
+        
 
     }};
     
@@ -165,7 +179,7 @@ public interface Feliratok {
         "Data processing",
         "Result of processing",
         "Word to learn (1)",
-        "",
+        "Settings",
         "Undo (2)",
         "Words",
         "Sentences",
@@ -173,8 +187,8 @@ public interface Feliratok {
         "How much of the text is known:",
         "Readability index:",
         "Language",
-        "Magyar",
-        "English",
+        "",
+        "",
         "Next page",
         "Finish"
     };
@@ -202,7 +216,7 @@ public interface Feliratok {
     };
     
     public static final String [] NYELVEK_ANGOL = new String [] {
-        "English","Spanish","French","German","Italian","Portuguese","Dutch","Polish","Danish","Czech","Slovak","Slovenian"
+        "English","Spanish","French","German","Italian","Portuguese","Dutch","Polish","Danish","Czech","Slovak","Slovenian","Hungarian"
     };
     
     public static final String [] KIKERDEZES_ANGOLFELIRATOK = new String [] {
@@ -231,6 +245,15 @@ public interface Feliratok {
         "Version:",
         "Developer documentation",
         "Github page"
+    };
+    
+    public static final String [] BEALLITASOK_ANGOLFELIRATOK = new String [] {
+        "Settings",
+        "Display language:",
+        "Your language:",
+        "Number of rows in the table:",
+        "Save",
+        "Cancel"
     };
     
     public static final HashMap<String, String> UZENETEK_ANGOL = new HashMap<String, String>() {{
@@ -269,6 +292,10 @@ public interface Feliratok {
         put("melyiknyelv",                "Please select which language you want to use word cards for");
         put("nincsentanulando",           "There are no words to learn right now!");
         put("kikerdezesvege",             "The review is over!");
+        
+        // Beállítás ablak üzenetei
+        put("beallitasok",                "Settings");
+        put("nemszam",                    "Enter a positive integer! (x > 0)");
         
         // Panel header feliratok
         put("tajekoztat",                 "Ready!");

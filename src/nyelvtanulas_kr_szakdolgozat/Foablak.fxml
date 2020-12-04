@@ -29,6 +29,7 @@
               <MenuItem fx:id="menuiAnki" mnemonicParsing="false" onAction="#ankiImportAblak" />
                   <MenuItem fx:id="menuiKikerdezes" mnemonicParsing="false" onAction="#kikerdezesAblak" />
                   <MenuItem fx:id="menuiStatisztika" mnemonicParsing="false" onAction="#statisztikaAblak" />
+                  <MenuItem fx:id="menuiBeallitasok" mnemonicParsing="false" onAction="#beallitasokAblak" />
                   <MenuItem fx:id="menuiKilepes" mnemonicParsing="false" onAction="#kilep" />
             </items>
           </Menu>
@@ -37,12 +38,6 @@
               <MenuItem fx:id="menuiNevjegy" mnemonicParsing="false" onAction="#nevjegy" />
             </items>
           </Menu>
-            <Menu fx:id="menuNyelv" mnemonicParsing="false">
-              <items>
-                <MenuItem fx:id="menuiMagyar" mnemonicParsing="false" onAction="#feluletMagyarra" />
-                  <MenuItem fx:id="menuiEnglish" mnemonicParsing="false" onAction="#feluletAngolra" />
-              </items>
-            </Menu>
         </menus>
       </MenuBar>
       <SplitPane fx:id="anchor" dividerPositions="0.35" layoutY="25.0" maxWidth="1000.0" prefHeight="375.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
