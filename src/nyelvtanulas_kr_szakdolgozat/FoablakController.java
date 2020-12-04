@@ -540,7 +540,7 @@ public class FoablakController implements Initializable, Feliratok {
         String szo = tblTablazat.getSelectionModel().getSelectedItem().getSzo(); 
         List<String> mondatok = tblTablazat.getSelectionModel().getSelectedItem().getMondatok();
         
-        ablakotNyit("Forditas.fxml", uzenetek.get("forditashozzaadas"), szo, mondatok);
+        ablakotNyit("Forditas.fxml", uzenetek.get("forditashozzaadas"), szo, mondatok,true);
         if (ForditasController.isTanulandoElmentve()) {
             tblTablazat.getSelectionModel().getSelectedItem().setTanulando(true);
             letiltLeptet(TablaNevEleje + "tanulando");
@@ -609,19 +609,19 @@ public class FoablakController implements Initializable, Feliratok {
 
     /*** Új ablakot nyit meg, ahol ANKI-import fájl készíthető.*/
     @FXML
-    public void ankiImportAblak()  { ablakotNyit("Anki.fxml", uzenetek.get("ankiimportelkeszites"), "", null); }
+    public void ankiImportAblak()  { ablakotNyit("Anki.fxml", uzenetek.get("ankiimportelkeszites"), "", null,false); }
     
     /*** Új ablakban megjeleníti az adott nyelvhez tartozó statisztikát*/
     @FXML
-    public void statisztikaAblak() { ablakotNyit("Statisztika.fxml", uzenetek.get("adatbazisstatisztika"), "", null); }
+    public void statisztikaAblak() { ablakotNyit("Statisztika.fxml", uzenetek.get("adatbazisstatisztika"), "", null,false); }
     
     /*** Új ablakban megjeleníti a szókártya-kikérdezés felületet*/
     @FXML
-    public void kikerdezesAblak()  { ablakotNyit("Kikerdezes.fxml",uzenetek.get("szavakkikerdezese"),"",null); }
+    public void kikerdezesAblak()  { ablakotNyit("Kikerdezes.fxml",uzenetek.get("szavakkikerdezese"),"",null,false); }
     
     @FXML
     public void beallitasokAblak() { 
-        ablakotNyit("Beallitasok.fxml",uzenetek.get("beallitasok"),"",null);
+        ablakotNyit("Beallitasok.fxml",uzenetek.get("beallitasok"),"",null,false);
         foablakFeliratokatBeallit(feluletNyelve);
     }
     
@@ -633,7 +633,7 @@ public class FoablakController implements Initializable, Feliratok {
      * @param szo          Fordítás ablak esetében a kapott szó
      * @param mondat       Fordítás ablak esetében a kapott mondat
      */
-    private void ablakotNyit(String fxmlFajl, String ablakCim, String szo, List<String> mondatok) {
+    private void ablakotNyit(String fxmlFajl, String ablakCim, String szo, List<String> mondatok, boolean resize) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFajl));
             Parent root = loader.load();
@@ -643,7 +643,7 @@ public class FoablakController implements Initializable, Feliratok {
             }
             Scene scene = new Scene(root);
             Stage ablak = new Stage();
-            ablak.setResizable(false);
+            ablak.setResizable(resize);
             ablak.initModality(Modality.APPLICATION_MODAL);
             ablak.setScene(scene);
             ablak.setTitle(ablakCim);
@@ -733,12 +733,14 @@ public class FoablakController implements Initializable, Feliratok {
                 
                 try (PrintWriter ki = new PrintWriter("settings.txt")) { 
                     
+                    // Fájlba írja a 3 beállítást
                     ki.println(helyiNyelv);
-                    ki.println("hu");
+                    ki.println(nyelvekKodja.get(helyiNyelv.substring(0,1).toUpperCase() + helyiNyelv.substring(1)));
                     ki.println("15");
                     
+                    // Static változóba menti a beállításokat
                     foablakFeliratokatBeallit(helyiNyelv);
-                    celNyelvKod = "hu";
+                    celNyelvKod = nyelvekKodja.get(helyiNyelv.substring(0,1).toUpperCase() + helyiNyelv.substring(1));
                     beolvasottSorokSzama = 15;
                     
                 } catch (IOException ex) {
@@ -853,6 +855,6 @@ public class FoablakController implements Initializable, Feliratok {
      */
     @FXML
     public void nevjegy() throws Exception {
-        ablakotNyit("Nevjegy.fxml", uzenetek.get("nevjegy"),"",null);
+        ablakotNyit("Nevjegy.fxml", uzenetek.get("nevjegy"),"",null,false);
     }
 }

@@ -16,6 +16,8 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import javafx.stage.Window;
 import static nyelvtanulas_kr_szakdolgozat.FoablakController.uzenetek;
 import static panel.Panel.figyelmeztet;
@@ -63,6 +65,9 @@ public class ForditasController implements Feliratok {
     private Button      btnElozo;
     @FXML
     private Button      btnKovetkezo;
+    @FXML
+    private WebView     wvOldal;
+    private WebEngine   engine;
 
     private String         szo;
     private List<String>   mondatok;
@@ -82,6 +87,9 @@ public class ForditasController implements Feliratok {
      * @param celNyelvKod
      */
     public void setForditasAblakAdatok(String szo, List<String> mondatok, String forrasNyelvKod, String celNyelvKod) {
+        engine = wvOldal.getEngine();
+        System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
+        
         this.szo = szo;
         lblSzo.setText(szo);
         
@@ -111,6 +119,9 @@ public class ForditasController implements Feliratok {
                 }
                 
             });
+            
+            // A fordítás ablak megnyitásakor automatikusan megnyitja a google translate-et a megfelelő szóval
+            megnyitGoogleTranslate();
         });
         
         // Az ablak feliratainak beállítása a megfelelő nyelven
@@ -211,34 +222,30 @@ public class ForditasController implements Feliratok {
     }
     
     /**
-     * Megnyitja a Google Translate egy adott forrásnyelvről magyarra fordító oldalát az adott szóval.
-     * @throws Exception Hiba esetén kivételt dob
+     * Megnyitja a Google Translate egy adott forrásnyelvről egy cél nyelvre fordító oldalát az adott szóval.
      */
     @FXML
-    public void megnyitGoogleTranslate() throws Exception {
-        Desktop.getDesktop().browse(new URI("https://translate.google.com/"
+    public void megnyitGoogleTranslate() {
+        engine.load("https://translate.google.com/"
                     + "?hl=" + celNyelvKod + "#view=home&op=translate&sl=" + forrasNyelvKod
-                    + "&tl=" + celNyelvKod + "&text=" + szo));
+                    + "&tl=" + celNyelvKod + "&text=" + szo);
     }
     
     /**
      * Megnyitja a dictionary.cambridge.org weblapot az adott szóval: példamondatok és angol nyelvű körülírása a szónak.
-     * @throws Exception Exception Hiba esetén kivételt dob
      */
     @FXML
-    public void megnyitCambridge() throws Exception{
-            Desktop.getDesktop().browse(new URI("https://dictionary.cambridge.org/dictionary/english/" + szo));
+    public void megnyitCambridge() {
+        engine.load("https://dictionary.cambridge.org/dictionary/english/" + szo);
     }
     
     /**
      * A Duden.de online német szótárat megnyitja az adott német szóval.
-     * @throws URISyntaxException
-     * @throws IOException 
      */
     @FXML
-    void megnyitDuden() throws URISyntaxException, IOException {
+    void megnyitDuden() {
         if (cbxNagybetu.isSelected()) szo = szo.substring(0, 1).toUpperCase() + szo.substring(1);
-        Desktop.getDesktop().browse(new URI("https://www.duden.de/suchen/dudenonline/" + szo));
+        engine.load("https://www.duden.de/suchen/dudenonline/" + szo);
     }
 
 }

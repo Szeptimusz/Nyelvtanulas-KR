@@ -1,6 +1,5 @@
 package nyelvtanulas_kr_szakdolgozat;
 
-import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -53,6 +52,11 @@ public class BeallitasokController implements Initializable {
             return;
         }
         
+        if (feluletNyelve == null || celNyelvKod == null) {
+            hiba(uzenetek.get("hiba"),uzenetek.get("adjonmegmindenadatot"));
+            return;
+        }
+        
         FoablakController.celNyelvKod = celNyelvKod;
         FoablakController.beolvasottSorokSzama = sorokSzama;
         
@@ -91,6 +95,15 @@ public class BeallitasokController implements Initializable {
         
         cbxFeluletNyelve.getItems().addAll(FoablakController.nyelvek);
         cbxNyelvek.getItems().addAll(FoablakController.nyelvek);
+        
+        
+        // KÍSÉRLETI KÓD!!!
+        //cbxFeluletNyelve.setValue(FoablakController.feluletNyelve.substring(0,1) + FoablakController.feluletNyelve.substring(1));
+        //cbxNyelvek.setValue(FoablakController.celNyelvKod);
+        
+        
+        
+        txtSorokSzama.setText(FoablakController.beolvasottSorokSzama + "");
     }
     
 }

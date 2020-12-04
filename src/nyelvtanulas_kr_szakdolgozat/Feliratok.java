@@ -146,6 +146,7 @@ public interface Feliratok {
         // Beállítások ablak üzenetei
         put("beallitasok",                "Beállítások");
         put("nemszam",                    "Pozitív egész számot adjon meg!");
+        put("adjonmegmindenadatot",       "Kérem adjon meg minden adatot!");
         
         // Panel header feliratok
         put("tajekoztat",                 "Kész!");
@@ -200,7 +201,7 @@ public interface Feliratok {
     };
 
     public static final String [] FORDITAS_ANGOLFELIRATOK = new String [] {
-        "Please provide a translation of the word before adding word to the database",
+        "Please provide a translation before adding word to the database",
         "Article:",
         "Word",
         "Word begins with a capital letter:",
@@ -296,6 +297,7 @@ public interface Feliratok {
         // Beállítás ablak üzenetei
         put("beallitasok",                "Settings");
         put("nemszam",                    "Enter a positive integer! (x > 0)");
+        put("adjonmegmindenadatot",       "Please enter all data!");
         
         // Panel header feliratok
         put("tajekoztat",                 "Ready!");
