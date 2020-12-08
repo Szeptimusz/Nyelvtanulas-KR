@@ -208,7 +208,7 @@ public class FoablakController implements Initializable, Feliratok {
             // Beolvasás fájlból vagy szövegterületről
             String szoveg;
             if (fajlUtvonal != null) {
-                szoveg = new String(Files.readAllBytes(Paths.get(fajlUtvonal)),"Cp1250")
+                szoveg = new String(Files.readAllBytes(Paths.get(fajlUtvonal)),"UTF-8")
                             .replaceAll("\t|\n|\r|\\  ", "");
                 fajlUtvonal = null;
                 
@@ -339,9 +339,9 @@ public class FoablakController implements Initializable, Feliratok {
         // Szó elejének megtisztítása az első szöveges karakterig
         char karakter = szoveg.charAt(eleje);
         while (karakter < 'A' 
-                || (karakter > 'z' && karakter < 193) 
+                || (karakter > 'z' && karakter < 192) 
                 || (karakter > 'Z' && karakter < 'a') 
-                || karakter > 382) {
+                || (karakter > 687) ){
             if (eleje == szoveg.length()-1) return "";
             
             eleje++;
@@ -351,9 +351,9 @@ public class FoablakController implements Initializable, Feliratok {
         // Különben ha nem fogyott el a szó, akkor a szó végéről indulva is megtisztítja
         karakter = szoveg.charAt(vege);
         while (karakter < 'A' 
-                || (karakter > 'z' && karakter < 193) 
+                || (karakter > 'z' && karakter < 192) 
                 || (karakter > 'Z' && karakter < 'a') 
-                || karakter > 382) {
+                || (karakter > 687) ){
             if (vege == 0) return "";
             
             vege--;
@@ -361,7 +361,7 @@ public class FoablakController implements Initializable, Feliratok {
         }
         return szoveg.substring(eleje, vege + 1);
     }
-    
+
     /**
      * Ha van bemenő adat a felhasználótól, akkor alaphelyzetbe állítja a főablakot,
      * beállítja a töltés ablakot, letiltja a futtatás gombot, elindítja azt a szálat
