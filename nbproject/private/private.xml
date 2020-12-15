@@ -1,3 +1,4 @@
+<<<<<<< OURS
 <?xml version="1.0" encoding="UTF-8"?>
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
@@ -19,3 +20,26 @@
         </group>
     </open-files>
 </project-private>
+=======
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group name="Nyelvtanulas-KR">
+            <file>file:/D:/Szoftverfejlesztés/Java/Projektek/Nyelvtanulas/Nyelvtanulas-KR/src/nyelvtanulas_kr_szakdolgozat/FoablakController.java</file>
+            <file>file:/D:/Szoftverfejlesztés/Java/Projektek/Nyelvtanulas/Nyelvtanulas-KR/src/nyelvtanulas_kr_szakdolgozat/AnkiController.java</file>
+            <file>file:/D:/Szoftverfejlesztés/Java/Projektek/Nyelvtanulas/Nyelvtanulas-KR/src/nyelvtanulas_kr_szakdolgozat/Foablak.fxml</file>
+            <file>file:/D:/Szoftverfejlesztés/Java/Projektek/Nyelvtanulas/Nyelvtanulas-KR/src/nyelvtanulas_kr_szakdolgozat/ForditasController.java</file>
+            <file>file:/D:/Szoftverfejlesztés/Java/Projektek/Nyelvtanulas/Nyelvtanulas-KR/src/nyelvtanulas_kr_szakdolgozat/Nevjegy.fxml</file>
+            <file>file:/D:/Szoftverfejlesztés/Java/Projektek/Nyelvtanulas/Nyelvtanulas-KR/src/nyelvtanulas_kr_szakdolgozat/DB.java</file>
+            <file>file:/D:/Szoftverfejlesztés/Java/Projektek/Nyelvtanulas/Nyelvtanulas-KR/src/nyelvtanulas_kr_szakdolgozat/KikerdezesController.java</file>
+            <file>file:/D:/Szoftverfejlesztés/Java/Projektek/Nyelvtanulas/Nyelvtanulas-KR/src/nyelvtanulas_kr_szakdolgozat/Sor.java</file>
+            <file>file:/D:/Szoftverfejlesztés/Java/Projektek/Nyelvtanulas/Nyelvtanulas-KR/src/nyelvtanulas_kr_szakdolgozat/NevjegyController.java</file>
+            <file>file:/D:/Szoftverfejlesztés/Java/Projektek/Nyelvtanulas/Nyelvtanulas-KR/src/nyelvtanulas_kr_szakdolgozat/stilus.css</file>
+        </group>
+        <group>
+            <file>file:/D:/Szoftverfejlesztés/Java/Projektek/Nyelvtanulas/Nyelvtanulas-KR/src/nyelvtanulas_kr_szakdolgozat/FoablakController.java</file>
+        </group>
+    </open-files>
+</project-private>
+>>>>>>> THEIRS

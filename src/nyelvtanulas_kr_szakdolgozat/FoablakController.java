@@ -79,10 +79,12 @@ public class FoablakController implements Initializable, Feliratok {
     // Statikus adatmezők a felület nyelvének beállítására és a nyelvek kódjainak
     // meghatározására (más osztályokból is)
     static HashMap<String, String>  nyelvekKodja  = new HashMap<>();
+    static HashMap<String, String>  kodhozNyelv   = new HashMap<>();
     static HashMap<String, String>  uzenetek      = new HashMap<>();
     static int       beolvasottSorokSzama;
     static String    celNyelvKod;
     static String    feluletNyelve;
+    static String    feluletNyelvenekNeveAdottNyelven;
     static String [] foablakFelirat;
     static String [] ankiFelirat;
     static String [] forditasFelirat;
@@ -765,6 +767,8 @@ public class FoablakController implements Initializable, Feliratok {
         
         if (nyelv.matches("magyar|Magyar|Hungarian|hungarian")) {
             
+                feluletNyelvenekNeveAdottNyelven = "Magyar";
+            
                 foablakFelirat     = FOABLAK_MAGYARFELIRATOK;
                 ankiFelirat        = ANKI_MAGYARFELIRATOK;
                 forditasFelirat    = FORDITAS_MAGYARFELIRATOK;
@@ -777,6 +781,8 @@ public class FoablakController implements Initializable, Feliratok {
                 
         } else if (nyelv.matches("english|English|angol|Angol")) {
 
+                feluletNyelvenekNeveAdottNyelven = "English";
+            
                 foablakFelirat     = FOABLAK_ANGOLFELIRATOK;
                 ankiFelirat        = ANKI_ANGOLFELIRATOK;
                 forditasFelirat    = FORDITAS_ANGOLFELIRATOK;
@@ -788,6 +794,8 @@ public class FoablakController implements Initializable, Feliratok {
                 beallitasokFelirat = BEALLITASOK_ANGOLFELIRATOK;
                 
         } else { 
+            
+                feluletNyelvenekNeveAdottNyelven = "Magyar";
             
                 foablakFelirat     = FOABLAK_MAGYARFELIRATOK;
                 ankiFelirat        = ANKI_MAGYARFELIRATOK;
@@ -808,6 +816,7 @@ public class FoablakController implements Initializable, Feliratok {
         cbxForras.getItems().addAll(nyelvek);
         for (int i = 0; i < nyelvek.length; i++) {
             nyelvekKodja.put(nyelvek[i], roviditettNyelv[i]);
+            kodhozNyelv.put(roviditettNyelv[i], nyelvek[i]);
         }
         
         menuOpciok.setText(foablakFelirat[0]);

@@ -96,13 +96,8 @@ public class BeallitasokController implements Initializable {
         cbxFeluletNyelve.getItems().addAll(FoablakController.nyelvek);
         cbxNyelvek.getItems().addAll(FoablakController.nyelvek);
         
-        
-        // KÍSÉRLETI KÓD!!!
-        //cbxFeluletNyelve.setValue(FoablakController.feluletNyelve.substring(0,1) + FoablakController.feluletNyelve.substring(1));
-        //cbxNyelvek.setValue(FoablakController.celNyelvKod);
-        
-        
-        
+        cbxFeluletNyelve.setValue(FoablakController.feluletNyelvenekNeveAdottNyelven);
+        cbxNyelvek.setValue(FoablakController.kodhozNyelv.get(FoablakController.celNyelvKod));
         txtSorokSzama.setText(FoablakController.beolvasottSorokSzama + "");
     }
     
