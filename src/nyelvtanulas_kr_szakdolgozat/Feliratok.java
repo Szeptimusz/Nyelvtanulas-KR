@@ -156,6 +156,9 @@ public interface Feliratok {
         put("ankiimportkeszites",         "ANKI kártya készítés");
         put("kártyakesziteseredmeny",     "Kártya készítés eredmény");
         
+        // Panel igen-nem gomb
+        put("igen",                       "Igen");
+        put("nem",                        "Nem");
 
     }};
     
@@ -306,6 +309,321 @@ public interface Feliratok {
         put("kilepesmegerosites",         "Exit confirmation");
         put("ankiimportkeszites",         "Creating ANKI cards");
         put("kártyakesziteseredmeny",     "Card making result");
+        
+        // Panel igen-nem gomb
+        put("igen",                       "Yes");
+        put("nem",                        "No");
 
+    }};
+    
+    ////////////////////////////////////////////////////////////////////////////
+    // SPANYOL FELIRATOK
+    ////////////////////////////////////////////////////////////////////////////
+    
+    public static final String [] FOABLAK_SPANYOLFELIRATOK = new String [] {
+        "Opciones",
+        "Crear importación ANKI",
+        "Palabras de consulta",
+        "Estadísticas",
+        "Salida",
+        "Otro",
+        "Tarjeta de visita",
+        "Opciones de entrada de datos:",
+        "- Insertar un archivo de texto externo",
+        "Vistazo",
+        "- Copiar texto directamente en el cuadro de texto",
+        "No enumere palabras de una sola vez:",
+        "Idioma de origen (obligatorio)",
+        "Procesamiento de datos",
+        "Resultado del procesamiento",
+        "Palabra para aprender (1)",
+        "Configuraciones",
+        "Revocación (2)",
+        "Palabras",
+        "Frases",
+        "Frecuencia",
+        "Conciencia de texto:",
+        "Índice de legibilidad:",
+        "Lenguaje de interfaz",
+        "",
+        "",
+        "Siguiente página",
+        "Terminación"
+    };
+    
+    public static final String [] ANKI_SPANYOLFELIRATOK = new String [] {
+        "Seleccione desde qué idioma aprender a importar ANKI",
+        "Hacer cartas",
+        "Cancelar"
+    };
+    
+    public static final String [] FORDITAS_SPANYOLFELIRATOK = new String [] {
+        "¡Proporcione una traducción de la palabra antes de guardar!",
+         "Artículo:",
+         "Tejido",
+         "La palabra debe empezar con mayúscula:",
+         "Ejemplo",
+         "Restaurar la oración de ejemplo original",
+         "Oración anterior",
+         "Siguiente oración",
+         "Traductor de google",
+         "Diccionario Cambridge (disponible solo en inglés)",
+         "Duden (disponible solo en alemán)",
+         "Traducir palabra:",
+         "Añadir"
+    };
+    
+    public static final String [] NYELVEK_SPANYOL = new String [] {
+        "Inglés", "Español", "Francés", "Alemán", "Italiano", "Portugués", "Holandés", "Polaco", "Danés", "Checo", "Eslovaco", "Esloveno", "Húngaro "
+    };
+    
+    public static final String [] KIKERDEZES_SPANYOLFELIRATOK = new String [] {
+         "Por favor, seleccione un idioma:",
+         "Iniciar encuesta",
+         "Mostrar respuesta",
+         "Otra vez",
+         "Difícil",
+         "Bueno",
+         "Fácil"
+    };
+    
+    public static final String [] STATISZTIKA_SPANYOLFELIRATOK = new String [] {
+         "Estadísticas",
+         "Por favor, seleccione un idioma:",
+         "Todas las palabras:",
+         "Palabras conocidas:",
+         "",
+         "Total de palabras para aprender:",
+         "Palabras de aprendizaje exportadas:",
+         "Palabras de aprendizaje no exportadas:" 
+    };
+    
+    public static final String [] NEVJEGY_SPANYOLFELIRATOK = new String [] {
+         "Hecho por:",
+         "Versión:",
+         "Ver la documentación del desarrollador en su navegador",
+         "Página del programa Github"
+    };
+    
+    public static final String [] BEALLITASOK_SPANYOLFELIRATOK = new String [] {
+         "Configuración",
+         "Lenguaje de interfaz:",
+         "Idioma de destino (idioma conocido):",
+         "Número de filas en la tabla:",
+         "Rescate",
+         "Cancelar"
+    };
+    
+    public static final HashMap<String, String> UZENETEK_SPANYOL = new HashMap<String, String>() {{
+        // Főablak üzenetei
+        put("tallozassikeres",            "¡Navega con éxito!");
+        put("tallozassikertelen",         "¡La navegación falló!");
+        put("uresszovegmezo",             "¡Cuadro de texto vacío! Ingrese texto o use el botón Examinar.");
+        put("forrasnyelvis",              "Por favor, especifique también el idioma de origen.");
+        put("feldolgozasfolyamatban",     "Procesamiento de datos en curso");
+        put("nincseredmeny",              "Después de eliminar los caracteres incorrectos y sincronizar la base de datos, ¡no quedan resultados para mostrar!");
+        put("feldolgozasbefejezodott",    "¡El procesamiento de datos está completo!");
+        put("forditashozzaadas",          "Agregar traducción, subir a la base de datos");
+        put("nemerhetoel",                "No está disponible");
+        put("ellenorizelsouzenet",        "No se ha realizado ningún procesamiento de datos, ingrese sus datos de entrada y seleccione el botón 'Procesamiento de datos'.");
+        put("ellenorizmasodikuzenet",     "¡No hay filas seleccionadas en la tabla!");
+        put("kijeloltsornalnincsvaltozas","No hubo ningún cambio en la línea de pedido seleccionada que deba deshacerse.");
+        put("ankiimportelkeszites",       "Preparación de la importación ANKI");
+        put("adatbazisstatisztika",       "Estadísticas de la base de datos");
+        put("szavakkikerdezese",          "Interrogar palabras con tarjetas de palabras");
+        put("bezaras",                    "¿Estás seguro de que quieres cerrar el programa?");
+        put("nevjegy",                    "Programa de aprendizaje de idiomas");
+        
+        // Anki-import ablak üzenetei
+        put("akarankiimportotkesziteni",  "¿Realmente desea importar ANKI de cada nueva palabra que aprenda?");
+        put("hibaskartyakeszites",        "¡Se produjo un error al crear la tarjeta!");
+        put("kartyakelkeszitve",          "Tarjetas creadas con éxito:");
+        put("fajlba",                     "archivo _ankiimport!");
+        put("nincstanulando",             "¡No hay palabra que aprender de la cual hacer una tarjeta de palabras!");
+        put("adjameganyelvet",            "Por favor ingrese el idioma!");
+        
+        // Fordítás ablak üzenetei
+        put("irjonbeforditast",           "Introduzca una traducción para la palabra.");
+        put("nincspeldamondat",           "¡No hay una oración de ejemplo para esta palabra!");
+        
+        // Kikérdezés ablak üzenetei
+        put("melyiknyelv",                "Seleccione el idioma para el que desea utilizar las tarjetas de palabras");
+        put("nincsentanulando",           "¡No hay palabras para aprender ahora mismo!");
+        put("kikerdezesvege",             "¡El interrogatorio ha terminado!");
+        
+        // Beállítások ablak üzenetei
+        put("beallitasok",                "Configuraciones");
+        put("nemszam",                    "Ingrese un número entero positivo.");
+        put("adjonmegmindenadatot",       "Proporcione todos los detalles.");
+        
+        // Panel header feliratok
+        put("tajekoztat",                 "¡Listo!");
+        put("figyelmeztet",               "¡Atención!");
+        put("hiba",                       "¡Culpa!");
+        put("kilepesmegerosites",         "Confirmación de salida");
+        put("ankiimportkeszites",         "Hacer tarjetas ANKI");
+        put("kártyakesziteseredmeny",     "Resultado de fabricación de tarjetas");
+        
+
+        // Panel igen-nem gomb
+        put("igen",                       "Si");
+        put("nem",                        "No");
+        
+    }};
+    
+    
+    ////////////////////////////////////////////////////////////////////////////
+    // FRANCIA FELIRATOK
+    ////////////////////////////////////////////////////////////////////////////
+    
+    public static final String [] FOABLAK_FRANCIAFELIRATOK = new String [] {
+         "Options",
+         "Préparation des importations ANKI",
+         "Mots de requête",
+         "Statistiques",
+         "Sortie",
+         "Autre",
+         "Carte de visite",
+         "Options de saisie des données:",
+         "- Insérer un fichier texte externe",
+         "Feuilleter",
+         "- Copier le texte directement dans la zone de texte",
+         "Ne pas lister les mots simples:",
+         "Langue source (obligatoire)",
+         "Traitement de l'information",
+         "Résultat du traitement",
+         "Mot à apprendre (1)",
+         "Réglages",
+         "Retrait (2)",
+         "Mots",
+         "Phrases",
+         "La fréquence",
+         "Détection du texte:",
+         "Indice de lisibilité:",
+         "Langue de l'interface",
+         "",
+         "",
+         "Page suivante",
+         "Achèvement"
+    };
+    
+    public static final String [] ANKI_FRANCIAFELIRATOK = new String [] {
+         "Veuillez sélectionner la langue à partir de laquelle apprendre l'importation ANKI",
+         "Faire des cartes",
+         "Annuler"
+    };
+    
+    public static final String [] FORDITAS_FRANCIAFELIRATOK = new String [] {
+         "Veuillez fournir une traduction du mot avant de sauvegarder!",
+         "Article:",
+         "Tisser",
+         "Le mot doit commencer par une majuscule:",
+         "Exemple",
+         "Restaurer la phrase d'exemple d'origine",
+         "Phrase précédente",
+         "Phrase suivante",
+         "Google Traduction",
+         "Dictionnaire Cambridge (disponible en anglais uniquement)",
+         "Duden (disponible en allemand uniquement)",
+         "Traduire le mot:",
+         "Ajouter"
+    };
+    
+    public static final String [] NYELVEK_FRANCIA = new String [] {
+        "Anglais", "Espagnol", "Français", "Allemand", "Italien", "Portugais", "Néerlandais", "Polonais", "Danois", "Tchèque", "Slovaque", "Slovène", "Hongrois "
+    };
+    
+    public static final String [] KIKERDEZES_FRANCIAFELIRATOK = new String [] {
+         "Veuillez sélectionner une langue:",
+         "Lancer le sondage",
+         "Montrer la réponse",
+         "Encore",
+         "Dur",
+         "Bien",
+         "Facile"
+    };
+    
+    public static final String [] STATISZTIKA_FRANCIAFELIRATOK = new String [] {
+         "Statistiques",
+         "Veuillez sélectionner une langue:",
+         "Tous les mots:",
+         "Mots connus:",
+         "",
+         "Nombre total de mots à apprendre:",
+         "Mots d'apprentissage exportés:",
+         "Mots d'apprentissage non exportés:"
+    };
+    
+    public static final String [] NEVJEGY_FRANCIAFELIRATOK = new String [] {
+         "Faite par:",
+         "Version:",
+         "Afficher la documentation destinée aux développeurs dans votre navigateur",
+         "Page du programme Github"
+    };
+    
+    public static final String [] BEALLITASOK_FRANCIAFELIRATOK = new String [] {
+         "Réglages",
+         "Langue de l'interface:",
+         "Langue cible (langue connue):",
+         "Nombre de lignes du tableau:",
+         "Porter secours",
+         "Annuler"
+    };
+    
+    public static final HashMap<String, String> UZENETEK_FRANCIA = new HashMap<String, String>() {{
+        // Főablak üzenetei
+        put("tallozassikeres",            "Naviguez avec succès!");
+        put("tallozassikertelen",         "La navigation a échoué!");
+        put("uresszovegmezo",             "Zone de texte vide! Veuillez saisir du texte ou utiliser le bouton Parcourir.");
+        put("forrasnyelvis",              "Veuillez également spécifier la langue source!");
+        put("feldolgozasfolyamatban",     "Traitement des données en cours");
+        put("nincseredmeny",              "Après avoir supprimé les caractères incorrects et synchronisé la base de données, il ne reste plus de résultats à afficher!");
+        put("feldolgozasbefejezodott",    "Le traitement des données est terminé!");
+        put("forditashozzaadas",          "Ajouter une traduction, télécharger dans la base de données");
+        put("nemerhetoel",                "Est indisponible");
+        put("ellenorizelsouzenet",        "Aucun traitement de données n'a eu lieu, veuillez saisir vos données d'entrée et sélectionner le bouton «Traitement des données»!");
+        put("ellenorizmasodikuzenet",     "Aucune ligne sélectionnée dans le tableau!");
+        put("kijeloltsornalnincsvaltozas","Il n'y a eu aucune modification de l'élément de campagne sélectionné qui devrait être annulée!");
+        put("ankiimportelkeszites",       "Préparation de l'import ANKI");
+        put("adatbazisstatisztika",       "Statistiques de la base de données");
+        put("szavakkikerdezese",          "Interroger des mots avec des cartes de mots");
+        put("bezaras",                    "Voulez-vous vraiment fermer le programme?");
+        put("nevjegy",                    "Programme d'apprentissage des langues");
+        
+        // Anki-import ablak üzenetei
+        put("akarankiimportotkesziteni",  "Voulez-vous vraiment importer ANKI à partir de chaque nouveau mot que vous apprenez?");
+        put("hibaskartyakeszites",        "Une erreur s'est produite lors de la création de la carte!");
+        put("kartyakelkeszitve",          "Cartes créées avec succès:");
+        put("fajlba",                     " _ankiimport fichier!");
+        put("nincstanulando",             "Il n'y a pas de mot à retenir pour faire une carte de mots!");
+        put("adjameganyelvet",            "Veuillez entrer la langue!");
+        
+        // Fordítás ablak üzenetei
+        put("irjonbeforditast",           "Veuillez saisir une traduction pour le mot!");
+        put("nincspeldamondat",           "Il n'y a pas de phrase d'exemple pour ce mot!");
+        
+        // Kikérdezés ablak üzenetei
+        put("melyiknyelv",                "Veuillez sélectionner la langue dans laquelle vous souhaitez utiliser les cartes de mots");
+        put("nincsentanulando",           "Il n'y a pas de mots à apprendre pour le moment!");
+        put("kikerdezesvege",             "Le sondage est terminé!");
+        
+        // Beállítások ablak üzenetei
+        put("beallitasok",                "Réglages");
+        put("nemszam",                    "Entrez un entier positif.");
+        put("adjonmegmindenadatot",       "Veuillez fournir tous les détails!");
+        
+        // Panel header feliratok
+        put("tajekoztat",                 "Prêt!");
+        put("figyelmeztet",               "Attention!");
+        put("hiba",                       "Faute!");
+        put("kilepesmegerosites",         "Confirmation de sortie");
+        put("ankiimportkeszites",         "Faire des cartes ANKI");
+        put("kártyakesziteseredmeny",     "Résultat de fabrication de la carte");
+        
+
+        // Panel igen-nem gomb
+        put("igen",                       "Oui");
+        put("nem",                        "Non");
+        
     }};
 }

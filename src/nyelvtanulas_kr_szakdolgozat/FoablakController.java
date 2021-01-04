@@ -48,10 +48,10 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import static panel.Panel.figyelmeztet;
-import static panel.Panel.hiba;
-import static panel.Panel.igennem;
-import static panel.Panel.tajekoztat;
+import static nyelvtanulas_kr_szakdolgozat.Panel.figyelmeztet;
+import static nyelvtanulas_kr_szakdolgozat.Panel.hiba;
+import static nyelvtanulas_kr_szakdolgozat.Panel.igennem;
+import static nyelvtanulas_kr_szakdolgozat.Panel.tajekoztat;
 
 /**
  * A program indításakor megjelenő ablakot kezelő osztály. Itt történik meg az adatok bevitele, feldolgozása,
@@ -221,11 +221,11 @@ public class FoablakController implements Initializable, Feliratok {
 
             
             // Szöveg szétvágása mondatok és szavak alapján, szavak megtisztítása, listához adás
-            int szotagokSzama = 0;
-            int mondatokSzama = 0;
-            double szazalek = 0.2;
-            String mondatok [] = szoveg.split("\\. |\\.|\\? |\\?|\\! |\\!");
-            SyllableCounter sc = new SyllableCounter();
+            int    szotagokSzama = 0;
+            int    mondatokSzama = 0;
+            double szazalek      = 0.2;
+            String mondatok []   = szoveg.split("\\. |\\.|\\? |\\?|\\! |\\!");
+            SyllableCounter sc   = new SyllableCounter();
             
             for (String mondat : mondatok) {
                 
@@ -250,7 +250,7 @@ public class FoablakController implements Initializable, Feliratok {
                     updateProgress(progress++, 15);
                     szazalek += 0.2;
                 }
-            }
+            }           
             eredetiOsszesSzo = data.size();
             fleschScore = 206.835 - 1.015 * ((double)eredetiOsszesSzo / mondatok.length)
                     - 84.6 * ((double)szotagokSzama / eredetiOsszesSzo);
@@ -671,7 +671,7 @@ public class FoablakController implements Initializable, Feliratok {
         oSzo.setCellValueFactory(new PropertyValueFactory<>("szo"));
         oMondat.setCellValueFactory(new PropertyValueFactory<>("mondat"));
         oGyak.setCellValueFactory(new PropertyValueFactory<>("gyak"));
-
+        
         // Listener előkészítése a futtat() metódushoz
         listener = (v, regi, uj) -> {
             // Lekérdezi, hogy az adott sor gombjainak tiltása true-ra vagy false-ra változott
@@ -765,7 +765,7 @@ public class FoablakController implements Initializable, Feliratok {
      */
     public void foablakFeliratokatBeallit(String nyelv) {
         
-        if (nyelv.matches("magyar|Magyar|Hungarian|hungarian")) {
+        if (nyelv.matches("magyar|Magyar|Hungarian|hungarian|húngaro|Húngaro|hongrois|hongrois|ungarisch|Ungarisch|ungherese|Ungherese|húngaro|Húngaro|Hongaars|hongaars|język węgierski|Język węgierski|Ungarsk|ungarsk|maďarský|Maďarský|Maďarský|maďarský|Madžarsko|madžarsko")) {
             
                 feluletNyelvenekNeveAdottNyelven = "Magyar";
             
@@ -779,7 +779,7 @@ public class FoablakController implements Initializable, Feliratok {
                 uzenetek           = UZENETEK_MAGYAR;
                 beallitasokFelirat = BEALLITASOK_MAGYARFELIRATOK;
                 
-        } else if (nyelv.matches("english|English|angol|Angol")) {
+        } else if (nyelv.matches("english|English|angol|Angol|Anglais|anglais|Inglés|inglés|Englisch|englisch|Inglese|inglese|Inglês|inglês|Engels|engels|język angielski|Język angielski|engelsk|Engelsk|Angličtina|angličtina|Angličtina|angličtina|angleščina|Angleščina")) {
 
                 feluletNyelvenekNeveAdottNyelven = "English";
             
@@ -792,20 +792,50 @@ public class FoablakController implements Initializable, Feliratok {
                 nevjegyFelirat     = NEVJEGY_ANGOLFELIRATOK;
                 uzenetek           = UZENETEK_ANGOL;
                 beallitasokFelirat = BEALLITASOK_ANGOLFELIRATOK;
+              
+                
+        } else if (nyelv.matches("Español|español|Espagnol|espagnol|Spanyol|spanyol|Spanish|spanish|Spanisch|spanisch|spagnolo|Spagnolo|espanhol|Espanhol|Spaans|spaans|hiszpański|Hiszpański|spansk|Spansk|španělština|Španělština|Španielsky|španielsky|španski|Španski")) {
+
+                feluletNyelvenekNeveAdottNyelven = "Español";
+            
+                foablakFelirat     = FOABLAK_SPANYOLFELIRATOK;
+                ankiFelirat        = ANKI_SPANYOLFELIRATOK;
+                forditasFelirat    = FORDITAS_SPANYOLFELIRATOK;
+                nyelvek            = NYELVEK_SPANYOL;
+                kikerdezesFelirat  = KIKERDEZES_SPANYOLFELIRATOK;
+                statisztikaFelirat = STATISZTIKA_SPANYOLFELIRATOK;
+                nevjegyFelirat     = NEVJEGY_SPANYOLFELIRATOK;
+                uzenetek           = UZENETEK_SPANYOL;
+                beallitasokFelirat = BEALLITASOK_SPANYOLFELIRATOK;
+                
+                
+        } else if (nyelv.matches("français|Français|francés|Francés|French|french|Francia|francia|Französisch|französisch|francese|Francese|francês|Francês|Frans|frans|Francuski|francuski|fransk|Fransk|francouzština|Francouzština|Francúzsky|francúzsky|Francosko|francosko")) {
+
+                feluletNyelvenekNeveAdottNyelven = "Français";
+            
+                foablakFelirat     = FOABLAK_FRANCIAFELIRATOK;
+                ankiFelirat        = ANKI_FRANCIAFELIRATOK;
+                forditasFelirat    = FORDITAS_FRANCIAFELIRATOK;
+                nyelvek            = NYELVEK_FRANCIA;
+                kikerdezesFelirat  = KIKERDEZES_FRANCIAFELIRATOK;
+                statisztikaFelirat = STATISZTIKA_FRANCIAFELIRATOK;
+                nevjegyFelirat     = NEVJEGY_FRANCIAFELIRATOK;
+                uzenetek           = UZENETEK_FRANCIA;
+                beallitasokFelirat = BEALLITASOK_FRANCIAFELIRATOK;
                 
         } else { 
             
-                feluletNyelvenekNeveAdottNyelven = "Magyar";
+                feluletNyelvenekNeveAdottNyelven = "English";
             
-                foablakFelirat     = FOABLAK_MAGYARFELIRATOK;
-                ankiFelirat        = ANKI_MAGYARFELIRATOK;
-                forditasFelirat    = FORDITAS_MAGYARFELIRATOK;
-                nyelvek            = NYELVEK_MAGYAR;
-                kikerdezesFelirat  = KIKERDEZES_MAGYARFELIRATOK;
-                statisztikaFelirat = STATISZTIKA_MAGYARFELIRATOK;
-                nevjegyFelirat     = NEVJEGY_MAGYARFELIRATOK;
-                uzenetek           = UZENETEK_MAGYAR;
-                beallitasokFelirat = BEALLITASOK_MAGYARFELIRATOK;
+                foablakFelirat     = FOABLAK_ANGOLFELIRATOK;
+                ankiFelirat        = ANKI_ANGOLFELIRATOK;
+                forditasFelirat    = FORDITAS_ANGOLFELIRATOK;
+                nyelvek            = NYELVEK_ANGOL;
+                kikerdezesFelirat  = KIKERDEZES_ANGOLFELIRATOK;
+                statisztikaFelirat = STATISZTIKA_ANGOLFELIRATOK;
+                nevjegyFelirat     = NEVJEGY_ANGOLFELIRATOK;
+                uzenetek           = UZENETEK_ANGOL;
+                beallitasokFelirat = BEALLITASOK_ANGOLFELIRATOK;
         }
         
         /* Beállítja a legördülő lista nyelveit (a felületen használt nyelven) és

@@ -1,9 +1,5 @@
 package nyelvtanulas_kr_szakdolgozat;
 
-import java.awt.Desktop;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,7 +16,7 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Window;
 import static nyelvtanulas_kr_szakdolgozat.FoablakController.uzenetek;
-import static panel.Panel.figyelmeztet;
+import static nyelvtanulas_kr_szakdolgozat.Panel.figyelmeztet;
 
 /**
  * A Fordítás ablakot kezelő osztály. A Főablak táblázatában kiválasztott szó

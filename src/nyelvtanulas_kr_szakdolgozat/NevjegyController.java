@@ -12,7 +12,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import static nyelvtanulas_kr_szakdolgozat.FoablakController.uzenetek;
-import static panel.Panel.hiba;
+import static nyelvtanulas_kr_szakdolgozat.Panel.hiba;
 
 /**
  * A névjegy ablakot kezelő osztály. Tájékoztatást ad a program készítőjéről, a program
@@ -53,7 +53,7 @@ public class NevjegyController implements Initializable, Feliratok {
     @FXML
     void github() {
         try {
-            Desktop.getDesktop().browse(new URI("https://github.com/Szeptimusz/Nyelvtanulas-KR"));
+            Desktop.getDesktop().browse(new URI("https://github.com/Szeptimusz/Nyelvtanulas-KR/tree/EgyszerusitettLapozhato"));
         } catch (IOException | URISyntaxException e) {
             hiba(uzenetek.get("hiba"), e.getMessage());
         }
@@ -67,7 +67,7 @@ public class NevjegyController implements Initializable, Feliratok {
     public void initialize(URL url, ResourceBundle rb) {
         
         lblKeszito.setText(FoablakController.nevjegyFelirat[0] + " Kremmer Róbert");
-        lblVerzio.setText(FoablakController.nevjegyFelirat[1] + " 1.9.5");
+        lblVerzio.setText(FoablakController.nevjegyFelirat[1] + " 1.9.6");
         btnFejlesztoiDok.setText(FoablakController.nevjegyFelirat[2]);
         btnGithub.setText(FoablakController.nevjegyFelirat[3]);
     }    

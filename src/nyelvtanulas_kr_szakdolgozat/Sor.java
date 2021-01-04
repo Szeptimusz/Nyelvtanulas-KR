@@ -16,7 +16,7 @@ public class Sor {
     private String  szo;
     private String  mondat;
     private int     gyak;
-    private boolean tilt = false;
+    private boolean tilt      = false;
     private boolean tanulando = false;
     private String  tabla;
     private String  forditas;
@@ -31,10 +31,10 @@ public class Sor {
      * @param gyak   A szó gyakorisága
      */
     public Sor(String szo, String mondat, int gyak) {
-        this.szo = szo;
+        this.szo    = szo;
         this.mondat = mondat;
-        this.gyak = gyak;
-        mondatok = new ArrayList<>();
+        this.gyak   = gyak;
+        mondatok    = new ArrayList<>();
     }
 
     /**
@@ -47,9 +47,9 @@ public class Sor {
      * @param forditas A szó fordítása
      */
     public Sor(String nevelo, String szo, String mondat, String forditas) {
-        this.nevelo = nevelo;
-        this.szo = szo;
-        this.mondat = mondat;
+        this.nevelo   = nevelo;
+        this.szo      = szo;
+        this.mondat   = mondat;
         this.forditas = forditas;
     }
     
@@ -102,8 +102,8 @@ public class Sor {
 
     public void setMondatok(List<String> mondatok) { this.mondatok = mondatok; }
 
-    public boolean isTanulando()       { return tanulando; }
+    public boolean isTanulando()                   { return tanulando; }
 
-    public void setTanulando(boolean tanulando) { this.tanulando = tanulando; }
+    public void setTanulando(boolean tanulando)    { this.tanulando = tanulando; }
     
 }

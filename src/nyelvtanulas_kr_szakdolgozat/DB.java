@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import javafx.collections.ObservableList;
 import static nyelvtanulas_kr_szakdolgozat.FoablakController.uzenetek;
-import static panel.Panel.hiba;
+import static nyelvtanulas_kr_szakdolgozat.Panel.hiba;
 
 /**
  * Az adatbázis kezelést végző osztály. A benne található statikus metódusok bármely más 

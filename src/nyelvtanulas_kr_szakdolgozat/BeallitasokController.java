@@ -11,7 +11,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Window;
 import static nyelvtanulas_kr_szakdolgozat.FoablakController.uzenetek;
-import static panel.Panel.hiba;
+import static nyelvtanulas_kr_szakdolgozat.Panel.hiba;
 
 /**
  *

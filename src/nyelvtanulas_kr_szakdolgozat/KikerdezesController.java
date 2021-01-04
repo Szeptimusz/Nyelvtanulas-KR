@@ -9,7 +9,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import static nyelvtanulas_kr_szakdolgozat.FoablakController.uzenetek;
-import static panel.Panel.figyelmeztet;
+import static nyelvtanulas_kr_szakdolgozat.Panel.figyelmeztet;
 
 /**
  * A kikérdezés ablakot kezelő osztály. Az adott nyelv tanulandó szavai közül kikérdezi

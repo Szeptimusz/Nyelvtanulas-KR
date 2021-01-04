@@ -20,10 +20,10 @@ import javafx.scene.control.Label;
 import javafx.stage.Window;
 import static nyelvtanulas_kr_szakdolgozat.DB.adatbazisUtvonal;
 import static nyelvtanulas_kr_szakdolgozat.FoablakController.uzenetek;
-import static panel.Panel.figyelmeztet;
-import static panel.Panel.hiba;
-import static panel.Panel.igennem;
-import static panel.Panel.tajekoztat;
+import static nyelvtanulas_kr_szakdolgozat.Panel.figyelmeztet;
+import static nyelvtanulas_kr_szakdolgozat.Panel.hiba;
+import static nyelvtanulas_kr_szakdolgozat.Panel.igennem;
+import static nyelvtanulas_kr_szakdolgozat.Panel.tajekoztat;
 
 /**
  * Az Anki ablakot kezelő osztály. Itt történik meg a kiválasztott nyelv
