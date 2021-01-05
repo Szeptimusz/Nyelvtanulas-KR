@@ -229,7 +229,7 @@ public class FoablakController implements Initializable, Feliratok {
             
             for (String mondat : mondatok) {
                 
-                String[] szok = mondat.split(" |\\, |\\,|\\; |\\;|\\—");
+                String[] szok = mondat.split(" |\\, |\\,|\\; |\\;|\\—|\\:");
                 for (String szo : szok) {
                     // Mozaikszavaknál, rövidítéseknél sok pont lehet közel egymáshoz, ilyenkor mindegyiket külön mondatnak
                     // veszi és 0, 1 karakter hosszú töredékek keletkeznek mint szó. Ilyen esetekben a szót figyelmen kívül hagyjuk
@@ -765,7 +765,7 @@ public class FoablakController implements Initializable, Feliratok {
      */
     public void foablakFeliratokatBeallit(String nyelv) {
         
-        if (nyelv.matches("magyar|Magyar|Hungarian|hungarian|húngaro|Húngaro|hongrois|hongrois|ungarisch|Ungarisch|ungherese|Ungherese|húngaro|Húngaro|Hongaars|hongaars|język węgierski|Język węgierski|Ungarsk|ungarsk|maďarský|Maďarský|Maďarský|maďarský|Madžarsko|madžarsko")) {
+        if (nyelv.matches("magyar|Magyar|Hungarian|hungarian|húngaro|Húngaro|hongrois|Hongrois|ungarisch|Ungarisch|ungherese|Ungherese|húngaro|Húngaro|Hongaars|hongaars|język węgierski|Język węgierski|Ungarsk|ungarsk|maďarský|Maďarský|Maďarský|maďarský|Madžarsko|madžarsko|Węgierski|węgierski|Madžarščina|madžarščina|Maďarčina|maďarčina|Maďarština|maďarština")) {
             
                 feluletNyelvenekNeveAdottNyelven = "Magyar";
             
@@ -779,7 +779,7 @@ public class FoablakController implements Initializable, Feliratok {
                 uzenetek           = UZENETEK_MAGYAR;
                 beallitasokFelirat = BEALLITASOK_MAGYARFELIRATOK;
                 
-        } else if (nyelv.matches("english|English|angol|Angol|Anglais|anglais|Inglés|inglés|Englisch|englisch|Inglese|inglese|Inglês|inglês|Engels|engels|język angielski|Język angielski|engelsk|Engelsk|Angličtina|angličtina|Angličtina|angličtina|angleščina|Angleščina")) {
+        } else if (nyelv.matches("english|English|angol|Angol|Anglais|anglais|Inglés|inglés|Englisch|englisch|Inglese|inglese|Inglês|inglês|Engels|engels|język angielski|Język angielski|engelsk|Engelsk|Angličtina|angličtina|Angličtina|angličtina|angleščina|Angleščina|Angielski|angielski")) {
 
                 feluletNyelvenekNeveAdottNyelven = "English";
             
@@ -794,7 +794,7 @@ public class FoablakController implements Initializable, Feliratok {
                 beallitasokFelirat = BEALLITASOK_ANGOLFELIRATOK;
               
                 
-        } else if (nyelv.matches("Español|español|Espagnol|espagnol|Spanyol|spanyol|Spanish|spanish|Spanisch|spanisch|spagnolo|Spagnolo|espanhol|Espanhol|Spaans|spaans|hiszpański|Hiszpański|spansk|Spansk|španělština|Španělština|Španielsky|španielsky|španski|Španski")) {
+        } else if (nyelv.matches("Español|español|Espagnol|espagnol|Spanyol|spanyol|Spanish|spanish|Spanisch|spanisch|spagnolo|Spagnolo|espanhol|Espanhol|Spaans|spaans|hiszpański|Hiszpański|spansk|Spansk|španělština|Španělština|Španielsky|španielsky|španski|Španski|Španielčina|španielčina|Španščina|španščina")) {
 
                 feluletNyelvenekNeveAdottNyelven = "Español";
             
@@ -809,7 +809,7 @@ public class FoablakController implements Initializable, Feliratok {
                 beallitasokFelirat = BEALLITASOK_SPANYOLFELIRATOK;
                 
                 
-        } else if (nyelv.matches("français|Français|francés|Francés|French|french|Francia|francia|Französisch|französisch|francese|Francese|francês|Francês|Frans|frans|Francuski|francuski|fransk|Fransk|francouzština|Francouzština|Francúzsky|francúzsky|Francosko|francosko")) {
+        } else if (nyelv.matches("français|Français|francés|Francés|French|french|Francia|francia|Französisch|französisch|francese|Francese|francês|Francês|Frans|frans|Francuski|francuski|fransk|Fransk|francouzština|Francouzština|Francúzsky|francúzsky|Francosko|francosko|Francúzština|francúzština|Francoščina|francoščina")) {
 
                 feluletNyelvenekNeveAdottNyelven = "Français";
             
@@ -822,6 +822,132 @@ public class FoablakController implements Initializable, Feliratok {
                 nevjegyFelirat     = NEVJEGY_FRANCIAFELIRATOK;
                 uzenetek           = UZENETEK_FRANCIA;
                 beallitasokFelirat = BEALLITASOK_FRANCIAFELIRATOK;
+                
+        } else if (nyelv.matches("német|Német|deutsch|Deutsch|german|German|alemán|Alemán|allemand|Allemand|tedesco|Tedesco|alemão|Alemão|duitse|Duitse|niemiecki|Niemiecki|tysk|Tysk|němec|Němec|Nemecky|nemecky|Nemško|nemško|Duits|duits|Němčina|němčina|Nemčina|nemčina|Nemščina|nemščina")) {
+
+                feluletNyelvenekNeveAdottNyelven = "Deutsch";
+            
+                foablakFelirat     = FOABLAK_NEMETFELIRATOK;
+                ankiFelirat        = ANKI_NEMETFELIRATOK;
+                forditasFelirat    = FORDITAS_NEMETFELIRATOK;
+                nyelvek            = NYELVEK_NEMET;
+                kikerdezesFelirat  = KIKERDEZES_NEMETFELIRATOK;
+                statisztikaFelirat = STATISZTIKA_NEMETFELIRATOK;
+                nevjegyFelirat     = NEVJEGY_NEMETFELIRATOK;
+                uzenetek           = UZENETEK_NEMET;
+                beallitasokFelirat = BEALLITASOK_NEMETFELIRATOK;  
+              
+        } else if (nyelv.matches("olasz|Olasz|italian|Italian|italiano|Italiano|italien|Italien|Italienisch|italienisch|Italiaans|italiaans|Włoski|włoski|Italiensk|italiensk|italština|Italština|Taliansky|taliansky|Italijansko|italijansko|Italiaans|italiaans|Taliančina|taliančina|Italijanščina|italijanščina")) {
+
+                feluletNyelvenekNeveAdottNyelven = "Italiano";
+            
+                foablakFelirat     = FOABLAK_OLASZFELIRATOK;
+                ankiFelirat        = ANKI_OLASZFELIRATOK;
+                forditasFelirat    = FORDITAS_OLASZFELIRATOK;
+                nyelvek            = NYELVEK_OLASZ;
+                kikerdezesFelirat  = KIKERDEZES_OLASZFELIRATOK;
+                statisztikaFelirat = STATISZTIKA_OLASZFELIRATOK;
+                nevjegyFelirat     = NEVJEGY_OLASZFELIRATOK;
+                uzenetek           = UZENETEK_OLASZ;
+                beallitasokFelirat = BEALLITASOK_OLASZFELIRATOK;
+                
+        } else if (nyelv.matches("portugál|Portugál|Portuguese|portuguese|portugués|Portugués|Portugais|portugais|Portugiesisch|portugiesisch|portoghese|Portoghese|Português|português|Portugees|portugees|portugalski|Portugalski|Portugisisk|portugisisk|portugalština|Portugalština|Portugalčina|portugalčina|Portugalščina|portugalščina")) {
+
+                feluletNyelvenekNeveAdottNyelven = "Português";
+            
+                foablakFelirat     = FOABLAK_PORTUGALFELIRATOK;
+                ankiFelirat        = ANKI_PORTUGALFELIRATOK;
+                forditasFelirat    = FORDITAS_PORTUGALFELIRATOK;
+                nyelvek            = NYELVEK_PORTUGAL;
+                kikerdezesFelirat  = KIKERDEZES_PORTUGALFELIRATOK;
+                statisztikaFelirat = STATISZTIKA_PORTUGALFELIRATOK;
+                nevjegyFelirat     = NEVJEGY_PORTUGALFELIRATOK;
+                uzenetek           = UZENETEK_PORTUGAL;
+                beallitasokFelirat = BEALLITASOK_PORTUGALFELIRATOK; 
+               
+        } else if (nyelv.matches("holland|Holland|Dutch|dutch|holandés|Holandés|néerlandais|Néerlandais|Niederländisch|niederländisch|olandese|Olandese|holandês|Holandês|Nederlands|nederlands|holenderski|Holenderski|hollandske|Hollandske|holandský|Holandský|Holandsky|holandsky|Nizozemsko|nizozemsko|Niderlandzki|niderlandzki|Hollandsk|hollandsk|Holandština|holandština|Holandčina|holandčina|Nizozemščina|nizozemščina")) {
+
+                feluletNyelvenekNeveAdottNyelven = "Nederlands";
+            
+                foablakFelirat     = FOABLAK_HOLLANDFELIRATOK;
+                ankiFelirat        = ANKI_HOLLANDFELIRATOK;
+                forditasFelirat    = FORDITAS_HOLLANDFELIRATOK;
+                nyelvek            = NYELVEK_HOLLAND;
+                kikerdezesFelirat  = KIKERDEZES_HOLLANDFELIRATOK;
+                statisztikaFelirat = STATISZTIKA_HOLLANDFELIRATOK;
+                nevjegyFelirat     = NEVJEGY_HOLLANDFELIRATOK;
+                uzenetek           = UZENETEK_HOLLAND;
+                beallitasokFelirat = BEALLITASOK_HOLLANDFELIRATOK;    
+             
+        } else if (nyelv.matches("lengyel|Lengyel|Polish|polish|polaco|Polaco|polonais|Polonais|Polieren|polieren|polacco|Polacco|polonês|Polonês|Pools|pools|Polskie|polskie|Polere|polere|polština|Polština|Poľský|poľský|Poljski|poljski|Polnisch|polnisch|Polski|polski|Polsk|polsk|Poľština|poľština|Poljščina|poljščina")) {
+
+                feluletNyelvenekNeveAdottNyelven = "Polskie";
+            
+                foablakFelirat     = FOABLAK_LENGYELFELIRATOK;
+                ankiFelirat        = ANKI_LENGYELFELIRATOK;
+                forditasFelirat    = FORDITAS_LENGYELFELIRATOK;
+                nyelvek            = NYELVEK_LENGYEL;
+                kikerdezesFelirat  = KIKERDEZES_LENGYELFELIRATOK;
+                statisztikaFelirat = STATISZTIKA_LENGYELFELIRATOK;
+                nevjegyFelirat     = NEVJEGY_LENGYELFELIRATOK;
+                uzenetek           = UZENETEK_LENGYEL;
+                beallitasokFelirat = BEALLITASOK_LENGYELFELIRATOK; 
+                
+        } else if (nyelv.matches("dán|Dán|Danish|danish|danés|Danés|danois|Danois|dänisch|Dänisch|danese|Danese|dinamarquês|Dinamarquês|Deens|deens|duński|Duński|dansk|Dansk|dánština|Dánština|Dánsky|dánsky|Danski|danski|Dánčina|dánčina|Danska|danska")) {
+
+                feluletNyelvenekNeveAdottNyelven = "Dansk";
+            
+                foablakFelirat     = FOABLAK_DANFELIRATOK;
+                ankiFelirat        = ANKI_DANFELIRATOK;
+                forditasFelirat    = FORDITAS_DANFELIRATOK;
+                nyelvek            = NYELVEK_DAN;
+                kikerdezesFelirat  = KIKERDEZES_DANFELIRATOK;
+                statisztikaFelirat = STATISZTIKA_DANFELIRATOK;
+                nevjegyFelirat     = NEVJEGY_DANFELIRATOK;
+                uzenetek           = UZENETEK_DAN;
+                beallitasokFelirat = BEALLITASOK_DANFELIRATOK;
+                
+        } else if (nyelv.matches("cseh|Cseh|Czech|czech|checo|Checo|tchèque|Tchèque|Tschechisch|tschechisch|ceco|Ceco|Tcheco|tcheco|Tsjechisch|tsjechisch|Czech|czech|Tjekkisk|tjekkisk|čeština|Čeština|Česky|česky|Češko|češko|Czeski|czeski|Češčina|češčina")) {
+
+                feluletNyelvenekNeveAdottNyelven = "Čeština";
+            
+                foablakFelirat     = FOABLAK_CSEHFELIRATOK;
+                ankiFelirat        = ANKI_CSEHFELIRATOK;
+                forditasFelirat    = FORDITAS_CSEHFELIRATOK;
+                nyelvek            = NYELVEK_CSEH;
+                kikerdezesFelirat  = KIKERDEZES_CSEHFELIRATOK;
+                statisztikaFelirat = STATISZTIKA_CSEHFELIRATOK;
+                nevjegyFelirat     = NEVJEGY_CSEHFELIRATOK;
+                uzenetek           = UZENETEK_CSEH;
+                beallitasokFelirat = BEALLITASOK_CSEHFELIRATOK;
+              
+        } else if (nyelv.matches("szlovák|Szlovák|Slovak|slovak|eslovaco|Eslovaco|slovaque|Slovaque|slowakisch|Slowakisch|Slovacco|slovacco|Eslovaco|eslovaco|Slowaaks|slowaaks|słowacki|Słowacki|Slovakisk|slovakisk|Slovák|slovák|Slovaški|slovaški|Slovenština|slovenština|Slovenčina|slovenčina|Slovaščina|slovaščina")) {
+
+                feluletNyelvenekNeveAdottNyelven = "Slovák";
+            
+                foablakFelirat     = FOABLAK_SZLOVAKFELIRATOK;
+                ankiFelirat        = ANKI_SZLOVAKFELIRATOK;
+                forditasFelirat    = FORDITAS_SZLOVAKFELIRATOK;
+                nyelvek            = NYELVEK_SZLOVAK;
+                kikerdezesFelirat  = KIKERDEZES_SZLOVAKFELIRATOK;
+                statisztikaFelirat = STATISZTIKA_SZLOVAKFELIRATOK;
+                nevjegyFelirat     = NEVJEGY_SZLOVAKFELIRATOK;
+                uzenetek           = UZENETEK_SZLOVAK;
+                beallitasokFelirat = BEALLITASOK_SZLOVAKFELIRATOK;
+                
+        } else if (nyelv.matches("szlovén|Szlovén|Slovenian|slovenian|esloveno|Esloveno|slovène|Slovène|Slowenisch|slowenisch|sloveno|Sloveno|esloveno|Esloveno|Sloveens|sloveens|słoweński|Słoweński|Slovensk|slovensk|slovinský|Slovinský|Slovinsky|slovinsky|Slovenščina|slovenščina|Slovinština|slovinština|Slovinčina|slovinčina|Slovenščina|slovenščina")) {
+
+                feluletNyelvenekNeveAdottNyelven = "Slovenščina";
+            
+                foablakFelirat     = FOABLAK_SZLOVENFELIRATOK;
+                ankiFelirat        = ANKI_SZLOVENFELIRATOK;
+                forditasFelirat    = FORDITAS_SZLOVENFELIRATOK;
+                nyelvek            = NYELVEK_SZLOVEN;
+                kikerdezesFelirat  = KIKERDEZES_SZLOVENFELIRATOK;
+                statisztikaFelirat = STATISZTIKA_SZLOVENFELIRATOK;
+                nevjegyFelirat     = NEVJEGY_SZLOVENFELIRATOK;
+                uzenetek           = UZENETEK_SZLOVEN;
+                beallitasokFelirat = BEALLITASOK_SZLOVENFELIRATOK;
                 
         } else { 
             
