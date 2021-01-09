@@ -67,7 +67,7 @@ public class NevjegyController implements Initializable, Feliratok {
     public void initialize(URL url, ResourceBundle rb) {
         
         lblKeszito.setText(FoablakController.nevjegyFelirat[0] + " Kremmer Róbert");
-        lblVerzio.setText(FoablakController.nevjegyFelirat[1] + " 2.0.0");
+        lblVerzio.setText(FoablakController.nevjegyFelirat[1] + " 2.0.1");
         btnFejlesztoiDok.setText(FoablakController.nevjegyFelirat[2]);
         btnGithub.setText(FoablakController.nevjegyFelirat[3]);
     }    

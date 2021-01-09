@@ -64,7 +64,7 @@ public class FoablakController implements Initializable, Feliratok {
     String fajlUtvonal;
     String TablaNevEleje;
     String forrasNyelvKod;
-    String mappaUtvonal = System.getProperty("user.dir");
+    String mappaUtvonal = System.getProperty("user.home");
     int    eredetiOsszesSzo;
     int    toroltSzavak;
     int    progress = 1;
@@ -717,7 +717,9 @@ public class FoablakController implements Initializable, Feliratok {
             });
             
             
-            try (Scanner be = new Scanner(new File("settings.txt"))) {
+            String utvonal = System.getProperty("user.home");
+            
+            try (Scanner be = new Scanner(new File(utvonal + "\\flashcardtoolSettings.txt"))) {
                 
                 String felNyelv = be.nextLine();
                 feluletNyelve = felNyelv;
@@ -733,7 +735,7 @@ public class FoablakController implements Initializable, Feliratok {
                 feluletNyelve = helyiNyelv;
                 foablakFeliratokatBeallit(helyiNyelv);
                 
-                try (PrintWriter ki = new PrintWriter("settings.txt")) { 
+                try (PrintWriter ki = new PrintWriter(utvonal + "\\flashcardtoolSettings.txt")) { 
                     
                     // Fájlba írja a 3 beállítást
                     ki.println(helyiNyelv);

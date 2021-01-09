@@ -1,6 +1,5 @@
 package nyelvtanulas_kr_szakdolgozat;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -27,7 +26,7 @@ public class DB {
      * @param adatbazisNeve   Az adatbázis neve 
      */
     public static void adatbazistKeszit(String adatbazisNeve) {
-        String utvonal = new File("").getAbsolutePath();
+        String utvonal = System.getProperty("user.home");
         adatbazisUtvonal = "jdbc:sqlite:" + utvonal + adatbazisNeve;
  
         try (Connection conn = DriverManager.getConnection(adatbazisUtvonal)) {

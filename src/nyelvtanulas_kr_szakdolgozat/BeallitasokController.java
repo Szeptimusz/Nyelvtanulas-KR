@@ -60,7 +60,9 @@ public class BeallitasokController implements Initializable {
         FoablakController.celNyelvKod = celNyelvKod;
         FoablakController.beolvasottSorokSzama = sorokSzama;
         
-        try (PrintWriter ki = new PrintWriter("settings.txt")) {
+        String utvonal = System.getProperty("user.home");
+        
+        try (PrintWriter ki = new PrintWriter(utvonal + "\\flashcardtoolSettings.txt")) {
             
             ki.println(feluletNyelve);
             ki.println(celNyelvKod);

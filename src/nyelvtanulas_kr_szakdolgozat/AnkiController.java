@@ -1,5 +1,6 @@
 package nyelvtanulas_kr_szakdolgozat;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -17,6 +18,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.Window;
 import static nyelvtanulas_kr_szakdolgozat.DB.adatbazisUtvonal;
 import static nyelvtanulas_kr_szakdolgozat.FoablakController.uzenetek;
@@ -57,6 +59,15 @@ public class AnkiController implements Initializable, Feliratok {
                 try (Connection kapcs = DriverManager.getConnection(adatbazisUtvonal);
                     PreparedStatement ps = kapcs.prepareStatement(query)) {
                     ResultSet eredmeny = ps.executeQuery();
+                    
+                    String utvonal = System.getProperty("user.home");
+                    DirectoryChooser chooser = new DirectoryChooser();
+                    chooser.setTitle("");
+                    File defaultDirectory = new File(utvonal);
+                    chooser.setInitialDirectory(defaultDirectory);
+                    File selectedDirectory = chooser.showDialog(null);
+                    String mappa = selectedDirectory.getAbsolutePath();
+                    
                     while (eredmeny.next()) {
                         String nevelo = eredmeny.getString("nevelo");
                         if (nevelo.length() > 0) nevelo += " ";
@@ -64,7 +75,7 @@ public class AnkiController implements Initializable, Feliratok {
                         String szo = eredmeny.getString("szavak");
                         String mondat = eredmeny.getString("mondatok");
                         String forditas = eredmeny.getString("forditas");
-                        if (keszit(nevelo, szo, mondat, forditas, forrasNyelvKod))
+                        if (keszit(nevelo, szo, mondat, forditas, forrasNyelvKod, mappa))
                             szavak.add(szo);
                         else 
                             hiba(uzenetek.get("hiba"),uzenetek.get("hibaskartyakeszites"));
@@ -97,10 +108,11 @@ public class AnkiController implements Initializable, Feliratok {
      * @param mondat           A szóhoz tartozó példamondat.
      * @param forditas         Az általunk korábban megadott fordítása a szónak
      * @param forrasNyelvKod   A legördülő listából kiválasztott nyelv rövidített változata
+     * @param mappaUtvonal
      * @return                 Ha sikerült a fájlba írás igazad ad vissza, ha nem akkor false-t.
      */
-    public boolean keszit(String nevelo, String szo, String mondat, String forditas, String forrasNyelvKod) {
-        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(forrasNyelvKod + "_ankiimport.txt",true), StandardCharsets.UTF_8)) {
+    public boolean keszit(String nevelo, String szo, String mondat, String forditas, String forrasNyelvKod, String mappaUtvonal) {
+        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(mappaUtvonal + "\\" + forrasNyelvKod + "_ankiimport.txt",true), StandardCharsets.UTF_8)) {
             
                 writer.write(nevelo + szo + "<br><br>" + mondat + "\t" 
                            + forditas + "<br><br>" + (mondat + " ").replaceAll("[^\\w](?i)" + szo + "[^\\w]", 
