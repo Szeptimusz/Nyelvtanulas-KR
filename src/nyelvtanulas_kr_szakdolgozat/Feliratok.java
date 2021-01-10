@@ -58,11 +58,12 @@ public interface Feliratok {
         "Eredeti példamondat visszaállítása",
         "Előző mondat",
         "Következő mondat",
-        "Google Translate",
+        "Google Translate megnyitása itt",
         "Cambridge Dictionary (kizárólag angol nyelvnél elérhető)",
         "Duden (kizárólag német nyelvnél elérhető)",
         "Szó fordítása:",
-        "Hozzáadás"
+        "Hozzáadás",
+        "Google Translate megnyitása böngészőben"
     };
     
     public static final String [] NYELVEK_MAGYAR = new String [] {
@@ -212,11 +213,12 @@ public interface Feliratok {
         "Restore sentence",
         "Previous sentence",
         "Next sentence",
-        "Google Translate",
+        "Google Translate here",
         "Cambridge Dictionary (only available for english source language)",
         "Duden (only available for german source language)",
         "Translation of the word:",
-        "Add to the Database"
+        "Add to the Database",
+        "Open Google Translate in your browser"
     };
     
     public static final String [] NYELVEK_ANGOL = new String [] {
@@ -366,11 +368,12 @@ public interface Feliratok {
          "Restaurar la oración de ejemplo original",
          "Oración anterior",
          "Siguiente oración",
-         "Traductor de google",
+         "Abre el Traductor de Google aquí",
          "Diccionario Cambridge (disponible solo en inglés)",
          "Duden (disponible solo en alemán)",
          "Traducir palabra:",
-         "Añadir"
+         "Añadir",
+         "Abra el Traductor de Google en un navegador"
     };
     
     public static final String [] NYELVEK_SPANYOL = new String [] {
@@ -522,11 +525,12 @@ public interface Feliratok {
          "Restaurer la phrase d'exemple d'origine",
          "Phrase précédente",
          "Phrase suivante",
-         "Google Traduction",
+         "Ouvrez Google Traduction ici",
          "Dictionnaire Cambridge (disponible en anglais uniquement)",
          "Duden (disponible en allemand uniquement)",
          "Traduire le mot:",
-         "Ajouter"
+         "Ajouter",
+         "Ouvrez Google Traduction dans votre navigateur"
     };
     
     public static final String [] NYELVEK_FRANCIA = new String [] {
@@ -677,11 +681,12 @@ public interface Feliratok {
          "Ursprünglichen Beispielsatz wiederherstellen",
          "Vorheriger Satz",
          "Nächster Satz",
-         "Google Übersetzer",
+         "Öffnen Sie hier Google Translate",
          "Cambridge Dictionary (nur in Englisch verfügbar)",
          "Duden",
          "Wort übersetzen:",
-         "Hinzufügen"
+         "Hinzufügen",
+         "Öffnen Sie Google Translate in Ihrem Browser"
     };
     
     public static final String [] NYELVEK_NEMET = new String [] {
@@ -831,11 +836,12 @@ public interface Feliratok {
          "Ripristina la frase di esempio originale",
          "Frase precedente",
          "Frase successiva",
-         "Google Traduttore",
+         "Apri Google Traduttore qui",
          "Cambridge Dictionary (disponibile solo in inglese)",
          "Duden (disponibile solo in tedesco)",
          "Traduci parola:",
-         "Inserisci"
+         "Inserisci",
+         "Apri Google Traduttore nel tuo browser"
     };
     
     public static final String [] NYELVEK_OLASZ = new String [] {
@@ -985,11 +991,12 @@ public interface Feliratok {
          "Restaurar frase de exemplo original",
          "Frase anterior",
          "Próxima frase",
-         "Google Tradutor",
+         "Abra o Google Tradutor aqui",
          "Cambridge Dictionary (disponível apenas em inglês)",
          "Duden (disponível apenas em alemão)",
          "Traduzir palavra:",
-         "Adicionar"
+         "Adicionar",
+         "Abra o Google Tradutor em seu navegador"
     };
     
     public static final String [] NYELVEK_PORTUGAL = new String [] {
@@ -1139,11 +1146,12 @@ public interface Feliratok {
          "Herstel originele voorbeeldzin",
          "Vorige zin",
          "Volgende zin",
-         "Google Vertalen",
+         "Open Google Translate hier",
          "Cambridge Dictionary (alleen beschikbaar in het Engels)",
          "Duden (alleen beschikbaar in het Duits)",
          "Vertaal woord:",
-         "Toevoegen"
+         "Toevoegen",
+         "Open Google Translate in uw browser"
     };
     
     public static final String [] NYELVEK_HOLLAND = new String [] {
@@ -1293,11 +1301,12 @@ public interface Feliratok {
          "Przywróć oryginalne zdanie przykładowe",
          "Poprzednie zdanie",
          "Następne zdanie",
-         "tłumacz Google",
+         "Otwórz Tłumacza Google tutaj",
          "Cambridge Dictionary (dostępny tylko w języku angielskim)",
          "Duden (dostępne tylko w języku niemieckim)",
          "Przetłumacz słowo:",
-         "Dodaj"
+         "Dodaj",
+         "Otwórz Tłumacza Google w swojej przeglądarce"
     };
     
     public static final String [] NYELVEK_LENGYEL = new String [] {
@@ -1447,11 +1456,12 @@ public interface Feliratok {
          "Gendan original sætning",
          "Forrige sætning",
          "Næste sætning",
-         "Google Oversæt",
+         "Åbn Google Oversæt her",
          "Cambridge Dictionary (kun tilgængelig på engelsk)",
          "Duden (kun tilgængelig på tysk)",
          "Oversæt ord:",
-         "Tilføje"
+         "Tilføje",
+         "Åbn Google Translate i din browser"
     };
     
     public static final String [] NYELVEK_DAN = new String [] {
@@ -1601,11 +1611,12 @@ public interface Feliratok {
          "Obnovit původní ukázkovou větu",
          "Předchozí věta",
          "Další věta",
-         "Google Překladač",
+         "Otevřete Překladač Google zde",
          "Cambridge Dictionary (k dispozici pouze v angličtině)",
          "Duden (k dispozici pouze v němčině)",
          "Přeložit slovo:",
-         "Přidat"
+         "Přidat",
+         "Otevřete ve svém prohlížeči Překladač Google"
     };
     
     public static final String [] NYELVEK_CSEH = new String [] {
@@ -1755,11 +1766,12 @@ public interface Feliratok {
          "Obnoviť pôvodnú vzorovú vetu",
          "Predchádzajúca veta",
          "Ďalšia veta",
-         "Google Translate",
+         "Tu otvorte Prekladač Google",
          "Cambridge Dictionary (k dispozícii iba v angličtine)",
          "Duden (k dispozícii iba v nemčine)",
          "Preložiť slovo:",
-         "Pridať"
+         "Pridať",
+         "Otvorte vo svojom prehliadači prekladač Google"
     };
     
     public static final String [] NYELVEK_SZLOVAK = new String [] {
@@ -1909,11 +1921,12 @@ public interface Feliratok {
          "Obnovi izvirni primer stavka",
          "Prejšnji stavek",
          "Naslednji stavek",
-         "Google prevajalnik",
+         "Tukaj odprite Google Translate",
          "Cambridge Dictionary (na voljo samo v angleščini)",
          "Duden (na voljo samo v nemščini)",
          "Prevedi besedo:",
-         "Dodaj"
+         "Dodaj",
+         "V brskalniku odprite Google Translate"
     };
     
     public static final String [] NYELVEK_SZLOVEN = new String [] {

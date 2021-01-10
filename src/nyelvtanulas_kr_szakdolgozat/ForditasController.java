@@ -1,5 +1,7 @@
 package nyelvtanulas_kr_szakdolgozat;
 
+import java.awt.Desktop;
+import java.net.URI;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,6 +35,8 @@ public class ForditasController implements Feliratok {
     private Label       lblPeldamondat;
     @FXML
     private Button      btnGoogleTranslate;
+    @FXML
+    private Button      btnGoogleTranslateKivul;
     @FXML
     private Label       lblSzoForditasa;
     @FXML
@@ -116,8 +120,8 @@ public class ForditasController implements Feliratok {
                 
             });
             
-            // A fordítás ablak megnyitásakor automatikusan megnyitja a google translate-et a megfelelő szóval
-            megnyitGoogleTranslate();
+                // A fordítás ablak megnyitásakor automatikusan megnyitja a google translate-et a megfelelő szóval
+                megnyitGoogleTranslate();
         });
         
         // Az ablak feliratainak beállítása a megfelelő nyelven
@@ -134,6 +138,7 @@ public class ForditasController implements Feliratok {
         btnDuden.setText(FoablakController.forditasFelirat[10]);
         lblSzoForditasa.setText(FoablakController.forditasFelirat[11]);
         btnHozzaadas.setText(FoablakController.forditasFelirat[12]);
+        btnGoogleTranslateKivul.setText(FoablakController.forditasFelirat[13]);
     }
 
     /**
@@ -225,6 +230,13 @@ public class ForditasController implements Feliratok {
         engine.load("https://translate.google.com/"
                     + "?hl=" + celNyelvKod + "#view=home&op=translate&sl=" + forrasNyelvKod
                     + "&tl=" + celNyelvKod + "&text=" + szo);
+    }
+    
+    @FXML
+    void megnyitGoogleTranslateKivul() throws Exception {
+        Desktop.getDesktop().browse(new URI("https://translate.google.com/"
+                    + "?hl=" + celNyelvKod + "#view=home&op=translate&sl=" + forrasNyelvKod
+                    + "&tl=" + celNyelvKod + "&text=" + szo));
     }
     
     /**
